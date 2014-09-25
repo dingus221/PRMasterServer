@@ -147,6 +147,7 @@ char DLL_EXPORT *bongciv4(char *codedshid,int desn,int size1){
 strcpy((char *)data, codedshid);
 if (clientc4.gs_peerchat_1!=desn)
 {
+
 gs_peerchat_init(&clientc4,chall,gamekeyCiv4);
 //size=strlen(reinterpret_cast<const char*>(data));
 //u8 filler[]="aaaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeeffffffffffgggggggggghhhhhhhhhhiiiiiiiiiijjjjjjjjjjj";//100 characters of filler
@@ -164,7 +165,8 @@ gs_peerchat_init(&clientc4,chall,gamekeyCiv4);
                       } else
                        gs_peerchat(&clientc4, filler, desn);
                        }
-}
+} else if (desn==0){
+gs_peerchat_init(&clientc4,chall,gamekeyCiv4);}
 recv_tcp_dec(size1,data, 2/*BUFFSZ*/, &clientc4);
 
 //char fag[L2]=;
@@ -203,7 +205,8 @@ if (desn>0)
    } else
  gs_peerchat(&clientc4bts, filler, desn);
  }
-}
+}else if (desn==0){
+gs_peerchat_init(&clientc4bts,chall,gamekeyciv4bts);}
 recv_tcp_dec(size1,data, 2/*BUFFSZ*/, &clientc4bts);
 
 //char fag[L2]=;
