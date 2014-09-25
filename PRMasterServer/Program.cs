@@ -8,6 +8,9 @@ using System.Linq;
 using System.Collections.Generic;
 //using serverlistretrieve;
 
+
+
+
 namespace PRMasterServer
 {
     /// <summary>
@@ -21,9 +24,22 @@ namespace PRMasterServer
     
 	class Program
 	{
+        //public struct supportedgames { string gamename;}
         
+        public static string gameName = null;
+        public static bool isSupported(string gn) 
+        { 
+            //make it into array
+            bool potato=false;
+            string[] gamelist={"civ4","civ4bts"};
+            //LogGreen(gamelist.Count);
+            for (int i = 0; i < gamelist.Length; i++) { LogGreen(gamelist[i]); if (gamelist[i] == gn) potato = true; }
+                //  char *strarray[][] = {"hey", "sup", "dogg"};
+                return potato; 
+        }
 		private static readonly object _lock = new object();
 
+        
 		static void Main(string[] args)
 		{
 			Action<string, string> log = (category, message) => {
@@ -58,7 +74,9 @@ namespace PRMasterServer
             bool runCdKeyServer = true;
             bool runMasterServer = true;
             bool runListServer = true;
-            string gameName = null;
+            
+
+            
             //string supportedgamename = "civ4bts";
                         LogError("dis is gona be good");
                         LogGreen("Use /help command to get server's attention");
@@ -95,6 +113,7 @@ namespace PRMasterServer
                         else
                         {
                             gameName = args[i + 1];
+                            //Program.gameNam1 = gameName;
                         }
                     }
                     else if (args[i].Equals("+servers"))
@@ -170,7 +189,15 @@ namespace PRMasterServer
                         LogError("DIS IS AN ERORR AGAIN NOOB"+ ex.ToString());
                     }
 
-                    };
+                    } else
+                        if (s == "/servers") {
+                            //string v;
+                           // Console.WriteLine(PRMasterServer.Servers["hostname"]);
+                            //ServerListReport.Servers.TryGetValue("hostname", out v);
+                           // LogBlue(v);//"testsaddasads"); 
+                        }//isSupported("hh"); }
+                        
+
 				Thread.Sleep(500);
 			}
 		}
@@ -180,7 +207,7 @@ namespace PRMasterServer
 			Console.WriteLine(String.Format("[{0}] {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture), message));
 		}
 
-		private static void LogError(string message)
+		public static void LogError(string message)
 		{
 			ConsoleColor c = Console.ForegroundColor;
 			Console.ForegroundColor = ConsoleColor.Red;
@@ -188,14 +215,14 @@ namespace PRMasterServer
 			Console.ForegroundColor = c;
 		}
 
-        private static void LogGreen(string message)
+        public static void LogGreen(string message)
         {
             ConsoleColor c = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Error.WriteLine(String.Format("[{0}] {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture), message));
             Console.ForegroundColor = c;
         }
-        private static void LogBlue(string message)
+        public static void LogBlue(string message)
         {
             ConsoleColor c = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Yellow;
