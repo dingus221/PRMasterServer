@@ -1,7 +1,7 @@
 object Form1: TForm1
   Left = 390
   Top = 121
-  Width = 624
+  Width = 622
   Height = 583
   Caption = 'GS adapted IRC Daemon "The Most Moist"'
   Color = clBlack
@@ -20,7 +20,7 @@ object Form1: TForm1
   object Memo1: TMemo
     Left = 0
     Top = 20
-    Width = 608
+    Width = 606
     Height = 493
     Align = alClient
     BorderStyle = bsNone
@@ -98,7 +98,6 @@ object Form1: TForm1
     Caption = 'DECODENEW'
     TabOrder = 6
     Visible = False
-    OnClick = Panel2Click
   end
   object Button11: TButton
     Left = 616
@@ -121,7 +120,7 @@ object Form1: TForm1
   object Panel3: TPanel
     Left = 0
     Top = 513
-    Width = 608
+    Width = 606
     Height = 32
     Align = alBottom
     Color = clLime
@@ -147,7 +146,7 @@ object Form1: TForm1
   object Panel4: TPanel
     Left = 0
     Top = 0
-    Width = 608
+    Width = 606
     Height = 20
     Align = alTop
     Caption = 'MOISTURE PARAMETERS(DONT WORK YET)'
@@ -181,6 +180,65 @@ object Form1: TForm1
       TabOrder = 0
       OnClick = Button1Click
     end
+    object Button2: TButton
+      Left = 152
+      Top = 0
+      Width = 17
+      Height = 17
+      Caption = 'Button2'
+      TabOrder = 1
+      OnClick = Button2Click
+    end
+    object Button5: TButton
+      Left = 168
+      Top = 0
+      Width = 17
+      Height = 17
+      Caption = 'Button5'
+      TabOrder = 2
+      OnClick = Button5Click
+    end
+  end
+  object Memo2: TMemo
+    Left = 568
+    Top = 24
+    Width = 17
+    Height = 17
+    Lines.Strings = (
+      '               GS MASTER SERVER'
+      '                    .---.'
+      '                   (_,/\ \'
+      '                  (`a a(  )'
+      '     (irc)3-------->\O  ) ('
+      '      6667       (.--'#39' '#39'--.)'
+      '                 / (_)^(_) \'
+      '                | / \   / \ |'
+      '                 \\ / . \ //'
+      '                  \/\___/\<------2(ServerBrowser)'
+      '     (Master)------->\1/  |'
+      '      29900        \  /  /'
+      '                    \/  /'
+      '                     ( ('
+      '                     |\ \'
+      '               jgs   | \ \'
+      '                    /_Y/_Y'
+      ''
+      '1. Master Server Main[MS] on port 29900 handles logging'
+      
+        'Somewhere near there is QueryResponse[QR] on 29700, that collect' +
+        's info from hosted games'#39' servers'
+      
+        '2. ServerBrowser[SB](28910) sends responses with serverlist to c' +
+        'lients'
+      
+        '3. Peerchaht [IRC](6667) handles chat (and some stuff like who i' +
+        's ready in a staging game)'
+      
+        '4. WebPort [WB] (80) Game will try to connect but we only need t' +
+        'o make sure it doesn'#39't cause any delays in logging.')
+    TabOrder = 11
+    Visible = False
+    WordWrap = False
   end
   object Daemon: TServerSocket
     Active = False
@@ -192,7 +250,7 @@ object Form1: TForm1
     OnClientDisconnect = DaemonClientDisconnect
     OnClientRead = DaemonClientRead
     OnClientError = DaemonClientError
-    Left = 424
+    Left = 504
     Top = 192
   end
   object CS: TClientSocket
@@ -202,7 +260,7 @@ object Form1: TForm1
     Port = 6000
     OnConnect = CSConnect
     OnRead = CSRead
-    Left = 720
-    Top = 400
+    Left = 520
+    Top = 456
   end
 end
