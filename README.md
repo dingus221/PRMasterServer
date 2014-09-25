@@ -23,7 +23,7 @@ I am working with logs from similar games found on google. If you have any usefu
 
 More detail about irc server
 ============================
-So far I can say that irc server doesnt need to communicate with masterserver. You can install just normal irc and use GS peerchat server emulator 0.1.3b (http://aluigi.altervista.org/papers.htm#peerchat) from luigi. But it seems to be limited to max 2 clients. I made my own irc server and copied all the needed encrypting stuff from Luigi. I will include the irc server here. It is called GSAIRCDTMM. It is written in delphi, but it contains dll(LALCIRCENCDEC) with encrypting functionality in c++ (this unnecesarily complicates things, but who gives a dong, was fastest way to implement).
+So far I can say that irc server doesnt need to communicate with masterserver. You can use any normal irc + GS peerchat server emulator 0.1.3b (http://aluigi.altervista.org/papers.htm#peerchat) from luigi. But it seems to be limited to max 2 clients. U can also use GSAIRCDTMM. It is written in delphi, but it contains dll(LALCIRCENCDEC) with encrypting functionality in c++ (this unnecesarily complicates things, but who gives a dong, was fastest way to implement).
 
 
 
