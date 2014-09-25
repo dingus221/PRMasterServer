@@ -18,7 +18,7 @@ I am no big coder, but using google is everything that has been needed here (all
 WANTED LOGS OF REAL GSSERVER<->CIV4 COMMUNICATIONS
 ==================================================
 Logs of wireshark or other software, would help significantly. Currently i dont know what actually was sent.
-I am working with logs from similar games found on google.
+I am working with logs from similar games found on google. If you have any usefull related logs, please send them to me.
 
 
 More detail about irc server
