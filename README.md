@@ -1,4 +1,4 @@
-<strong>FF.GS.S.fC4 (Fully functional(not yet) gayspy substitute for civ4bts and civ4 (which is based on https://github.com/novice-rb/PRMasterServer))
+<strong>Fully functional(not yet) gayspy substitute for civ4bts and civ4 (which is based on https://github.com/novice-rb/PRMasterServer)
 
 
 <strong>1. Give a man a lobby and he spams shit in it for a life or what is done so far.</strong><br>
