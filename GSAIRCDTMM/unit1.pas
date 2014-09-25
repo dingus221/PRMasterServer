@@ -30,6 +30,9 @@ end;
     Panel4: TPanel;
     Button1: TButton;
     Label1: TLabel;
+    Button2: TButton;
+    Button5: TButton;
+    Memo2: TMemo;
 
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button2Click(Sender: TObject);
@@ -55,7 +58,6 @@ end;
     procedure Button1Click(Sender: TObject);
     procedure DaemonAccept(Sender: TObject; Socket: TCustomWinSocket);
     procedure Panel1Click(Sender: TObject);
-    procedure Panel2Click(Sender: TObject);
     procedure Button11Click(Sender: TObject);
     procedure Button12Click(Sender: TObject);
     procedure DaemonClientError(Sender: TObject; Socket: TCustomWinSocket;
@@ -76,7 +78,7 @@ end;
   procedure IRCDExterminate(index:integer);//add exterminate by other params
   function IRCDFUCKASS(Raddress:string;RPort:integer;socketnumbr:integer):integer;
   procedure IRCDDongers();
-  function IRCDThrowShitOnTheFan(shid:String;DESNUM:integer;cm:integer):string;
+  function IRCDThrowShitOnTheFan(shid:string;DESNUM:integer;cm:integer;game:string):pansichar;
 
   procedure IRCDJohnTheCamel(Channelindex,USERINDEX:integer);
   function  IRCDCretanParty(name,title:string):integer;
@@ -105,9 +107,12 @@ procedure IRCDParadrop({Channelindex,}userindex{,USERINDEXinsidechannel_userlist
   TUSER = class
   RHost,User,RealName,nick,userhost:string;
   Crypton:boolean;
-  gamename,gamekey:string;//for crypting;
+  gamename{,gamekey}:string;//for crypting;
   RPort,{UserListIndex,}DESN_C,DESN_S:integer;
   ChannelsJoined:tlist;
+
+  TitleRoom_b_flag,Game_b_flag:string;
+
   public
   procedure CheckIfOnline();
   end;
@@ -116,6 +121,8 @@ procedure IRCDParadrop({Channelindex,}userindex{,USERINDEXinsidechannel_userlist
   name,title:string;
   userlist:tlist;// of ^TUSER;
   channelindex:integer;
+  modes:string;
+
   //GETCKEY
   //SOME SHIT HERE
   end;
@@ -186,14 +193,17 @@ end;
 
 procedure Tform1.IRCDGenitalDirect(genital:string);
 var
-dosh:string;
+dosh,dosh2,dosh3:string;
 doshint:integer;
+i:integer;
 begin
 //
 write('>'+genital);
 
 if uppercase(copy(genital,1,5))='/HELP' then begin
 memo1.Lines.Add('~'+'/help - to get help;');
+memo1.Lines.Add('~'+'/howgswrks - explanation for nabs;');
+memo1.Lines.Add('~'+'/reset - exterminate all users(and channels);');
 memo1.Lines.Add('~'+'/ping - ping specified user(with index of userlist-1), exmple: "/ping 0";');
 memo1.Lines.Add('~'+'/grep - general userlist and channels report;');
 memo1.Lines.Add('~'+'/clear - clear shit;');
@@ -201,6 +211,53 @@ memo1.Lines.Add('~'+'/byte - turn on/off byte log on encoding');
 memo1.Lines.Add('~'+'/erep - extended report;');
 memo1.Lines.Add('~'+'/serv - check daemon status, /serv on - to turn on, off to turn off');
 memo1.Lines.Add('~'+'/exit - to exit;');
+end else
+if uppercase(copy(genital,1,10))='/HOWGSWRKS' then begin
+for i:=0 to memo2.Lines.Count-1 do begin
+write('~'+memo2.Lines[i]);
+end;
+
+end else
+if uppercase(copy(genital,1,6))='/RESET' then begin
+daemon.Active:=false;
+daemon.Active:=true;
+if userlist.Count>0 then begin
+for i:=0 to userlist.Count-1 do begin
+form1.IRCDExterminate(i);
+end;
+end else write('There is nothing already');
+
+end else
+if uppercase(copy(genital,1,5))='/BATS' then begin
+dosh:=copy(genital,7,length(genital));
+dosh2:='';
+dosh3:='eb9279982226a42afdf2860dbdc29b45';
+dosh3:='f7c0e071db137f5ae65382041c7cef4b';
+for i:=0 to round(length(dosh3)/2) do begin
+//eb9279982226a42afdf2860dbdc29b45
+if i=0 then dosh:=char(235);
+if i=1 then dosh:=char(146);
+if i=2 then dosh:=char(121);
+if i=3 then dosh:=char(152);
+if i=4 then dosh:=char(34);
+if i=5 then dosh:=char(38);
+if i=6 then dosh:=char(164);
+if i=7 then dosh:=char(42);
+if i=8 then dosh:=char(253);
+if i=9 then dosh:=char(242);
+if i=10 then dosh:=char(134);
+if i=11 then dosh:=char(13);
+if i=12 then dosh:=char(189);
+if i=13 then dosh:=char(194);
+if i=14 then dosh:=char($9b);
+if i=15 then dosh:=char($45);
+
+dosh2:=dosh2+'0x'+copy(dosh3,i*2,2)+',';//IRCDThrowShitOnTheFan(dosh,0,1,'civ4bts');
+end;
+write('~result:'+dosh2);
+
+write('~dong:'+dosh2);
+
 end else
 if uppercase(copy(genital,1,5))='/BYTE' then begin
 if uppercase(copy(genital,7,2))='ON' then clothes:=false else
@@ -241,10 +298,15 @@ termite();
 end;
 end;
 
-function TForm1.IRCDThrowShitOnTheFan(shid:String;DESNUM:integer;cm:integer):string;
+function TForm1.IRCDThrowShitOnTheFan(shid:string;DESNUM:integer;cm:integer;game:string):pansichar;
 
 begin
-result:=bongciv4(PAnsichar(shid),DESNUM,cm);
+//memo1.Lines.Add('THROWSHID');
+if game='civ4' then
+result:=bongciv4(PAnsichar(shid),DESNUM,cm) else
+if game='civ4bts' then
+result:=bongciv4bts(PAnsichar(shid),DESNUM,cm)
+else memo1.Lines.Add('game is wat?');
 //
 end;
 
@@ -323,13 +385,13 @@ tmph:=':'+host;
 ':s 004 '+nick+' s 1.0 iq biklmnopqustvhe'       +#13#10;
 }
 result:=//tmph+' NOTICE Auth :Dis is gona be good!'+#13#10;// //
-tmph+' 001 '+nick+' :Welgome to ze  MADRIX '+nick+'!'+user+'@'+ipaddr+'+'+#13#10;//+
+tmph+' 001 '+nick+' :Welgome to ze  MADRIX '+nick+'!'+user+'@'+ipaddr+'+'+#13#10;
 //tmph+' 001 '+nick+' :Your host is '+HOST+', running version 666'+#13#10;//+
 //tmph+' 002 '+nick+' :This server was created 16:51:48 Jul 28 2014'+#13#10+
 //tmph+' 004 '+nick+' '+HOST+' 2.0 iosw biklmnopstv bklov'+#13#10+
-//tmph+' 003 '+nick+' AWAYLEN=200 CASEMAPPING=rfc1459 CHANMODES=+tnp,tnp,b,k,l,imnpst CHARSET=ascii  :are supported by this server'+#13#10;//+
+//+tmph+' 003 '+nick+' AWAYLEN=200 CASEMAPPING=rfc1459 CHANMODES=+tnp,tnp,b,k,l,imnpst CHARSET=ascii  :are supported by this server'+#13#10+
 //tmph+' 375 '+nick+' :'+HOST+'message of the day'+#13#10+                                                      //CHANTYPES=# ELIST=MU FNC KICKLEN=255 MAP MAXBANS=60 MAXCHANNELS=20 MAXPARA=32
-//tmph+' 372 '+nick+' :- GAYSPY2: MATRIX REBOOTED: INCREASED LAGS, CRASHES AND OTHER SHID'+#13#10;//+
+//tmph+' 372 '+nick+' :- GAYSPY2: MATRIX REBOOTED: INCREASED LAGS, CRASHES AND OTHER SHID'+#13#10+
 //tmph+' 376 '+nick+' :End of message of the day.'+#13#10;
 //}
 //'PING :'+inttostr(random(9))+inttostr(random(9))+'S0meJiz'+inttostr(random(9))+'zz'+#13#10;//+
@@ -372,7 +434,7 @@ for nipplesquantity:=1 to length(msg) do begin
 shid1:=msg[nipplesquantity];
 
 SetLength(MrCryptonsJizz, length(MrCryptonsJizz)+1);
-donger332:=bongciv4(pansichar(shid1),TUSER(userlist.Items[cu]).DESN_S,1);
+donger332:=IRCDThrowShitOnTheFan(shid1,TUSER(userlist.Items[CU]).DESN_S,1,TUSER(userlist.Items[CU]).gamename);
 
 
 MrCryptonsJizz[nipplesquantity-1]:=ord(donger332[0]);
@@ -388,7 +450,7 @@ end;
 memo1.Lines.Add(com.Text);
 com.Text:='';
 
-//write('Prev Desn_S='+inttostr(jizzdescription)+';new Desn_S='+inttostr(TUSER(USERLIST.Items[CU]).DESN_S));
+write('Prev Desn_S='+inttostr(jizzdescription)+';new Desn_S='+inttostr(TUSER(USERLIST.Items[CU]).DESN_S));
 //memo1.Lines.Add('PRECRYPTLEN:'+inttostr(length(msg))+'BUFFLEN:'+inttostr(length(MrCryptonsJizz)));
 write({TimeToStr(Now)+}'Really lubricated:'+otherjuice);
 
@@ -449,7 +511,8 @@ args[i]:='';
 //argsnum:=0;
 tmpstr:=fluids;
 tmpstr := StringReplace(tmpstr, sLineBreak, ' ', [rfReplaceAll]);
-argsnum:=CountOccurences(' ',tmpstr);
+argsnum:=CountOccurences(' ',tmpstr)+1;
+//showmessage(inttostr(argsnum));
 
 //showmessage(tmpstr);
 if (argsnum>0)and(argsnum<13) then begin
@@ -475,10 +538,11 @@ ts2:=':s 705 * 0'+'00000000'+'0000000 '+'00000000'+'00000000'+#13#10;
 
 //write('incrypt preparations:'+ts2);
 //1good line
+TUSER(USERLIST.Items[cu]).gamename:=args[3];
 IRCDLubricate(ts2,Rhost,Rport,cu,false);
 //RESPONSE:=ts2;
 TUSER(USERLIST.Items[cu]).Crypton:=true;
-///////TUSER(USERLIST.Items[cu]).gamename:=args[4];
+
 ///////TUSER(USERLIST.Items[cu]).gamekey:=IRCDVagooSniff(args[4]);
 //not yet needed
 MrCrypton:=true;
@@ -503,18 +567,31 @@ IRCDLubricate(ts2,Rhost,Rport,cu,true);
 //Write('crypted ts2____'+ts2);
 
 end else
-if args[0]='USER' then begin
+if (args[0]='LOGIN') then begin
+TUSER(userlist.items[cu]).nick:=args[2];
+write('fluids:'+fluids);
+write('LOGINARG0:'+args[0]+'LOGINARG1:'+args[1]+'LOGINARG2:'+args[2]+'LOGINARG3:'+args[3]);
+//TUSER(userlist.items[cu]).User:='VIPIPADDRESS|'+inttostr(random(10000));
+//TUSER(userlist.items[cu]).RealName:='JustADongus';
+ts2:=':s 707 '+args[2]+' 12345678 87654321'+#13#10;//'CALL AuthClient("'+args[2]{+'-tk2'}+'","'+args[3]+{'","'++}'","qqq@aas.com",10,0)'+#13#10;
+
+IRCDLubricate(ts2,Rhost,Rport,cu,TUSER(userlist.items[cu]).Crypton);
+
+//LOGIN 17 rrrr-tk eb9279982226a42afdf2860dbdc29b45
+end else
+if (args[0]='USER') {or (args[0]='LOGIN')} then begin
 
    //showmessage(tmpstr);
 TUSER(userlist.items[cu]).User:=args[1];
 TUSER(userlist.items[cu]).RealName:=copy(args[4],2,length(args[4]));
-TUSER(userlist.items[cu]).nick:=args[6];
-Write('USER REQ RECIEVED.');
+if (args[6]<>'*') and (args[6]<>'') then
+TUSER(userlist.items[cu]).nick:=args[6] else
+write('Nick *');
+//Write('USER REQ RECIEVED.');
 //send welcome to server
 
 //IRCDLubricate(IRCDGeneratePubicHair(TUSER(userlist.items[cu]).User,TUSER(userlist.items[cu]).nick,TUSER(userlist.items[cu]).RHost),Rhost,Rport);
-ts2:=IRCDGeneratePubicHair1(TUSER(userlist.items[cu]).User,TUSER(userlist.items[cu]).nick,Rhost);
-IRCDLubricate(ts2,Rhost,Rport,cu,TUSER(userlist.items[cu]).Crypton);
+
 //ts2:=IRCDGeneratePubicHair2(TUSER(userlist.items[cu]).User,TUSER(userlist.items[cu]).nick,Rhost);
 //IRCDLubricate(ts2,Rhost,Rport,cu,TUSER(userlist.items[cu]).Crypton);
 {nick:=TUSER(userlist.items[cu]).nick;
@@ -544,8 +621,14 @@ end else
 
 //NICK
 if args[0]='NICK' then begin
-TUSER(userlist.items[cu]).nick:=args[1];
-write('NICK preparations (giving no response).'{+fluids});
+if args[1]<>'*' then
+TUSER(userlist.items[cu]).nick:=args[1] else
+write('Nick *');
+write(TUSER(userlist.items[cu]).nick);
+ts2:=IRCDGeneratePubicHair1(TUSER(userlist.items[cu]).User,TUSER(userlist.items[cu]).nick,Rhost);
+IRCDLubricate(ts2,Rhost,Rport,cu,TUSER(userlist.items[cu]).Crypton);
+
+//write('NICK preparations (giving no response).'{+fluids});
 
 end else
 
@@ -690,8 +773,11 @@ ci:=-1;
   end;
 
  //generate PRIVMSG
- tmpstr3:=':'+TUSER(userlist.items[cu]).nick+'!~'+TUSER(userlist.items[cu]).user+'@'+HOST+' PRIVMSG '+tmpstr{TChannel(channels.Items[ci]).name}+' '+args[2]+#13#10;
-
+ //if args[1]='#GSP!civ4bts' then write('CIV4BTS');
+/// if args[1]<>'#GSP!civ4bts' then
+ tmpstr3:=':'+TUSER(userlist.items[cu]).nick+'!~'+TUSER(userlist.items[cu]).user+'@'+HOST+' PRIVMSG '+tmpstr{TChannel(channels.Items[ci]).name}+' '+args[2]+#13#10
+ ; // else
+// tmpstr3:=':'+copy(TUSER(userlist.items[cu]).nick,1,length(TUSER(userlist.items[cu]).nick))+'!~'+TUSER(userlist.items[cu]).user+'@'+HOST+' PRIVMSG '+tmpstr{TChannel(channels.Items[ci]).name}+' '+args[2]+#13#10;
  //send to all on the channel but the sender
    if (ci>-1) and (TChannel(channels.Items[ci]).userlist.Count>0) then begin
 
@@ -720,12 +806,13 @@ ts2:=':'+HOST+' 324 '+TUSER(userlist.Items[cu]).nick+ ' '+args[1]+' +tnp'+#13#10
 //+':'+HOST+' 329 '+TUSER(userlist.Items[cu]).nick+ ' '+args[1]+' 1410880935'+#13#10
 ;
 IRCDLubricate(ts2,Rhost,Rport,cu,TUSER(userlist.items[cu]).Crypton);
+{//GETCKEY part of response
 ts2:=':'+HOST+' 702 '+TUSER(userlist.Items[cu]).nick+' '+args[1]+' '+TUSER(userlist.Items[cu]).nick+' 000 :\'+TUSER(userlist.Items[cu]).user+'\'+#13#10+
 ':'+HOST+' 702 '+TUSER(userlist.Items[cu]).nick+' '+args[1]+' RightTit 000 :\XDaupalslX|155978172\'+#13#10+
 ':'+HOST+' 703 '+TUSER(userlist.Items[cu]).nick+' '+args[1]+' 000 :End of GETCKEY'+#13#10;
 
 IRCDLubricate(ts2,Rhost,Rport,cu,TUSER(userlist.items[cu]).Crypton);
-
+}
 //ts2:=':'+HOST+' 001 '+TUSER(userlist.Items[cu]).nick+' :UNSTUCKING '+TUSER(userlist.Items[cu]).nick+'!'+TUSER(userlist.Items[cu]).user+'@'+TUSER(userlist.Items[cu]).RHost+'+'+#13#10;
 //IRCDLubricate(ts2,Rhost,Rport,cu,TUSER(userlist.items[cu]).Crypton);
 {>>>GETCKEY #GSP!civ4 * 000 0 :\username\b_flags
@@ -733,9 +820,14 @@ IRCDLubricate(ts2,Rhost,Rport,cu,TUSER(userlist.items[cu]).Crypton);
 :s 702 Sidonuke #GPG!2266 LeftTit 000 :\XlG1W4OFpX|153849803\
 :s 702 Sidonuke #GPG!2266 RightTit 000 :\XDaupalslX|155978172\
 :s 703 Sidonuke #GPG!2266 000 :End of GETCKEY  }
-
-
 //write('MODE REQUEST LEL'{+fluids});
+end else
+//getckey
+if args[0]='GETCKEY' then begin
+
+end else
+if args[0]='SETCKEY' then begin
+             
 end;
 
 //
@@ -973,7 +1065,10 @@ end;
 
 procedure TForm1.Button2Click(Sender: TObject);
 begin
-Termite();
+
+//LOGIN 17 rrrr-tk eb9279982226a42afdf2860dbdc29b45
+//cs.Active:=true;
+
 end;
 
 procedure TForm1.DaemonClientConnect(Sender: TObject;
@@ -1032,6 +1127,7 @@ procedure TForm1.DaemonClientRead(Sender: TObject;
   shid2:pansichar;
   donger332:PAnsiChar;
   cu:integer;
+  a13:bool;
 begin
   Size := Socket.ReceiveLength;
   Socket.ReceiveBuf(Bytes[0], Size);
@@ -1047,17 +1143,26 @@ for i:=0 to userlist.Count-1 do begin
      end;
 end;
 //can be -1;
-
+memo1.Lines.Add('OldDesnC'+inttostr(TUSER(userlist.Items[cu]).DESN_C));
+a13:=false;
 for i:=0 to Size-1 do begin
 if clothes=false then
-com.Text:=com.Text+'№'+inttostr(i+1)+'#'+inttostr(Bytes[i]);
+com.Text:=com.Text+',0x'+{inttostr(i+1)+'#'+}(inttohex(Bytes[i],2));
 strr:=strr+char(Bytes[i]);
+
 if (cu>-1) then begin
    if (TUSER(userlist.Items[cu]).Crypton=true) then begin
    shid1:=char(Bytes[i]);
-   donger332:=bongciv4(pansichar(shid1),TUSER(userlist.Items[cu]).DESN_C,1);
+   donger332:=IRCDThrowShitOnTheFan(shid1,TUSER(userlist.Items[cu]).DESN_C,1,TUSER(userlist.Items[cu]).gamename);//bongciv4(pansichar(shid1),TUSER(userlist.Items[cu]).DESN_C,1);
+
    TUSER(userlist.Items[cu]).DESN_C:=TUSER(userlist.Items[cu]).DESN_C+1;
    strr2:=strr2+donger332;
+   if copy(strr2,length(strr2)-1,2)=#13#10 then begin
+   //memo1.Lines.Add('!!!!!DONGERs!!!!!'+copy(strr2,1,length(strr2)-2)+'!!!!DONGERs!');
+   IRCDExplosions(copy(strr2,1,length(strr2){-2}),socket.remoteaddress,socket.remoteport);
+   //memo1.Lines.Add('!!!!!DONGERs!!!!!'+copy(strr2,1,length(strr2)-2)+'!!!!DONGERs!');
+   strr2:='';
+   end;
    dun:=true;
    end;
 end;
@@ -1065,9 +1170,13 @@ end;
 tmp1:=tmp1+1;
 end;
 memo1.Lines.add('Recieved(till \0):'+strr);
-if dun=true then
-strr:=strr2;
+if dun=false then
+IRCDExplosions(strr,socket.remoteaddress,socket.remoteport);
+//strr:=strr2;
 dun:=false;
+
+memo1.Lines.Add('NEWDesnC'+inttostr(TUSER(userlist.Items[cu]).DESN_C));
+
 
 if clothes=false then
 memo1.Lines.Add(com.Text);
@@ -1079,13 +1188,9 @@ com.Text:='';
 
 //showmessage(strr);
 
-{memo1.Lines.Add('-----');
-memo1.Lines.Add('-----');
-memo1.Lines.Add(strr2);
-memo1.Lines.Add('-----');
-memo1.Lines.Add('-----');}
+
 //showmessage(strr);
-IRCDExplosions(strr,socket.remoteaddress,socket.remoteport);
+
 
 //memo1.lines.add(inttostr(socket.ReceiveLength));
 //dong:=socket.ReceiveText;
@@ -1112,8 +1217,12 @@ end;
 
 procedure TForm1.Button5Click(Sender: TObject);
 begin
-//daemon.Socket.Connections[0].SendText(com.Text+#13#10);
+//cs.Socket.SendText('LOGIN 17 rrrr-tk eb9279982226a42afdf2860dbdc29b45'+#13+#10);
 
+
+
+
+//daemon.Socket.Connections[0].SendText(com.Text+#13#10);
 //daemon.Socket.SendText(com.Text+#13#10);
 end;
 
@@ -1165,7 +1274,7 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 begin
 MrCrypton:=false;
-clothes:=true;
+clothes:=false;
 IRCDGetMoist();
 
 end;
@@ -1206,7 +1315,7 @@ begin
 
 //str:=chr($83)+chr($64)+chr($bc)+chr($61)+chr($df)+chr($4c)+chr($99);
 //str:=chr($6c)+chr($b4)+chr($8f)+chr($6f)+chr($a8)+chr($d3)+chr($f9)+chr($bf)+chr($1e)+chr($8d)+chr($8a)+chr($4b)+chr($20)+chr($b4)+chr($8c)+chr($ec)+chr($ab);
- //edit1.Text:=IRCDThrowShitOnTheFan(str);
+
  str:=edit1.Text;
 
 str:=chr($aa)+chr($03)+chr($0a)+chr($e5)+chr($68)+chr($61)+chr($a6)+chr($66)+chr($81)+chr($48)+chr($a8)+chr($83)+chr($d4)+chr($29)+chr($52)+chr($68)+chr($31)+chr($19)+chr($ea)+chr($af)+chr($6f)+chr($83)+chr($bf)+chr($f1)+chr($13)+chr($1b)+chr($a6)+chr($85)+chr($d1)+chr($ff)+chr($d6)+chr($4c)+chr($fb)+chr($47)+chr($98)+chr($86)+chr($58)+chr($29)+chr($a7)+chr($dd)+chr($af)+chr($f5)+chr($e6)+chr($09)+chr($0a)+chr($98)+chr($e6)+chr($d0)+chr($a7)+chr($b2)+chr($b4)+chr($7a)+chr($77)+chr($5e)+chr($a1)+chr($bf)+chr($49)+chr($98)+chr($eb)+chr($32)+chr($fd)+chr($c5)+chr($40)+chr($8e)+chr($50)+chr($41)+chr($4f)+chr($31)+chr($5e)+chr($29)+chr($ad)+chr($02)+chr($67)+chr($cd)+chr($2e)+chr($30)+chr($45)+chr($92)+chr($cc)+chr($c9)+chr($9f)+chr($37)+chr($aa)+chr($30)+chr($9a)+chr($1b)+chr($75)+chr($98)+chr($16)+chr($27)+chr($b9)+chr($5c)+chr($71)+chr($d2)+chr($9b)+chr($dc)+chr($8b)+chr($11)+chr($90)+chr($1a)+chr($73)+chr($94)+chr($58)+chr($eb)+chr($69)+chr($3a)+chr($1d);
@@ -1214,49 +1323,6 @@ str:=chr($aa)+chr($03)+chr($0a)+chr($e5)+chr($68)+chr($61)+chr($a6)+chr($66)+chr
 //str:=chr($ec)+chr($44)+chr($ce)+chr($1b)+chr($bf)+chr($73)+chr($b3)+chr($df)+chr($6a)+chr($72)+chr($9c)+chr($08)+chr($09)+chr($b9)+chr($62)+chr($dc)+chr($19)+chr($c0)+chr($c5)+chr($e8)+chr($1a);
 // str:=chr($33)+chr($34);
  showmessage(str);
-end;
-
-procedure TForm1.Panel2Click(Sender: TObject);
-var
-bb:string;
-vvv:pansichar;
-zzz:pointer;
-i,i1,ll:integer;
-tsy:string;
-tsy2:UTF8String;
-begin
-//for i:=60000 to 67000 do begin
-tsy:='мъ3t‰‚»ЩЁЏg(DkН…эEбЂ†t™DhiC@’µ0“z5…Ї@ПЕШQ';i1:=130;
-tsy2:='мъ3t‰‚»ЩЁЏg(DkН…эEбЂ†t™DhiC@’µ0“z5…Ї@ПЕШQ';
-tsy:='ѓdјaЯL™'; i1:=0;
-tsy2:='ѓdјaЯL™';
-
-ll:=length(tsy);
-//showmessage(inttostr(ll));
-ll:=length(tsy2);
-//showmessage(inttostr(ll));
-tsy:=IRCDThrowShitOnTheFan(tsy,i1,length(tsy));
-tsy2:=IRCDThrowShitOnTheFan(tsy2,i1,length(tsy2));
-{memo1.lines.add('('+copy(tsy,15,1)+')');
-memo1.lines.add('('+copy(tsy,16,1)+')');    }
-memo1.lines.add('('+tsy+')');
-memo1.lines.add('('+tsy2+')');
-
-
-
-
-
-
-{ll:=length(tsy);
-for i:=1 to ll do
-memo1.lines.add('('+tsy[i]+')');
-showmessage(inttostr(ll));
-ll:=length(tsy2);
-for i:=1 to ll do
-memo1.lines.add('('+tsy2[i]+')');
-showmessage(inttostr(ll));   }
-//end;
-
 end;
 
 procedure TForm1.Button11Click(Sender: TObject);
