@@ -36,7 +36,7 @@ namespace PRMasterServer.Servers
 		private byte[] _socketReceivedBuffer;
 
 		// 09 then 4 00's then battlefield2
-        private string _gameName = "civ4";//changed from battlefield2
+        private string _gameName = Program.gameName;//"civ4";//changed from battlefield2
 		private byte[] _initialMessage;
 
 
@@ -212,9 +212,10 @@ namespace PRMasterServer.Servers
 
 		private void OnDataReceived(object sender, SocketAsyncEventArgs e)
 		{
-            LogError("[u a fag]DATA RECIEVED", "BY sERVER lIST rEPORT.cs");
+            LogError("Data received at", "serverlistreport.cs");
 			try {
 				IPEndPoint remote = (IPEndPoint)e.RemoteEndPoint;
+                
 
 				byte[] receivedBytes = new byte[e.BytesTransferred];
 				Array.Copy(e.Buffer, e.Offset, receivedBytes, 0, e.BytesTransferred);
@@ -265,7 +266,7 @@ Console.Write(receivedBytes[i]+",");
                     if (receivedBytes.Length > 5 && receivedBytes[0] == 0x03)
                     {
                         // this is where server details come in, it starts with 0x03, it happens every 60 seconds or so
-                        Console.WriteLine("WHERE SERVER DETAILS COME IN???");
+                        Console.WriteLine("^^^^===================0x03==================^^^^");
                         byte[] uniqueId = new byte[4];
                         Array.Copy(receivedBytes, 1, uniqueId, 0, 4);
 
@@ -274,16 +275,23 @@ Console.Write(receivedBytes[i]+",");
                             // this should be some sort of proper encrypted challenge, but for now i'm just going to hard code it because I don't know how the encryption works...
                             byte[] response = new byte[] { 0xfe, 0xfd, 0x01, uniqueId[0], uniqueId[1], uniqueId[2], uniqueId[3], 0x44, 0x3d, 0x73, 0x7e, 0x6a, 0x59, 0x30, 0x30, 0x37, 0x43, 0x39, 0x35, 0x41, 0x42, 0x42, 0x35, 0x37, 0x34, 0x43, 0x43, 0x00 };
                             _socket.SendTo(response, remote);
-                            Console.WriteLine("[response]PARSINGSERVERDEATILES" + System.Text.Encoding.ASCII.GetString(response));
+                            Console.WriteLine("response to 0x03: ");
+                            for (int i = 0; i < response.Length-1; i++)
+                            {
+                                Console.Write(response[i] + ",");
+                            }
+                            Console.WriteLine(" ");
+                            Console.WriteLine("response to 0x03 in str: "+System.Text.Encoding.ASCII.GetString(response));
+                            //System.Text.Encoding.ASCII.GetString(response));
                         }
                     }
                     else if (receivedBytes.Length > 5 && receivedBytes[0] == 0x01)
                     {
                         // this is a challenge response, it starts with 0x01
-                        Console.WriteLine("CHALLENGE RESPONSE");
+                        Console.WriteLine("^^^^^=======(0x01)CHALLENGE RESPONSE===^^^^^^^");
                         byte[] uniqueId = new byte[4];
                         Array.Copy(receivedBytes, 1, uniqueId, 0, 4);
-
+                        
                         // confirm against the hardcoded challenge
                         byte[] validate = new byte[] { 0x72, 0x62, 0x75, 0x67, 0x4a, 0x34, 0x34, 0x64, 0x34, 0x7a, 0x2b, 0x66, 0x61, 0x78, 0x30, 0x2f, 0x74, 0x74, 0x56, 0x56, 0x46, 0x64, 0x47, 0x62, 0x4d, 0x7a, 0x38, 0x41, 0x00 };
                         byte[] clientResponse = new byte[validate.Length];
@@ -296,8 +304,17 @@ Console.Write(receivedBytes[i]+",");
                             _socket.SendTo(response, remote);
 
                             AddValidServer(remote);
+
+                            Console.WriteLine("0x01 response: ");
+                            // + System.Text.Encoding.ASCII.GetString(clientResponse));
+                            for (int i = 0; i < response.Length - 1; i++)
+                            {
+                                Console.Write(response[i] + ",");
+                            }
+                            Console.WriteLine(" ");
+
                         }
-                        Console.WriteLine("[response]" + System.Text.Encoding.ASCII.GetString(clientResponse));
+
                     }
                     else if (receivedBytes.Length == 5 && receivedBytes[0] == 0x08)
                     {
@@ -427,7 +444,8 @@ Console.Write(receivedBytes[i]+",");
 				}
 			}
             //LogError("doing", "server coming to be valid");
-			if (String.IsNullOrWhiteSpace(server.gamename) || !server.gamename.Equals("civ4"/*changed from battlefield2*/, StringComparison.InvariantCultureIgnoreCase)) {
+            if (String.IsNullOrWhiteSpace(server.gamename) || !server.gamename.Equals(Program.gameName/*"civ4"/*changed from battlefield2*/, StringComparison.InvariantCultureIgnoreCase))
+            {
 				// only allow servers with a gamename of battlefield2
 				return true; // true means we don't send back a response
 			}/* else if (String.IsNullOrWhiteSpace(server.gamevariant) || !ModWhitelist.ToList().Any(x => SQLMethods.EvaluateIsLike(server.gamevariant, x))) {
@@ -441,10 +459,11 @@ Console.Write(receivedBytes[i]+",");
 				//!String.IsNullOrWhiteSpace(server.gamevariant) &&
 				//!String.IsNullOrWhiteSpace(server.gamever) &&
 				//!String.IsNullOrWhiteSpace(server.gametype) &&
-				!String.IsNullOrWhiteSpace(server.mapname) &&
+				//!String.IsNullOrWhiteSpace(server.mapname) &&
 				server.hostport > 1024 && server.hostport <= UInt16.MaxValue &&
 				server.maxplayers > 0) {
 				server.Valid = true;
+                server.groupid = "1";
                 LogError("doing", "server valid");
                 
 			}
