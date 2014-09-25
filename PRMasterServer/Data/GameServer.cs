@@ -39,7 +39,7 @@ namespace PRMasterServer.Data
 		[NonFilter]
 		public int statechanged { get; set; }
 
-    //    public bool groupid{ get; set; }
+        public string groupid{ get; set; }
    //     public int ugroupid { get; set; }
 		public string country { get; set; }
 		public string hostname { get; set; }
