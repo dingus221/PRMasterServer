@@ -212,7 +212,7 @@ namespace PRMasterServer.Servers
 		private void OnDataReceived(IAsyncResult async)
 		{
 			SocketState state = (SocketState)async.AsyncState;
-
+            
 			if (state == null || state.Socket == null || !state.Socket.Connected)
 				return;
 
@@ -237,7 +237,7 @@ namespace PRMasterServer.Servers
                     //LogError(messages[1], messages[2]);
                     //LogError(messages[3], messages[4]);
 					for (int i = 0; i < messages.Length; i++) {
-						if (messages[i].StartsWith("civ4"/*battlefield2*/)) {
+						if (messages[i].StartsWith(Program.gameName/*"civ4"/*battlefield2*/)) {
 							if (ParseRequest(state, messages[i]))
 								return;
 						}
@@ -332,9 +332,9 @@ namespace PRMasterServer.Servers
             LogError("[SLR_PARSEREQUEST]", message);
 			string[] data = message.Split(new char[] { '\x00' }, StringSplitOptions.RemoveEmptyEntries);
 			if (data.Length != 4 ||
-                !data[0].Equals("civ4"/*battlefield2*/, StringComparison.InvariantCultureIgnoreCase) ||
+                !data[0].Equals(Program.gameName/*"civ4"/*battlefield2*/, StringComparison.InvariantCultureIgnoreCase) ||
 				(
-                    !data[1].Equals("civ4"/*battlefield2*/, StringComparison.InvariantCultureIgnoreCase) &&
+                    !data[1].Equals(Program.gameName/*"civ4"/*battlefield2*/, StringComparison.InvariantCultureIgnoreCase) &&
 					!data[1].Equals("gslive", StringComparison.InvariantCultureIgnoreCase)
 				)
 			) {
@@ -363,7 +363,8 @@ namespace PRMasterServer.Servers
 
 			// http://aluigi.altervista.org/papers/gslist.cfg
 			byte[] key;
-            if (gamename == "civ4")/*battlefield2*/
+            if (gamename == Program.gameName)/*"civ4")/*battlefield2*/
+                
                 key = DataFunctions.StringToBytes("y3D9Hw"/*"Cs2iIq"/*hW6m9a*/);
 			else if (gamename == "arma2oapc")
 				key = DataFunctions.StringToBytes("sGKWik");
