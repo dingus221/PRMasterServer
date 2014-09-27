@@ -81,11 +81,13 @@ end;
   function IRCDThrowShitOnTheFan(shid:string;DESNUM:integer;cm:integer;game:string):pansichar;
 
   procedure IRCDJohnTheCamel(Channelindex,USERINDEX:integer);
+  function IRCDCamelIdentify(cname:string):integer;
   function  IRCDCretanParty(name,title:string):integer;
   procedure IRCDAbandonTheChannel(index:integer);
 procedure IRCDParadrop({Channelindex,}userindex{,USERINDEXinsidechannel_userlist}:integer;channelname:string);
   procedure IRCDLubricate(msg:string;raddr:string;rip:integer;CU:integer;crypton:bool);
 
+  procedure IRCDSETMODES(ci:integer;fluids:string);
   procedure IRCDTittieBong();
   procedure IRCDPenetrate(Rhost:string;Rport:integer);
 
@@ -118,9 +120,9 @@ procedure IRCDParadrop({Channelindex,}userindex{,USERINDEXinsidechannel_userlist
   end;
 
   TChannel = class
-  name,title:string;
+  name,topic:string;
   userlist:tlist;// of ^TUSER;
-  channelindex:integer;
+  //channelindex:integer;
   modes:string;
 
   //GETCKEY
@@ -130,6 +132,9 @@ procedure IRCDParadrop({Channelindex,}userindex{,USERINDEXinsidechannel_userlist
 
   const HOST='MOSTMOIST.lul';//'GSAIRCD.THE.MOST.MOIST.com';
   const THEIP='192.168.0.1';
+  const cvi4titleroom='#GSP!civ4';
+  const cvi4btstitleroom='#GSP!civ4';
+
 var
   Form1: TForm1;
   //dong:tlist;
@@ -155,6 +160,111 @@ implementation
 
 {$R *.dfm}
 
+procedure Tform1.IRCDSETMODES(ci:integer;fluids:string);
+var
+modes:array [0..8] of bool;
+modesS:array [0..8] of string;
+mnum:integer;
+i,tmp1:integer;
+channelspart:string;
+modifier:bool;//true +, false -
+ts:string;
+begin
+modesS[0]:='t';
+modesS[1]:='p';
+modesS[2]:='n';
+modesS[3]:='i';
+modesS[4]:='s';
+modesS[5]:='m';
+modesS[6]:='l';
+modesS[7]:='e';
+modesS[7]:='k';
+
+
+//strip off MODE #CHAN
+tmp1:=pos(' ',fluids);
+channelspart:=copy(fluids,tmp1+1,length(fluids));
+tmp1:=pos(' ',channelspart);
+
+channelspart:=copy(channelspart,tmp1+1,length(channelspart));
+channelspart:=copy(channelspart,1,length(channelspart)-2);
+//parsing
+//check each symbol 1 by one
+//there might be +/-
+//and letter of mode
+//then if SPACE then next text is number
+
+//TEMPMODES RESET
+for i:=0 to 8 do
+modes[i]:=false;
+mnum:=-1;
+//TM SET TO CURRENT
+for i:=1 to length(channelspart) do begin
+ts:=copy(Tchannel(channels.Items[ci]).modes,i,1);
+if ts='t' then modes[0]:=true;
+if ts='p' then modes[1]:=true;
+if ts='n' then modes[2]:=true;
+if ts='i' then modes[3]:=true;
+if ts='s' then modes[4]:=true;
+if ts='m' then modes[5]:=true;
+if ts='l' then modes[6]:=true;
+if ts='e' then modes[7]:=true;
+if ts='k' then modes[8]:=true;
+if ts=' ' then begin
+mnum:=strtoint(copy(Tchannel(channels.Items[ci]).modes,i+1,2));
+break;
+end;
+end;
+
+//TM SET TO NEW
+modifier:=true;
+for i:=1 to length(channelspart) do begin
+ts:=copy(channelspart,i,1);
+if ts='+' then modifier:=true else
+if ts='-' then modifier:=false else
+if ts='t' then modes[0]:=modifier else
+if ts='p' then modes[1]:=modifier else
+if ts='n' then modes[2]:=modifier else
+if ts='i' then modes[3]:=modifier else
+if ts='s' then modes[4]:=modifier else
+if ts='m' then modes[5]:=modifier else
+if ts='l' then modes[6]:=modifier else
+if ts='e' then modes[7]:=modifier else
+if ts='k' then modes[8]:=modifier else
+   if ts=' ' then begin
+   mnum:=strtoint(copy(channelspart,i+1,2));
+   break;
+   end;
+
+end;
+
+//MODES SET TO NEW
+Tchannel(channels.Items[ci]).modes:='+';
+for i:=0 to 8 do begin
+if modes[i]=true then
+Tchannel(channels.Items[ci]).modes:=Tchannel(channels.Items[ci]).modes+modesS[i];
+end;
+if mnum>0 then
+Tchannel(channels.Items[ci]).modes:=Tchannel(channels.Items[ci]).modes+' '+inttostr(mnum);
+
+end;
+
+function Tform1.IRCDCamelIdentify(cname:string):integer;
+var
+ci,i:integer;
+begin
+ci:=-1;
+  for i:=0 to channels.Count-1 do begin
+    if TChannel(channels.Items[i]).name=cname then begin
+    ci:=i;
+    break;
+    end;
+  end;
+result:=ci;
+//
+end;
+
+
 function Tform1.IRCDVagooSniff(lulz:string):string;
 var
 i:integer;
@@ -176,6 +286,7 @@ Write('USERS:'+inttostr(USERLIST.count));
 if  userlist.Count<>0 then
   for i:=0 to userlist.Count-1 do begin
   Write(inttostr(i)+'. '+TUSER(USERLIST.Items[i]).User+'; rn:'+TUSER(USERLIST.Items[i]).RealName+'; nick:'+TUSER(USERLIST.Items[i]).Nick);
+  Write('TRBF:'+TUSER(USERLIST.Items[i]).TitleRoom_b_flag+';GRBF:'+TUSER(USERLIST.Items[i]).Game_b_flag);
 //  Write('  '+TUSER(USERLIST.Items[i]).RealName);
 //  Write('  '+TUSER(USERLIST.Items[i]).Nick);
 //  Write('  '+inttostr(TUSER(USERLIST.Items[i]).DESN_C));
@@ -186,9 +297,9 @@ Write('Channels:'+inttostr(channels.count));
 if  channels.Count<>0 then
 //showmessage(inttostr(channels.Count));
   for i:=0 to channels.Count-1 do begin
-  Write(TChannel(channels.Items[i]).name);
+  Write(TChannel(channels.Items[i]).name+' '+TChannel(channels.Items[i]).modes+' topic:'+TChannel(channels.Items[i]).topic);
   end;
-  
+
 end;
 
 procedure Tform1.IRCDGenitalDirect(genital:string);
@@ -219,12 +330,17 @@ end;
 
 end else
 if uppercase(copy(genital,1,6))='/RESET' then begin
-daemon.Active:=false;
-daemon.Active:=true;
+
 if userlist.Count>0 then begin
 for i:=0 to userlist.Count-1 do begin
 form1.IRCDExterminate(i);
 end;
+if  daemon.Socket.ActiveConnections>0 then
+for i:=0 to daemon.Socket.ActiveConnections-1 do begin
+daemon.Socket.Disconnect(i);
+end;
+daemon.Active:=false;
+daemon.Active:=true;
 end else write('There is nothing already');
 
 end else
@@ -338,7 +454,7 @@ begin
 //:my.server.name 366 DONGERH #fage :End of /NAMES list.
 //
 rstr:=//':s 332 '+TUSER(USERLIST.Items[userindex]).nick+' '+TChannel(Channels.Items[Channelindex]).name+' :Click on the "Game Info" button at the top of your screen for the latest information on patches, add-on files, interviews, strategy guides and more!  It`s all there!'+#13#10+
-':s 333 '+TUSER(USERLIST.Items[userindex]).nick+' '+TChannel(Channels.Items[Channelindex]).name+' SERVER 1360960046'+#13#10+
+':s 333 '+TUSER(USERLIST.Items[userindex]).nick+' '+TChannel(Channels.Items[Channelindex]).name+' SERVER 1225379572'+#13#10+
 ':s 353 '+TUSER(USERLIST.Items[userindex]).nick+' * '+TChannel(Channels.Items[Channelindex]).name+' :';
 
 
@@ -440,7 +556,7 @@ donger332:=IRCDThrowShitOnTheFan(shid1,TUSER(userlist.Items[CU]).DESN_S,1,TUSER(
 MrCryptonsJizz[nipplesquantity-1]:=ord(donger332[0]);
 otherjuice:=otherjuice+donger332[0];
 if clothes=false then
-com.Text:=com.Text+'№'+inttostr(nipplesquantity)+'#'+inttostr(MrCryptonsJizz[nipplesquantity-1])+',';
+com.Text:=com.Text+'¹'+inttostr(nipplesquantity)+'#'+inttostr(MrCryptonsJizz[nipplesquantity-1])+',';
 //MrCryptonsJizz:=MrCryptonsJizz+donger332;
 
 TUSER(userlist.Items[CU]).DESN_S:=TUSER(userlist.Items[CU]).DESN_S+1;
@@ -467,9 +583,10 @@ procedure TForm1.IRCDExplosions(fluids:string;Rhost:string;Rport:integer);
 //Parse and execute
 var
 i,i2,cu,argsnum,ci,temp,tmpsoc,cryptontmp:integer;
-tmpstr,ts2,tmpstr3,ts4:string;
+tmpstr,ts2,ts3,tmpstr3,ts4:string;
 args:array [0..12] of string;
 nick:string;
+tmpbool:bool;
 //RESPONSE:string;
 //MRCRYPTON:bool;
 begin
@@ -510,16 +627,20 @@ args[i]:='';
 //parse on args
 //argsnum:=0;
 tmpstr:=fluids;
+write('B1'+tmpstr);
 tmpstr := StringReplace(tmpstr, sLineBreak, ' ', [rfReplaceAll]);
+write('B2'+tmpstr);
 argsnum:=CountOccurences(' ',tmpstr)+1;
 //showmessage(inttostr(argsnum));
+//write('CHECKPOINT X-1:'+fluids+'::::'+args[0]+'::::'+inttostr(argsnum));
 
 //showmessage(tmpstr);
-if (argsnum>0)and(argsnum<13) then begin
+if (argsnum>0) then begin
+
   for i:=0 to argsnum-1 do begin
-      if (i=2) and (UpperCase(args[0])='PRIVMSG') then
-      begin
+      if (i=2) and (UpperCase(args[0])='PRIVMSG') then begin
       args[2]:=tmpstr;
+      //write('CHECKPOINT X:'+fluids+'::::'+args[2]);
       break;
       end;
   args[i]:=copy(tmpstr,1,pos(' ',tmpstr)-1);
@@ -529,6 +650,9 @@ if (argsnum>0)and(argsnum<13) then begin
 
   end;
 end;
+//write('CHECKPOINT X+1:'+fluids+'::::'+args[0]+'\\\'+inttostr(pos(' ',fluids)));
+
+
 args[0]:=UpperCase(args[0]);
 
 if args[0]='CRYPT' then begin
@@ -764,6 +888,7 @@ if args[0]='PRIVMSG' then begin
 tmpstr:=args[1];//copy(args[1],2,length(args[1]));  //CHAN NAME
 //ts2:=//copy(args[2],2,length(args[2])); //MESSAGE
 //write('PRIVMSG at the point of args parsing:'+fluids);
+//write('PRIVMSG CHECKPOINT Y:'+args[2]);
 ci:=-1;
   for i2:=0 to channels.Count-1 do begin
     if TChannel(channels.Items[i2]).name=tmpstr then begin
@@ -801,11 +926,28 @@ write('ASSPONGING.'{+fluids});
 end else
 if args[0]='MODE' then begin
 //:my.server.name 329 kloun-tk #GSP!civ4 1410880935
-ts2:=':'+HOST+' 324 '+TUSER(userlist.Items[cu]).nick+ ' '+args[1]+' +tnp'+#13#10
+if copy(args[1],1,1)<>'#' then
+write('!!!!!!!1USER MODE OPERATION, ERROR!!!!!!!!!!')
+else
+if args[2]='' then begin
+write('MODE REQUEST');
+ts2:=':'+HOST+' 324 '+TUSER(userlist.Items[cu]).nick+ ' '+args[1]+' '+Tchannel(Channels.Items[IRCDCamelIdentify(args[1])]).modes +#13#10
+//IRCDLubricate(ts2,Rhost,Rport,cu,TUSER(userlist.items[cu]).Crypton);
 
-//+':'+HOST+' 329 '+TUSER(userlist.Items[cu]).nick+ ' '+args[1]+' 1410880935'+#13#10
-;
+end
+else begin
+//SETTING NEW MODES
+//check out normal irc
+write('MODE UPDATE'+' '+args[2]);
+ts2:=':'+HOST+' 324 '+TUSER(userlist.Items[cu]).nick+ ' '+args[1]+' '+Tchannel(Channels.Items[IRCDCamelIdentify(args[1])]).modes +#13#10;
+
+IRCDSETMODES(IRCDCamelIdentify(args[1]),fluids);
+
+end;
 IRCDLubricate(ts2,Rhost,Rport,cu,TUSER(userlist.items[cu]).Crypton);
+//+':'+HOST+' 329 '+TUSER(userlist.Items[cu]).nick+ ' '+args[1]+' 1410880935'+#13#10
+
+
 {//GETCKEY part of response
 ts2:=':'+HOST+' 702 '+TUSER(userlist.Items[cu]).nick+' '+args[1]+' '+TUSER(userlist.Items[cu]).nick+' 000 :\'+TUSER(userlist.Items[cu]).user+'\'+#13#10+
 ':'+HOST+' 702 '+TUSER(userlist.Items[cu]).nick+' '+args[1]+' RightTit 000 :\XDaupalslX|155978172\'+#13#10+
@@ -822,12 +964,81 @@ IRCDLubricate(ts2,Rhost,Rport,cu,TUSER(userlist.items[cu]).Crypton);
 :s 703 Sidonuke #GPG!2266 000 :End of GETCKEY  }
 //write('MODE REQUEST LEL'{+fluids});
 end else
-//getckey
+if args[0]='TOPIC' then begin
+//TOPIC #GSP!civ4bts!MKhq3h3qhM :admin's Game
+//  0               1               2
+//:s 332 Sidonuke #GPG!2176 :Click on the "Game Info" button a
+ts2:=':s 332 '+TUSER(userlist.items[cu]).nick+args[1]+' '+args[2]+#13#10;
+IRCDLubricate(ts2,Rhost,Rport,cu,TUSER(userlist.items[cu]).Crypton);
+
+end else
+//on getckey - list all users and their requested room flags
 if args[0]='GETCKEY' then begin
+//GETCKEY #GSP!civ4bts * 000 0 :\username\b_flags
+//  0         1        2  3  4        5
+//GETCKEY #GSP!civ4bts!M1Kh1DJzDM * 001 0 :\username\b_flags
+{:s 702 Sidonuke #GPG!2266 Sidonuke 000 :\XlG1W4OFpX|153849803\
+:s 702 Sidonuke #GPG!2266 TonyFerelli 000 :\XDaupalslX|155978172\
+:s 702 Sidonuke #GPG!2266 Dunkelherz 000 :\XlDDfqOfaX|155981948\s
+:s 702 Sidonuke #GPG!2266 chriswar 000 :\XGsqlaGfqX|153361449\s
+:s 702 Sidonuke #GPG!2266 Night-Hawk 000 :\XG9sfl1spX|153159886\
+:s 702 Sidonuke #GPG!2266 RebelWithout 000 :\XfO19GpWOX|154008306\s
+:s 702 Sidonuke #GPG!2266 Trismegistus 000 :\XWWfFfFFlX|155776766\
+:s 702 Sidonuke #GPG!2266 ChatMonitor-gs 000 :\XaaaaaaaaX|25677635\s
+:s 703 Sidonuke #GPG!2266 000 :End of GETCKEY
+}
+//loop through users inside the channel
+ci:=IRCDCamelIdentify(args[1]);
+for i:=0 to Tchannel(channels.items[ci]).userlist.Count-1 do begin
+if (args[1]=cvi4titleroom) or (args[1]=cvi4btstitleroom) then
+ts3:=copy(TUser(Tchannel(channels.items[ci]).userlist.Items[i]).TitleRoom_b_flag,9,length(TUser(Tchannel(channels.items[ci]).userlist.Items[i]).TitleRoom_b_flag)) else
+ts3:=copy(TUser(Tchannel(channels.items[ci]).userlist.Items[i]).Game_b_flag,9,length(TUser(Tchannel(channels.items[ci]).userlist.Items[i]).Game_b_flag));
+ts2:=':s 702 '+TUSER(userlist.items[cu]).nick+args[1]+' '+TUser(Tchannel(channels.items[ci]).userlist.Items[i]).nick+' '+args[3]+' '+':\'+TUser(Tchannel(channels.items[ci]).userlist.Items[i]).User+'\'+ts3+#13#10;
+//IRCDLubricate(ts2,Rhost,Rport,cu,TUSER(userlist.items[cu]).Crypton);
+end;
+ts2:=':s 703 '+TUSER(userlist.items[cu]).nick+args[1]+' '+args[3]+' :End of GETCKEY'+#13#10;
+IRCDLubricate(ts2,Rhost,Rport,cu,TUSER(userlist.items[cu]).Crypton);
+
 
 end else
 if args[0]='SETCKEY' then begin
-             
+//SETCKEY #GPG!2166 Sidonuke :\b_flags\
+// 0         1        2          3
+//change user's own flag,
+ci:=IRCDCamelIdentify(args[1]);
+if (args[1]=cvi4btstitleroom) and (TUser(Userlist.items[cu]).gamename='civ4bts') then begin
+TUser(Userlist.items[cu]).TitleRoom_b_flag:=trim(copy(args[3],2,length(args[3])-1)) end else
+ts2:=':s 702 '+args[1]+' '+args[1]+' '+TUser(Userlist.items[cu]).nick+' BCAST :'+TUser(Userlist.items[cu]).TitleRoom_b_flag+#13#10;
+if (args[1]=cvi4titleroom) and (TUser(Userlist.items[cu]).gamename='civ4') then begin
+TUser(Userlist.items[cu]).TitleRoom_b_flag:=trim(copy(args[3],2,length(args[3])-1));
+ts2:=':s 702 '+args[1]+' '+args[1]+' '+TUser(Userlist.items[cu]).nick+' BCAST :'+TUser(Userlist.items[cu]).TitleRoom_b_flag+#13#10 end else begin
+TUser(Userlist.items[cu]).Game_b_flag:=trim(copy(args[3],2,length(args[3])-1));
+ts2:=':s 702 '+args[1]+' '+args[1]+' '+TUser(Userlist.items[cu]).nick+' BCAST :'+TUser(Userlist.items[cu]).Game_b_flag+#13#10;
+end;
+
+//  const cvi4titleroom='#GSP!civ4';
+//  const cvi4btstitleroom='#GSP!civ4';
+//send BCAST to everyone in the room which the flag was related to
+//:s 702 #GSP!redalert3pcb!MaPJ9aPhaM #GSP!redalert3pcb!MaPJ9aPhaM Sidonuke BCAST :\b_flags\s
+//SETCKEY #GSP!civ4!MzhK3a4l3M PeerPlayer11 :\b_flags\srh
+//SETCKEY #GSP!civ4bts dingus221-tk :\b_flags\s
+// SETCKEY #GSP!civ4bts!M0K3cP4zzM dingus221-tk :\b_flags\sh
+//     0              1                 2             3
+//:s 702 #GSP!worms4!MD3Dhcl1cM #GSP!worms4!MD3Dhcl1cM muzer-think BCAST :\b_flags\s
+ //tmpstr3:=':'+TUSER(userlist.items[cu]).nick+'!~'+TUSER(userlist.items[cu]).user+'@'+HOST+' PRIVMSG '+tmpstr{TChannel(channels.Items[ci]).name}+' '+args[2]+#13#10
+ ; // else
+// tmpstr3:=':'+copy(TUSER(userlist.items[cu]).nick,1,length(TUSER(userlist.items[cu]).nick))+'!~'+TUSER(userlist.items[cu]).user+'@'+HOST+' PRIVMSG '+tmpstr{TChannel(channels.Items[ci]).name}+' '+args[2]+#13#10;
+ //send to all on the channel but the sender
+
+
+ for i:=0 to TChannel(channels.Items[ci]).userlist.Count-1 do begin
+     //if TUSER(TChannel(channels.Items[ci]).userlist.Items[i])<>TUSER(userlist.Items[cu]) then
+ IRCDLubricate(ts2,TUSER(TChannel(channels.Items[ci]).userlist.Items[i]).RHost,TUSER(TChannel(channels.Items[ci]).userlist.Items[i]).RPort,USERLIST.IndexOf(TUSER(TChannel(channels.Items[ci]).userlist.Items[i])),TUSER(TChannel(channels.Items[ci]).userlist.Items[i]).Crypton);//Rhost,Rport);
+ //form1.Caption:=form1.Caption+'S';
+ end;
+
+
+//IRCDLubricate(ts2,Rhost,Rport,cu,TUSER(userlist.items[cu]).Crypton);
 end;
 
 //
@@ -909,8 +1120,9 @@ temp:integer;
 begin
   temp:=CHANNELS.Add(TChannel.NewInstance);
   TChannel(CHANNELS.Items[temp]).name:=name;
-  TChannel(CHANNELS.Items[temp]).title:=title;
-  TChannel(CHANNELS.Items[temp]).channelindex:=temp;
+  TChannel(CHANNELS.Items[temp]).topic:=title;
+  TChannel(CHANNELS.Items[temp]).modes:='+tnp';
+  //TChannel(CHANNELS.Items[temp]).channelindex:=temp;
    TChannel(CHANNELS.Items[temp]).userlist := TList.Create;
    result:=temp;
 //
@@ -1274,7 +1486,7 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 begin
 MrCrypton:=false;
-clothes:=false;
+clothes:=true;
 IRCDGetMoist();
 
 end;
