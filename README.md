@@ -29,9 +29,8 @@ It is roughly 75% done yet.<br>
 
 
 <strong>6. Current problems and directions of investigation:<br></strong>
-1. Serverlist refreshing is still glitchy and buggy<br>
-2. Most of the people cant join games they get errors
-3. Some peopl can though, and i suspect those are the one with somewhat good ip's. For example my second PC in lan. I can join game hosted on it, but still it wont join game hosted on mine. And some players can join 2 max per game, what i saw.
+1. Serverlist refreshing is still buggy, u need to relogin to refresh list for now<br>
+2. Max players per game seem to be 2 for now, but we were able to start a game with 3 people somehow (needs testing)<br>
 3. Might be fixed, needs testing: Host gets error from time to time - "sb not responsive"<br>
 
 <strong>7. How gamespy server works for nabs</strong>
