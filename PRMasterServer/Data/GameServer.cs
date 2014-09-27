@@ -56,7 +56,10 @@ namespace PRMasterServer.Data
         public int maxnumplayers { get; set; }
         public int nummissing { get; set; }
         public bool pitboss { get; set; }
-        
+
+
+        public string publicip { get; set; }
+        public int publicport { get; set; }
         
         public string gametype { get; set; }
 		public string gamevariant { get; set; }
