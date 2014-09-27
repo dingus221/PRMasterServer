@@ -3,10 +3,12 @@
 
 <strong>1. Give a man a lobby and he spams shit in it for a life or what is done so far.</strong><br>
 
-1. Logging in gamespy interface works like a swiss clock.
-2. Chatting works perfectly good (as far as tested) 
-3. Serverbrowsing and shit is currently working lame. Can host game. Others can see the hosted games in the list. But can't join them yet. And refreshing is superglitchy and buggy.
-4. buddying system is not implemented in any way, but nobody needs it
+1. Master server(port 29900) - logging in and registering new users - works like a swiss clock.
+2. Peerchat server(port 6667) - chatting works perfectly good (as far as tested) 
+3. Natneg - might need some modifications, some people can join and play games, some cant. Not 100% sure if its natneg problem yet.
+3. Serverbrowser (port 28910) is currently working lame. People in lobby can see the hosted games. But refreshing is glitchy. Only works on relogging. Refresh button doesnt work.  
+4. Queryserver (port 27900) - game hosts report status of their server into it. Interlinked with SB. Refreshing problem might be in this one.
+5. Buddying system is not implemented yet
 
 
 <strong>2. You can get more of what you want with a kind word and a google, than you can with just a kind word.</strong><br>
@@ -24,21 +26,14 @@ So far I can say that irc server doesnt need to communicate with masterserver. Y
 
 <strong>
 5. Current progress</strong>
-It is roughly 50% done yet.<br>
-  Current directons of development:<br>
-    0) investigate no challenge error<br>
-    1) test gsSDK peer demos more thoroughly<br>
-    2) implement GETCKEY handling in irc<br>
-    3) inspect server responses at ports 28910, 27900 <br>
-
-<strong>
-6. Current problems:<br></strong>
-1. Serverlist refreshing is glitchy and buggy<br>
-2. Host gets error from time to time (test: maybe only on joining him?) - "sb not responsive"<br>
-3. Can't join staging rooms - "brandmauer didnt allow" error
+It is roughly 75% done yet.<br>
 
 
-
+<strong>6. Current problems and directions of investigation:<br></strong>
+1. Serverlist refreshing is still glitchy and buggy<br>
+2. Most of the people cant join games they get errors
+3. Some peopl can though, and i suspect those are the one with somewhat good ip's. For example my second PC in lan. I can join game hosted on it, but still it wont join game hosted on mine. And some players can join 2 max per game, what i saw.
+3. Might be fixed, needs testing: Host gets error from time to time - "sb not responsive"<br>
 
 <strong>7. How gamespy server works for nabs</strong>
 <br>
