@@ -13,7 +13,7 @@ xxx. Buddying system is not implemented yet
 
 
 <strong>2. How shit is done.</strong><br>
-Most code is already done in PR Master server. We just comment out parts of code that give errors. And substitute all mentions of battlefield for civ4.
+Most functionality is already implemented in PR Master server. We just comment out parts of code that give errors. And substitute all mentions of battlefield for civ4.
 
 <strong>3. WANTED LOGS OF REAL GAMESPY<->CIV4 COMMUNICATIONS</strong><br>
 Logs of wireshark or other software, would help significantly. Is really lame that nobody figured out how to use wireshark while gamespy was still up.
