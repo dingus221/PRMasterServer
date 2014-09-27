@@ -27,6 +27,21 @@ namespace PRMasterServer
         //public struct supportedgames { string gamename;}
         
         public static string gameName = null;
+
+
+        public static string getGKey(string gname)
+        {
+            //make it into array
+            //bool potato = false;
+            string faget = "FAGGET";
+            string[] gamelist = { "civ4", "civ4bts" };
+            string[] GKlist = { "y3D9Hw", "Cs2iIq" };
+            //LogGreen(gamelist.Count);
+            for (int i = 0; i < gamelist.Length; i++) { if (gname == gamelist[i]) { faget=GKlist[i]; } }
+            //  char *strarray[][] = {"hey", "sup", "dogg"};
+            return faget;
+        }
+
         public static bool isSupported(string gn) 
         { 
             //make it into array
