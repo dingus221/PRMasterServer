@@ -343,17 +343,20 @@ namespace PRMasterServer.Servers
 
 			string gamename = data[1].ToLowerInvariant();
 			string validate = data[2].Substring(0, 8);
-			string filter = FixFilter(data[2].Substring(8));
+            string filter = "gamemode=\"openstaging\"";//FixFilter(data[2].Substring(8));
+            Program.LogBlue("filtar:"+'('+filter+')');
 			string[] fields = data[3].Split(new char[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
 
 			Log(Category, String.Format("Received client request: {0}:{1}", ((IPEndPoint)state.Socket.RemoteEndPoint).Address, ((IPEndPoint)state.Socket.RemoteEndPoint).Port));
 
-			IQueryable<GameServer> servers = _report.Servers.ToList().Select(x => x.Value).Where(x => x.Valid).AsQueryable();
+            IQueryable<GameServer> servers = _report.Servers.ToList().Select(x => x.Value).Where(x => x.Valid).AsQueryable();
 			if (!String.IsNullOrWhiteSpace(filter)) {
 				try {
 					//Console.WriteLine(filter);
 					servers = servers.Where(filter);
-					//Console.WriteLine(servers.Count());
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine(servers.Where(filter));
+                    Console.ForegroundColor = ConsoleColor.Gray;
 				} catch (Exception e) {
 					LogError(Category, "Error parsing filter");
 					LogError(Category, filter);
@@ -364,12 +367,12 @@ namespace PRMasterServer.Servers
 			// http://aluigi.altervista.org/papers/gslist.cfg
 			byte[] key;
             if (gamename == Program.gameName)/*"civ4")/*battlefield2*/
-                
-                key = DataFunctions.StringToBytes("y3D9Hw"/*"Cs2iIq"/*hW6m9a*/);
-			else if (gamename == "arma2oapc")
-				key = DataFunctions.StringToBytes("sGKWik");
-			else
-				key = DataFunctions.StringToBytes("Xn221z");
+
+                key = DataFunctions.StringToBytes(Program.getGKey(gamename));//("y3D9Hw"/*"Cs2iIq"/*hW6m9a*/);
+            else if (gamename == "arma2oapc")
+                key = DataFunctions.StringToBytes("sGKWik");
+            else
+                key = DataFunctions.StringToBytes("Xn221z");
 			
 			byte[] unencryptedServerList = PackServerList(state, servers, fields);
 			byte[] encryptedServerList = GSEncoding.Encode(key, DataFunctions.StringToBytes(validate), unencryptedServerList, unencryptedServerList.LongLength);
