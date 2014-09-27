@@ -11,17 +11,15 @@
 5. Buddying system is not implemented yet
 
 
-<strong>2. You can get more of what you want with a kind word and a google, than you can with just a kind word.</strong><br>
-I am no big coder, but using google is everything that has been needed here (all was largely already done before me, just needed minor adjustments from battlefield). Commenting stuff out and substituting "battlefield" for "civ4" are 2 methods that i have been using the most so far.
+<strong>2. How shit is done.</strong><br>
+Most code is already done in PR Master server. We just comment stuff that gives errors out. And substitute all mentions of battlefield for civ4.
+
+<strong>3. WANTED LOGS OF REAL GAMESPY<->CIV4 COMMUNICATIONS</strong><br>
+Logs of wireshark or other software, would help significantly. Is really lame that nobody figured out how to use wireshark while gamespy was still up.
 
 
-<strong>3. WANTED LOGS OF REAL GSSERVER<->CIV4 COMMUNICATIONS</strong><br>
-Logs of wireshark or other software, would help significantly. Currently i dont know what actually was sent.
-I am working with logs from similar games found on google. If you have any usefull related logs, please send them to me.
-
-
-<strong>4. More detail about irc server</strong><br>
-So far I can say that irc server doesnt need to communicate with masterserver. You can use any normal irc + GS peerchat server emulator 0.1.3b (http://aluigi.altervista.org/papers.htm#peerchat) from luigi. But it seems to be limited to max 2 clients. U can also use GSAIRCDTMM. It is written in delphi, but it contains dll(LALCIRCENCDEC) with encrypting functionality in c++ (this unnecesarily complicates things, but who gives a dong, was fastest way to implement).
+<strong>4. PEERCHAT SERVER</strong><br>
+GSAIRCDTMM - irc daemon supporting gs encoding and some gs custom irc commands.  It is written in delphi7SE, it uses additional dll(LALCIRCENCDEC).
 
 
 <strong>
@@ -37,7 +35,7 @@ It is roughly 75% done yet.<br>
 
 <strong>7. How gamespy server works for nabs</strong>
 <br>
-Here ill write some bullshit for nabs
+Here i will write some bullshit for nabs
 
 
 <strong>8. Setting up the project</strong><br>
