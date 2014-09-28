@@ -30,7 +30,7 @@ It is roughly 75% done yet.<br>
 
 <strong>6. Current problems and directions of investigation:<br></strong>
 1. Serverlist refreshing is still buggy, u need to relogin to refresh list for now<br>
-2. Max players per game seem to be 2 for now, but we were able to start a game with 3 people somehow (needs testing)<br>
+2. Testing shows, that some players connect better than others, while some can't connect to anyone. We were able to start a game with 3 people somehow (needs testing)<br>
 3. Might be fixed, needs testing: Host gets error from time to time - "sb not responsive"<br>
 
 <strong>7. How gamespy server works for nabs</strong>
