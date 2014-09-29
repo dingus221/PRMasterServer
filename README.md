@@ -39,7 +39,7 @@ Investigation directions.<br>
 1.2.1. I tested it a little, and if this is the right hypothesis, correct content of the header of this kind of updating serverlist for client is needed. Currently i only tried to send whole serverlist.<br>
 <br>
 2. Testing shows, that some players connect better than others, while some can't connect to anyone. We were able to start a game with 3 people somehow (needs testing)<br>
-3. Might be fixed, needs testing: Host gets error from time to time - "sb not responsive"<br>
+3. Hosts still get error from time to time - "sb not responsive"<br>
 
 <strong>7. How gamespy server works for nabs</strong>
 <br>
