@@ -210,7 +210,7 @@ namespace PRMasterServer
                            // Console.WriteLine(PRMasterServer.Servers["hostname"]);
                             //ServerListReport.Servers.TryGetValue("hostname", out v);
                            // LogBlue(v);//"testsaddasads"); 
-                        }//isSupported("hh"); }
+                        }//isSupported("hh"); }ы
                         
 
 				Thread.Sleep(500);
