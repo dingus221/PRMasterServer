@@ -31,13 +31,62 @@ namespace PRMasterServer.Servers
 		private AsyncCallback _socketSendCallback;
 		private AsyncCallback _socketDataReceivedCallback;
 
+
+        static public int tmp1=0;
+        static public Socket tmpS1;
+        static public byte[] resp11 = new byte[] {0x7F,0x00,0x00,0x01,0x19,0x64,0x0E,0x00,0x68,0x6F,0x73,0x74,0x6E,0x61,0x6D,0x65,0x00,0x00,0x67,0x61,0x6D,0x65,0x6D,0x6F,0x64,0x65,0x00,0x00,0x68,0x6F,0x73,0x74,0x6E,0x61,0x6D,0x65,0x00,0x00,0x67,0x61,0x6D,0x65,0x76,0x65,0x72,0x00,0x00,0x70,
+0x61,0x73,0x73,0x77,0x64,0x00,0x00,0x68,0x6F,0x73,0x74,0x70,0x6F,0x72,0x74,0x00,0x00,0x73,0x74,0x61,0x67,0x69,0x6E,0x67,0x00,0x00,0x6E,0x65,0x77,0x67,0x61,0x6D,0x65,0x00,0x00,0x6D,0x61,0x70,0x6E,0x61,0x6D,0x65,0x00,0x00,0x67,0x61,
+0x6D,0x65,0x74,0x79,0x70,0x65,0x00,0x00,0x6D,0x79,0x6E,0x75,0x6D,0x70,0x6C,0x61,0x79,0x65,0x72,0x73,0x00,0x00,0x6D,0x61,0x78,0x6E,0x75,0x6D,0x70,0x6C,0x61,0x79,0x65,0x72,0x73,0x00,0x00,0x6E,0x75,0x6D,0x6D,0x69,0x73,0x73,
+0x69,0x6E,0x67,0x00,0x00,0x70,0x69,0x74,0x62,0x6F,0x73,0x73,0x00,0x00,0x73,0xC0,0xA8,0x89,0xCC,0x19,0x64,0xC0,0xA8,0x89,0xCC,0x19,0x64,0xFF,0x61,0x64,0x6D,0x69,0x6E,0x6F,0x73,0x74,0x72,0x61,0x74,0x65,0x72,0x27,0x73,
+0x20,0x47,0x61,0x6D,0x65,0x00,0xFF,0x6F,0x70,0x65,0x6E,0x73,0x74,0x61,0x67,0x69,0x6E,0x67,0x00,0xFF,0x61,0x64,0x6D,0x69,0x6E,0x6F,0x73,0x74,0x72,0x61,0x74,0x65,0x72,0x27,0x73,0x20,0x47,0x61,0x6D,0x65,0x00,0xFF,0x30,0x00,0xFF,
+0x30,0x00,0xFF,0x32,0x30,0x35,0x36,0x00,0xFF,0x31,0x00,0xFF,0x31,0x00,0xFF,0x4D,0x65,0x64,0x69,0x75,0x6D,0x5F,0x61,0x6E,0x64,0x5F,0x53,0x6D,0x61,0x6C,0x6C,0x00,0xFF,0x00,0xFF,0x31,0x00,0xFF,0x37,0x00,0xFF,0x36,0x00,0xFF,0x30,0x00,0x00,0xFF,0xFF,0xFF,0xFF};
+            
+            
+            /*{0x7F,0x00,0x00,0x01,0x19,0x64,0x0E,0x00,0x68,0x6F,0x73,0x74,0x6E,0x61,0x6D,0x65,0x00,0x00,0x67,0x61,0x6D,0x65,0x6D,0x6F,
+0x64,0x65,0x00,0x00,0x68,0x6F,0x73,0x74,0x6E,0x61,0x6D,0x65,0x00,0x00,0x67,0x61,0x6D,0x65,0x76,0x65,0x72,0x00,0x00,0x70,
+0x61,0x73,0x73,0x77,0x64,0x00,0x00,0x68,0x6F,0x73,0x74,0x70,0x6F,0x72,0x74,0x00,0x00,0x73,0x74,0x61,0x67,0x69,
+0x6E,0x67,0x00,0x00,0x6E,0x65,0x77,0x67,0x61,0x6D,0x65,0x00,0x00,0x6D,0x61,0x70,0x6E,0x61,0x6D,0x65,0x00,0x00,0x67,0x61,
+0x6D,0x65,0x74,0x79,0x70,0x65,0x00,0x00,0x6D,0x79,0x6E,0x75,0x6D,0x70,0x6C,0x61,0x79,0x65,0x72,0x73,0x00,0x00,0x6D,
+0x61,0x78,0x6E,0x75,0x6D,0x70,0x6C,0x61,0x79,0x65,0x72,0x73,0x00,0x00,0x6E,0x75,0x6D,0x6D,0x69,0x73,0x73,
+0x69,0x6E,0x67,0x00,0x00,0x70,0x69,0x74,0x62,0x6F,0x73,0x73,0x00,0x00,0x51,0xC0,0xA8,0x89,0x82,0x19,0x64,0xFF,0x61,
+0x64,0x6D,0x69,0x6E,0x6F,0x73,0x74,0x72,0x61,0x74,0x65,0x72,0x27,0x73,0x20,0x47,0x61,0x6D,0x65,0x00,0xFF,0x6F,
+0x70,0x65,0x6E,0x73,0x74,0x61,0x67,0x69,0x6E,0x67,0x00,0xFF,0x61,0x64,0x6D,0x69,0x6E,0x6F,0x73,0x74,0x72,
+0x61,0x74,0x65,0x72,0x27,0x73,0x20,0x47,0x61,0x6D,0x65,0x00,0xFF,0x30,0x00,0xFF,0x30,0x00,0xFF,0x32,0x30,0x35,0x36,0x00,0xFF,
+0x31,0x00,0xFF,0x31,0x00,0xFF,0x4D,0x65,0x64,0x69,0x75,0x6D,0x5F,0x61,0x6E,0x64,0x5F,0x53,0x6D,0x61,0x6C,0x6C,0x00,
+0xFF,0x00,0xFF,0x31,0x00,0xFF,0x37,0x00,0xFF,0x36,0x00,0xFF,0x30,0x00,0x00,0xFF,0xFF,0xFF,0xFF
+    };*/
+        static public byte[] resp12 = new byte[] {
+            0x51,0x7F,0x00,0x00,0x01,0x19,0x64,0xFF,0x61,0x64,
+0x6D,0x69,0x6E,0x27,0x73,0x20,0x47,0x61,0x6D,0x65,0x00,0xFF,0x6F,0x70,0x65,0x6E,0x73,0x74,0x61,0x67,0x69,0x6E,
+0x67,0x00,0xFF,0x61,0x64,0x6D,0x69,0x6E,0x27,0x73,0x20,0x47,0x61,0x6D,0x65,0x00,0xFF,0x30,0x00,0xFF,0x30,0x00,0xFF,0x32,
+0x30,0x35,0x36,0x00,0xFF,0x31,0x00,0xFF,0x31,0x00,0xFF,0x42,0x61,0x6C,0x61,0x6E,0x63,0x65,0x64,0x00,0xFF,0x00,0xFF,0x31,0x00,
+0xFF,0x33,0x00,0xFF,0x32,0x00,0xFF,0x30,0x00,0x00,0xFF,0xFF,0xFF,0xFF
+        };
+
+        public static void SendToAllConnected(string validateX)
+        {
+            //byte[] unencryptedServerList = "POTATA";// PackServerList(state, servers, fields);
+            //byte[] encryptedServerList = GSEncoding.Encode(key, DataFunctions.StringToBytes(validate), unencryptedServerList, unencryptedServerList.LongLength);
+            //_socket
+            //SendToClient(state, encryptedServerList);
+            //;
+            byte[] key = DataFunctions.StringToBytes(Program.getGKey(Program.gameName));
+            Program.LogBlue(Encoding.ASCII.GetString(key));
+            Program.LogBlue(tmpS1.Connected.ToString());
+            byte[] resp13 = GSEncoding.Encode(key, DataFunctions.StringToBytes(validateX), resp11, resp11.LongLength);
+            Program.LogBlue(Encoding.ASCII.GetString(resp13));
+            tmpS1.Send(resp13);
+           
+            // ParseRequest.
+            
+        }
        
 
 		public ServerListRetrieve(IPAddress listen, ushort port, ServerListReport report, Action<string, string> log, Action<string, string> logError)
 		{
 			Log = log;
 			LogError = logError;
-            logError("public","serverlistretrieve");
+            //logError("public","serverlistretrieve");
 			_report = report;
 			//*
 			/*_report.Servers.TryAdd("test", 
@@ -103,7 +152,7 @@ namespace PRMasterServer.Servers
 			);*/
 
 			IQueryable<GameServer> servers = _report.Servers.Select(x => x.Value).AsQueryable();
-		//	Console.WriteLine(servers.Where("gamever = '3.19' and gamevariant = 'pr' and hostname like '%[[]PR v1.2.0.0% %' and hostname like '%2%'").Count());
+            //Console.WriteLine(servers.Where("gamever = '3.19' and gamevariant = 'pr' and hostname like '%[[]PR v1.2.0.0% %' and hostname like '%2%'").Count());
 		//	*/
 
 			Thread = new Thread(StartServer) {
@@ -144,7 +193,7 @@ namespace PRMasterServer.Servers
 		{
 			AddressInfo info = (AddressInfo)parameter;
             
-			Log(Category, "Starting Server List Retrieval");
+			Program.LogCyan(Category +":Starting Server List Retrieval");
 
 			try {
 				_socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp) {
@@ -177,13 +226,19 @@ namespace PRMasterServer.Servers
 
 			Socket listener = (Socket)ar.AsyncState;
 			Socket handler = listener.EndAccept(ar);
-
+            tmp1=tmp1+1;
+            if (tmp1==1){
+                tmpS1 = handler;
+                //handler.AddressFamily.
+                //TmpS1. handler;
+                //AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+            }
 			SocketState state = new SocketState() {
 				Socket = handler
 			};
-			
+            //Program.LogCyan("SB.AcceptCallBack");
 			WaitForData(state);
-            Console.WriteLine("ACCEPTCALLBACKPROCEDURE");
+            
 		}
 
 		private void WaitForData(SocketState state)
@@ -192,7 +247,8 @@ namespace PRMasterServer.Servers
 			if (state == null || state.Socket == null || !state.Socket.Connected)
 				return;
 
-			try {
+            
+           try {
 				if (_socketDataReceivedCallback == null)
 					_socketDataReceivedCallback = OnDataReceived;
 
@@ -227,7 +283,7 @@ namespace PRMasterServer.Servers
 				// take what we received, and append it to the received data buffer
 				state.ReceivedData.Append(Encoding.UTF8.GetString(state.Buffer, 0, received));
 				string receivedData = state.ReceivedData.ToString();
-                LogError("OnDataReceived(ret)", receivedData);
+                Program.LogCyan("SB.OnDataReceived:"+ receivedData);
 				// does what we received end with \x00\x00\x00\x00\x??
 				if (receivedData.Substring(receivedData.Length - 5, 4) == "\x00\x00\x00\x00") {
 					state.ReceivedData.Clear();
@@ -279,7 +335,7 @@ namespace PRMasterServer.Servers
 
 		public void SendToClient(SocketState state, byte[] data)
 		{
-            LogError("lel","shit's about to get sent");
+            Program.LogCyan("SB.SendToClient");
 			if (state == null)
 				return;
 
@@ -293,7 +349,7 @@ namespace PRMasterServer.Servers
 				_socketSendCallback = OnSent;
 
 			try {
-                LogError("lel", "data");
+                
 				state.Socket.BeginSend(data, 0, data.Length, SocketFlags.None, _socketSendCallback, state);
 			} catch (SocketException e) {
 				LogError(Category, "Error sending data");
@@ -304,13 +360,13 @@ namespace PRMasterServer.Servers
 		private void OnSent(IAsyncResult async)
 		{
 			SocketState state = (SocketState)async.AsyncState;
-            LogError("pfpfpf","is sent");
+            //LogError("pfpfpf","is sent");
 			if (state == null || state.Socket == null)
 				return;
 
 			try {
 				int sent = state.Socket.EndSend(async);
-				Log(Category, String.Format("Sent {0} byte response to: {1}:{2}", sent, ((IPEndPoint)state.Socket.RemoteEndPoint).Address, ((IPEndPoint)state.Socket.RemoteEndPoint).Port));
+                Log(Category, String.Format("Sent {0} byte response to: {1}:{2}", sent, ((IPEndPoint)state.Socket.RemoteEndPoint).Address, ((IPEndPoint)state.Socket.RemoteEndPoint).Port));
 			} catch (SocketException e) {
 				switch (e.SocketErrorCode) {
 					case SocketError.ConnectionReset:
@@ -327,24 +383,28 @@ namespace PRMasterServer.Servers
 			}
 		}
 
-		private bool ParseRequest(SocketState state, string message)
+		public bool ParseRequest(SocketState state, string message)
 		{
-            LogError("[SLR_PARSEREQUEST]", message);
+            /////////////////Ahtung
+            Program.LogCyan("SB.Parserequest." + message);
 			string[] data = message.Split(new char[] { '\x00' }, StringSplitOptions.RemoveEmptyEntries);
 			if (data.Length != 4 ||
                 !data[0].Equals(Program.gameName/*"civ4"/*battlefield2*/, StringComparison.InvariantCultureIgnoreCase) ||
 				(
+                
                     !data[1].Equals(Program.gameName/*"civ4"/*battlefield2*/, StringComparison.InvariantCultureIgnoreCase) &&
 					!data[1].Equals("gslive", StringComparison.InvariantCultureIgnoreCase)
 				)
 			) {
+                Program.LogCyan("SB.CHECKPOINT X.");
 				return false;
 			}
 
 			string gamename = data[1].ToLowerInvariant();
 			string validate = data[2].Substring(0, 8);
-            string filter = "gamemode=\"openstaging\"";//FixFilter(data[2].Substring(8));
-            Program.LogBlue("filtar:"+'('+filter+')');
+            Program.LogCyan("SB.validate cp:"+validate);
+            string filter = "numplayers>-1";//Temporarily so that it shows all games //"gamemode=\"openstaging\"";//FixFilter(data[2].Substring(8));
+            Program.LogCyan("filtar:" + '(' + filter + ')');
 			string[] fields = data[3].Split(new char[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
 
 			Log(Category, String.Format("Received client request: {0}:{1}", ((IPEndPoint)state.Socket.RemoteEndPoint).Address, ((IPEndPoint)state.Socket.RemoteEndPoint).Port));
@@ -354,9 +414,9 @@ namespace PRMasterServer.Servers
 				try {
 					//Console.WriteLine(filter);
 					servers = servers.Where(filter);
-                    Console.ForegroundColor = ConsoleColor.Magenta;
-                    Console.WriteLine(servers.Where(filter));
-                    Console.ForegroundColor = ConsoleColor.Gray;
+                    //Console.ForegroundColor = ConsoleColor.DarkCyan;
+                    //Console.WriteLine(servers.Where(filter));
+                    //Console.ForegroundColor = ConsoleColor.Gray;
 				} catch (Exception e) {
 					LogError(Category, "Error parsing filter");
 					LogError(Category, filter);
@@ -366,9 +426,11 @@ namespace PRMasterServer.Servers
 
 			// http://aluigi.altervista.org/papers/gslist.cfg
 			byte[] key;
-            if (gamename == Program.gameName)/*"civ4")/*battlefield2*/
-
-                key = DataFunctions.StringToBytes(Program.getGKey(gamename));//("y3D9Hw"/*"Cs2iIq"/*hW6m9a*/);
+            if (gamename == Program.gameName)
+            {/*"civ4")/*battlefield2*/
+                Program.LogCyan("GKey:" + Program.getGKey(gamename));
+                key = DataFunctions.StringToBytes(Program.getGKey(gamename));
+            }//("y3D9Hw"/*"Cs2iIq"/*hW6m9a*/);
             else if (gamename == "arma2oapc")
                 key = DataFunctions.StringToBytes("sGKWik");
             else
@@ -376,7 +438,9 @@ namespace PRMasterServer.Servers
 			
 			byte[] unencryptedServerList = PackServerList(state, servers, fields);
 			byte[] encryptedServerList = GSEncoding.Encode(key, DataFunctions.StringToBytes(validate), unencryptedServerList, unencryptedServerList.LongLength);
-			SendToClient(state, encryptedServerList);
+
+            Program.LogCyan(System.Text.Encoding.ASCII.GetString(encryptedServerList));
+            SendToClient(state, encryptedServerList);
             //SendToClient(state, unencryptedServerList);
             
 			return true;
@@ -385,7 +449,7 @@ namespace PRMasterServer.Servers
 		private static byte[] PackServerList(SocketState state, IEnumerable<GameServer> servers, string[] fields)
 		{
 			IPEndPoint remoteEndPoint = ((IPEndPoint)state.Socket.RemoteEndPoint);
-
+            Program.LogCyan("SB.PackSL.");
 			byte[] ipBytes = remoteEndPoint.Address.GetAddressBytes();
 			byte[] value2 = BitConverter.GetBytes((ushort)6500);
 			byte fieldsCount = (byte)(fields.Length);
@@ -395,13 +459,13 @@ namespace PRMasterServer.Servers
 			data.AddRange(BitConverter.IsLittleEndian ? value2.Reverse() : value2);
 			data.Add(fieldsCount);
 			data.Add(0);
-            Console.WriteLine("Packlist, checkpoint 1, fields count:");
-            Console.WriteLine(fieldsCount);
+            //Console.WriteLine("Packlist, checkpoint 1, fields count:");
+            //Console.WriteLine(fieldsCount);
             foreach (var field in fields) {
 				data.AddRange(DataFunctions.StringToBytes(field));
 				data.AddRange(new byte[] { 0, 0 });
 			}
-            Console.WriteLine("Packlist, checkpoint 2");
+            //Console.WriteLine("Packlist, checkpoint 2");
 			foreach (var server in servers) {
 				// commented this stuff out since it caused some issues on testing, might come back to it later and see what's happening...
 				// NAT traversal stuff...
@@ -409,36 +473,42 @@ namespace PRMasterServer.Servers
 				// 115 (\x73)	= public ip / public port / private ip / private port
 				// 85 (\x55)	= public ip / public port
 				// 81 (\x51)	= public ip / public port
-				/*Console.WriteLine(server.IPAddress);
-				Console.WriteLine(server.QueryPort);
-				Console.WriteLine(server.localip0);
-				Console.WriteLine(server.localip1);
-				Console.WriteLine(server.localport);
-				Console.WriteLine(server.natneg);
-				if (!String.IsNullOrWhiteSpace(server.localip0) && !String.IsNullOrWhiteSpace(server.localip1) && server.localport > 0) {
-					data.Add(126);
-					data.AddRange(IPAddress.Parse(server.IPAddress).GetAddressBytes());
-					data.AddRange(BitConverter.IsLittleEndian ? BitConverter.GetBytes((ushort)server.QueryPort).Reverse() : BitConverter.GetBytes((ushort)server.QueryPort));
-					data.AddRange(IPAddress.Parse(server.localip0).GetAddressBytes());
-					data.AddRange(BitConverter.IsLittleEndian ? BitConverter.GetBytes((ushort)server.localport).Reverse() : BitConverter.GetBytes((ushort)server.localport));
-					data.AddRange(IPAddress.Parse(server.localip1).GetAddressBytes());
-				} else if (!String.IsNullOrWhiteSpace(server.localip0) && server.localport > 0) {
-					data.Add(115);
-					data.AddRange(IPAddress.Parse(server.IPAddress).GetAddressBytes());
-					data.AddRange(BitConverter.IsLittleEndian ? BitConverter.GetBytes((ushort)server.QueryPort).Reverse() : BitConverter.GetBytes((ushort)server.QueryPort));
-					data.AddRange(IPAddress.Parse(server.localip0).GetAddressBytes());
-					data.AddRange(BitConverter.IsLittleEndian ? BitConverter.GetBytes((ushort)server.localport).Reverse() : BitConverter.GetBytes((ushort)server.localport));
-				} else {*/
-					data.Add(81); // it could be 85 as well, unsure of the difference, but 81 seems more common...
-					data.AddRange(IPAddress.Parse(server.IPAddress).GetAddressBytes());
-					data.AddRange(BitConverter.IsLittleEndian ? BitConverter.GetBytes((ushort)server.QueryPort).Reverse() : BitConverter.GetBytes((ushort)server.QueryPort));
-				//}
-
-				data.Add(255);
-                Console.WriteLine("Packlist, checkpoint 3");
+                //WAS COMMENTED OUT
+                //30.09
+                /**/Console.WriteLine(server.IPAddress);
+                Console.WriteLine(server.QueryPort);
+                Console.WriteLine(server.localip0);
+                Console.WriteLine(server.localip1);
+                Console.WriteLine(server.localport);
+                Console.WriteLine(server.natneg);/*
+                if (!String.IsNullOrWhiteSpace(server.localip0) && !String.IsNullOrWhiteSpace(server.localip1) && server.localport > 0) {
+                    data.Add(126);
+                    data.AddRange(IPAddress.Parse(server.IPAddress).GetAddressBytes());
+                    data.AddRange(BitConverter.IsLittleEndian ? BitConverter.GetBytes((ushort)server.QueryPort).Reverse() : BitConverter.GetBytes((ushort)server.QueryPort));
+                    data.AddRange(IPAddress.Parse(server.localip0).GetAddressBytes());
+                    data.AddRange(BitConverter.IsLittleEndian ? BitConverter.GetBytes((ushort)server.localport).Reverse() : BitConverter.GetBytes((ushort)server.localport));
+                    data.AddRange(IPAddress.Parse(server.localip1).GetAddressBytes());
+                }
+                else if (!String.IsNullOrWhiteSpace(server.localip0) && server.localport > 0)
+                {
+                    data.Add(115);
+                    data.AddRange(IPAddress.Parse(server.IPAddress).GetAddressBytes());
+                    data.AddRange(BitConverter.IsLittleEndian ? BitConverter.GetBytes((ushort)server.QueryPort).Reverse() : BitConverter.GetBytes((ushort)server.QueryPort));
+                    data.AddRange(IPAddress.Parse(server.localip0).GetAddressBytes());
+                    data.AddRange(BitConverter.IsLittleEndian ? BitConverter.GetBytes((ushort)server.localport).Reverse() : BitConverter.GetBytes((ushort)server.localport));
+                }
+                else
+                {*/
+                    data.Add(81); //WAS 81//it could be 85 as well, unsure of the difference, but 81 seems more common...
+                    data.AddRange(IPAddress.Parse(server.IPAddress).GetAddressBytes());
+                    data.AddRange(BitConverter.IsLittleEndian ? BitConverter.GetBytes((ushort)server.QueryPort).Reverse() : BitConverter.GetBytes((ushort)server.QueryPort));
+               //**/ }
+                
+                data.Add(255);
+                //Console.WriteLine("Packlist, checkpoint 3");
 				for (int i = 0; i < fields.Length; i++) {
                     //Console.WriteLine(fields[i]);
-                    //if (fields[i] != "sv_punkbuster" && fields[i] != "pb" && fields[i] != "punkbuster")
+                    
 					data.AddRange(DataFunctions.StringToBytes(GetField(server, fields[i])));
 
 					if (i < fields.Length - 1)
@@ -449,7 +519,22 @@ namespace PRMasterServer.Servers
 			}
 
 			data.AddRange(new byte[] { 0, 255, 255, 255, 255 });
-            Console.WriteLine("Packlist, checkpoint 4");
+            //Console.WriteLine("Packlist, checkpoint 4");
+            Program.LogCyan("SB.ListCount:"+data.Count.ToString());
+            byte[] bong = data.ToArray();
+           /* foreach (byte color in data)
+            {*/
+                for (int i = 0; i < bong.Count(); i++)
+                {
+                    Console.Write(bong[i] + ",");
+                }
+                //Program.LogCyan(color.ToString());
+                //Program.LogCyan(color);
+            //}
+            Program.LogCyan( System.Text.Encoding.ASCII.GetString(bong));
+            
+
+
 			return data.ToArray();
 		}
 
@@ -695,7 +780,7 @@ namespace PRMasterServer.Servers
 							}
 							Socket.Close();
 							Socket.Dispose();
-							Socket = null;
+							Socket = null; //29.09
 						}
 					}
 
