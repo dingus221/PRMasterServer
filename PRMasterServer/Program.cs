@@ -205,12 +205,20 @@ namespace PRMasterServer
                     }
 
                     } else
-                        if (s == "/servers") {
+                        if (s.Substring(0,3) == "/sa")//sa")
+                        {//8
+                            LogBlue("/SA");
+                            LogBlue(s);
+                            string arg1=s.Substring(4,8);
+                            LogBlue(arg1);
+                            
+                            PRMasterServer.Servers.ServerListRetrieve.SendToAllConnected(arg1);
+                            
                             //string v;
                            // Console.WriteLine(PRMasterServer.Servers["hostname"]);
                             //ServerListReport.Servers.TryGetValue("hostname", out v);
                            // LogBlue(v);//"testsaddasads"); 
-                        }//isSupported("hh"); }ы
+                        }//isSupported("hh"); }
                         
 
 				Thread.Sleep(500);
@@ -243,6 +251,25 @@ namespace PRMasterServer
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.Error.WriteLine(String.Format("[{0}] {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture), message));
             Console.ForegroundColor = c;
+        }
+
+        //make all Q&R logs in magenta
+        public static void LogPink(string message)
+        {
+            ConsoleColor c = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.Error.WriteLine(String.Format("[{0}] {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture), message));
+            //Console.ForegroundColor = ;
+            Console.ForegroundColor = ConsoleColor.Gray;
+        }
+        //LOGS FROM ServerListRetrieve
+        public static void LogCyan(string message)
+        {
+            ConsoleColor c = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Error.WriteLine(String.Format("[{0}] {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture), message));
+            //Console.ForegroundColor = ;
+            Console.ForegroundColor = ConsoleColor.Gray;
         }
 	}
 }
