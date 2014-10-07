@@ -62,11 +62,10 @@ Here i will write some bullshit for nabs
 
 
 9. Credits (in order of importance)
-
-<br><font size=14><strong>[novice-rb] for natneg
-<br><font size=14><strong>[AncientMan2002] for original masterserver
-<br><font size=14><strong>[Luigi Auriemma](http://aluigi.org) for reverse engineering the GameSpy protocol and encryption.
-<br><font size=14><strong>[Caledorn], [Zulan] - users on realmsbeyond.net, for running natneg servers
-<br><font size=14><strong>[SexIsBad2TheBone], [DimosEngel] civ4 players (testing)
-<br><font size=14><strong>[gamespy] for not being too hard encrypted and secretive [Rest in peace]
-<br><font size=14><strong>[sid meyer and firaxis] for great game
+<br><font size=14><strong>[novice-rb]</strong> for natneg
+<br><font size=14><strong>[AncientMan2002]</strong> for original masterserver
+<br><font size=14><strong>[Luigi Auriemma](http://aluigi.org) </strong> for reverse engineering the GameSpy protocol and encryption.
+<br><font size=14><strong>[Caledorn], [Zulan] </strong> - users on realmsbeyond.net, for running natneg servers
+<br><font size=14><strong>[SexIsBad2TheBone], [DimosEngel]</strong> civ4 players (testing)
+<br><font size=14><strong>[gamespy] </strong> for not being too hard encrypted and secretive [Rest in peace]
+<br><font size=14><strong>[sid meyer and firaxis] </strong> for great game
