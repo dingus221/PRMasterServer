@@ -60,7 +60,7 @@ Here i will write some bullshit for nabs
 
 7. To join the lobby from the game you need to configure windows/system32/drivers/etc/hosts file (or redirect dead official gamespy server traffick of the game to the server in other ways). Will include hosts file for hosts testing, redirecting all to 127.0.0.1.
 
-
+<font size=14>
 9. Credits (in order of importance)
 ---------------------
 
