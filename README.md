@@ -60,21 +60,13 @@ Here i will write some bullshit for nabs
 
 7. To join the lobby from the game you need to configure windows/system32/drivers/etc/hosts file (or redirect dead official gamespy server traffick of the game to the server in other ways). Will include hosts file for hosts testing, redirecting all to 127.0.0.1.
 
-<font size=14>
-9. Credits (in order of importance)
----------------------
 
-[novice-rb] for natneg
---
-[AncientMan2002] for original masterserver
---
-[Luigi Auriemma](http://aluigi.org) for reverse engineering the GameSpy protocol and encryption.
---
-[Caledorn], [Zulan] - users on realmsbeyond.net, for running natneg servers
---
-[SexIsBad2TheBone], [DimosEngel] civ4 players (testing)
---
-[gamespy] for not being too hard encrypted and secretive [Rest in peace]
---
-[sid meyer and firaxis] for great game
---
+9. Credits (in order of importance)
+
+<br><font size=14><strong>[novice-rb] for natneg
+<br><font size=14><strong>[AncientMan2002] for original masterserver
+<br><font size=14><strong>[Luigi Auriemma](http://aluigi.org) for reverse engineering the GameSpy protocol and encryption.
+<br><font size=14><strong>[Caledorn], [Zulan] - users on realmsbeyond.net, for running natneg servers
+<br><font size=14><strong>[SexIsBad2TheBone], [DimosEngel] civ4 players (testing)
+<br><font size=14><strong>[gamespy] for not being too hard encrypted and secretive [Rest in peace]
+<br><font size=14><strong>[sid meyer and firaxis] for great game
