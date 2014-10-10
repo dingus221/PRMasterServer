@@ -5,11 +5,10 @@
 
 1. Master server(port 29900) - logging in and registering new users - works like a swiss clock.
 2. Peerchat server(port 6667) - chatting works perfectly good (as far as tested) 
-3. Natneg - might need some modifications, some people can join and play games, some cant. Not 100% sure if its natneg problem yet.
-3. Serverbrowser (port 28910) is currently working lame. People in lobby can see the hosted games. But refreshing is glitchy. Only works on relogging. Refresh button doesnt work.  
-4. Queryserver (port 27900) - game hosts report status of their server into it. Interlinked with SB. Refreshing problem might be in this one.
-5. Webservver (port 80) - i suspect it is needed only for automatically downloading of new patches (or just checking for them). It needs to direct to some fast reacheable place that either responds with 404 or propper stuff or port isnt listened to. The key point is that it responds fast, else u will have 90 seconds freeze on login.
-xxx. Buddying system is not implemented yet
+3. Natneg server (port 27901) - provides connection information to players about other players when they join staging room.
+4. Serverbrowser (port 28910) is currently not fully functional. People in lobby can see the hosted games. But refresh button doesnt work. To refresh u need to relogin.
+5. Queryserver (port 27900) - game hosts report status of their server into it. Interlinked with SB. Refreshing problem might be in this one.
+6. Webservver (port 80) - i suspect it is needed only for automatically downloading of new patches (or just checking for them). 
 
 
 <strong>2. How shit is done.</strong><br>
