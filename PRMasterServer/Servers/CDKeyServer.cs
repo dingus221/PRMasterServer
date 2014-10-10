@@ -1,4 +1,4 @@
-﻿using PRMasterServer.Data;
+using PRMasterServer.Data;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -14,6 +14,7 @@ namespace PRMasterServer.Servers
 
 		public Action<string, string> Log = (x, y) => { };
 		public Action<string, string> LogError = (x, y) => { };
+        public Action<string, string> LogGreen = (x, y) => { };
 
 		public Thread Thread;
 
@@ -113,7 +114,8 @@ namespace PRMasterServer.Servers
 		{
 			try {
 				IPEndPoint remote = (IPEndPoint)e.RemoteEndPoint;
-
+                //LogError("thingies","tight");
+                //LogGreen("and", "spicy");
 				string receivedData = Encoding.UTF8.GetString(e.Buffer, e.Offset, e.BytesTransferred);
 				string decrypted = Xor(receivedData);
 
