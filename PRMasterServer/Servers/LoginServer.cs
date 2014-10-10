@@ -217,7 +217,7 @@ namespace PRMasterServer.Servers
 					state.SendCallback = OnSent;
 
 				state.Socket.BeginSend(data, 0, data.Length, SocketFlags.None, state.SendCallback, state);
-                LogError("data sent:", System.Text.Encoding.Default.GetString(data));
+                //LogError("data sent:", System.Text.Encoding.Default.GetString(data));
 				return true;
 			} catch (NullReferenceException) {
 				if (state != null)
@@ -329,9 +329,9 @@ namespace PRMasterServer.Servers
 				// does what we received contain the \final\ delimiter?
 				if (receivedData.LastIndexOf(@"\final\") > -1) {
 					state.ReceivedData.Clear();
-                    LogError("data received:", receivedData);
+                    //Log("data received:", receivedData);
                     int lame = state.State;
-                    LogError("state.state:", lame.ToString() );//
+                    //Log("state.state:", lame.ToString() );//
                     // lets split up the message based on the delimiter
 					string[] messages = receivedData.Split(new string[] { @"\final\" }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -382,13 +382,7 @@ namespace PRMasterServer.Servers
 
 			Log(Category, String.Format("[{0}] Received {1} query from: {2}:{3}", state.Type, query, ((IPEndPoint)state.Socket.RemoteEndPoint).Address, ((IPEndPoint)state.Socket.RemoteEndPoint).Port));
 
-            if (keyValues.ContainsKey("gamename") && !keyValues["gamename"].Equals("civ4", StringComparison.InvariantCultureIgnoreCase))
-            {
-				// say no to those not using bf2... Begone evil demon, bf2 for life!
-                //nop
-                Log("not bf2", "hmm");
-				return;
-			}
+
 
 			switch (state.Type) {
                 case LoginSocketState.SocketType.Client:
@@ -421,7 +415,7 @@ namespace PRMasterServer.Servers
 				} 
 			} else if (state.State == 2) {
                 if (query.Equals("status", StringComparison.InvariantCultureIgnoreCase)) {
-                    LogError("STATUS SENT","1");
+                    //LogError("STATUS NOT RESPONDED","1");
                     //SendToClient(ref state, LoginServerMessages.StatusResponse(ref state, keyValues));
 				} else if (query.Equals("getprofile", StringComparison.InvariantCultureIgnoreCase)) {
 					SendToClient(ref state, LoginServerMessages.SendProfile(ref state, keyValues, false));
@@ -532,20 +526,22 @@ namespace PRMasterServer.Servers
 				LoginSocketState state = this;
 				HeartbeatState++;
 
-				Console.WriteLine("sending keep alive");
+				Console.WriteLine("keep alive callback");
 				if (!server.SendToClient(ref state, LoginServerMessages.SendKeepAlive())) {
 					Dispose();
 					return;
-				}
+                }
+                
 
 				// every 2nd keep alive request, we send an additional heartbeat
 				if (HeartbeatState % 2 == 0) {
-					Console.WriteLine("sending heartbeat");
+					//Console.WriteLine("sending heartbeat");
 					if (!server.SendToClient(ref state, LoginServerMessages.SendHeartbeat())) {
 						Dispose();
 						return;
 					}
 				}
+               // ServerListRetrieve.
 			} catch (Exception e) {
 				server.LogError(LoginServer.Category, "Error running keep alive: " + e);
 				Dispose();
