@@ -34,8 +34,8 @@ namespace PRMasterServer
             //make it into array
             //bool potato = false;
             string faget = "FAGGET";
-            string[] gamelist = { "civ4", "civ4bts" };
-            string[] GKlist = { "y3D9Hw", "Cs2iIq" };
+            string[] gamelist = { "civ4", "civ4bts", "civ4btsjp" };
+            string[] GKlist = { "y3D9Hw", "Cs2iIq", "Cs2iIq" };
             //LogGreen(gamelist.Count);
             for (int i = 0; i < gamelist.Length; i++) { if (gname == gamelist[i]) { faget=GKlist[i]; } }
             //  char *strarray[][] = {"hey", "sup", "dogg"};
@@ -46,7 +46,7 @@ namespace PRMasterServer
         { 
             //make it into array
             bool potato=false;
-            string[] gamelist={"civ4","civ4bts"};
+            string[] gamelist = { "civ4", "civ4bts", "civ4btsjp" };
             //LogGreen(gamelist.Count);
             for (int i = 0; i < gamelist.Length; i++) { LogGreen(gamelist[i]); if (gamelist[i] == gn) potato = true; }
                 //  char *strarray[][] = {"hey", "sup", "dogg"};
@@ -86,69 +86,83 @@ namespace PRMasterServer
 
             bool runLoginServer = true;
             bool runNatNegServer = true;
-            bool runCdKeyServer = true;
+            bool runCdKeyServer = false;
             bool runMasterServer = true;
             bool runListServer = true;
             
 
             
             //string supportedgamename = "civ4bts";
-                        LogError("dis is gona be good");
+                        
                         LogGreen("Use /help command to get server's attention");
 
             IPAddress bind = IPAddress.Any;
-            if (args.Length >= 1)
-            {
-                for (int i = 0; i < args.Length; i++)
-                {
-                    if (args[i].Equals("+bind"))
-                    {
-                        if ((i >= args.Length - 1) || !IPAddress.TryParse(args[i + 1], out bind))
-                        {
-                            LogError("+bind value must be a valid IP Address to bind to!");
-                        }
-                    }
-                    else if (args[i].Equals("+db"))
-                    {
-                        if ((i >= args.Length - 1))
-                        {
-                            LogError("+db value must be a path to the database");
-                        }
-                        else
-                        {
-                            LoginDatabase.Initialize(args[i + 1], log, logError);
-                        }
-                    }
-                    else if (args[i].Equals("+game"))
-                    {
-                        if ((i >= args.Length - 1))
-                        {
-                            LogError("+game value must be a game name");
-                        }
-                        else
-                        {
-                            gameName = args[i + 1];
-                            //Program.gameNam1 = gameName;
-                        }
-                    }
-                    else if (args[i].Equals("+servers"))
-                    {
-                        if ((i >= args.Length - 1))
-                        {
-                            LogError("+servers value must be a comma-separated list of server types (master,login,cdkey,list,natneg)");
-                        }
-                        else
-                        {
-                            List<string> serverTypes = args[i + 1].Split(char.Parse(",")).Select(s => { return s.Trim().ToLower(); }).ToList();
-                            runLoginServer = serverTypes.IndexOf("login") >= 0;
-                            runNatNegServer = serverTypes.IndexOf("natneg") >= 0;
-                            runListServer = serverTypes.IndexOf("list") >= 0;
-                            runMasterServer = serverTypes.IndexOf("master") >= 0;
-                            runCdKeyServer = serverTypes.IndexOf("cdkey") >= 0;
-                        }
-                    }
-                }
-            }
+
+            //Params rewrtitten
+          //  LoginDatabase.Initialize("logindb.db3", log, logError);
+           // gameName = "civ4bts";
+           // string argsfake = "master,login,cdkey,list,natneg";
+           // List<string> serverTypes = argsfake.Split(char.Parse(",")).Select(s => { return s.Trim().ToLower(); }).ToList();
+            //runLoginServer = serverTypes.IndexOf("login") >= 0;
+            //runNatNegServer = serverTypes.IndexOf("natneg") >= 0;
+            //runListServer = serverTypes.IndexOf("list") >= 0;
+           // runMasterServer = serverTypes.IndexOf("master") >= 0;
+            //runCdKeyServer = serverTypes.IndexOf("cdkey") >= 0;
+
+
+             if (args.Length >= 1)
+             {
+                 for (int i = 0; i < args.Length; i++)
+                 {
+                     if (args[i].Equals("+bind"))
+                     {
+                         if ((i >= args.Length - 1) || !IPAddress.TryParse(args[i + 1], out bind))
+                         {
+                             LogError("+bind value must be a valid IP Address to bind to!");
+                         }
+                     }
+                     else if (args[i].Equals("+db"))
+                     {
+                         if ((i >= args.Length - 1))
+                         {
+                             LogError("+db value must be a path to the database");
+                         }
+                         else
+                         {
+                             LoginDatabase.Initialize(args[i + 1], log, logError);
+                         }
+                     }
+                     else if (args[i].Equals("+game"))
+                     {
+                         if ((i >= args.Length - 1))
+                         {
+                             //gameName = "civ4bts";
+                             Log("supported games: civ4, civ4bts, civ4btsjp");
+                         }
+                         else
+                         {
+                             gameName = args[i + 1];
+                             //Program.gameNam1 = gameName;
+                         }
+                     }
+                     else if (args[i].Equals("+servers"))
+                     {
+                         if ((i >= args.Length - 1))
+                         {
+                             LogError("+servers value must be a comma-separated list of server types (master,login,cdkey,list,natneg)");
+                         }
+                         else
+                         {
+                             List<string> serverTypes = args[i + 1].Split(char.Parse(",")).Select(s => { return s.Trim().ToLower(); }).ToList();
+                             runLoginServer = serverTypes.IndexOf("login") >= 0;
+                             runNatNegServer = serverTypes.IndexOf("natneg") >= 0;
+                             runListServer = serverTypes.IndexOf("list") >= 0;
+                             runMasterServer = serverTypes.IndexOf("master") >= 0;
+                             runCdKeyServer = serverTypes.IndexOf("cdkey") >= 0;
+                         }
+                     }
+                 }
+             }
 
             if (runLoginServer && !LoginDatabase.IsInitialized())
             {
@@ -186,14 +200,14 @@ namespace PRMasterServer
                 { 
                     LogBlue("kay, dis some help for ye:"); 
                     LogBlue("/help - to get help;"); 
-                    LogBlue("/sendF27900 X - send from (supposedly) SB, where X are hex symbols separated with commas to be sent, example: /sendF27900 0x00,0x06,0x06,0x06"); 
-               
+                    LogBlue("/sendF27900 X - send from (supposedly) SB, where X are hex symbols separated with commas to be sent, example: /sendF27900 0x00,0x06,0x06,0x06");
+                    LogBlue("/list - to see current serverlist;");
                 
                 
                 } else
-                    if (s == "/sendF27900 B") 
+                    if (s == "/sendF27900 X") 
                 {
-                    LogBlue("Command: sendF27900...");
+                    LogBlue("DIS IS AN ERORR AGAIN NOOB");
                        // PRMasterServer.Servers.ServerListRepor
                     try {
                         //PRMasterServer.Servers.
@@ -201,11 +215,11 @@ namespace PRMasterServer
                     }
                     catch (Exception ex)
                     {
-                        LogError("DIS IS AN ERORR AGAIN NOOB"+ ex.ToString());
+                        Log("DIS IS AN ERORR AGAIN NOOB"+ ex.ToString());
                     }
 
                     } else
-                        if (s.Substring(0,3) == "/sa")//sa")
+                        if (s=="soplikita")//(s.Substring(0,3) == "/sa")//sa")
                         {//8
                             LogBlue("/SA");
                             LogBlue(s);
@@ -218,7 +232,9 @@ namespace PRMasterServer
                            // Console.WriteLine(PRMasterServer.Servers["hostname"]);
                             //ServerListReport.Servers.TryGetValue("hostname", out v);
                            // LogBlue(v);//"testsaddasads"); 
-                        }//isSupported("hh"); }
+                        }//isSupported("hh"); } 
+                        else
+                            if (s == "/list") { PRMasterServer.Servers.ServerListRetrieve.printSLinfo(); }
                         
 
 				Thread.Sleep(500);
@@ -242,14 +258,14 @@ namespace PRMasterServer
         {
             ConsoleColor c = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.Error.WriteLine(String.Format("[{0}] {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture), message));
+            Console.WriteLine(String.Format("[{0}] {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture), message));
             Console.ForegroundColor = c;
         }
         public static void LogBlue(string message)
         {
             ConsoleColor c = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Error.WriteLine(String.Format("[{0}] {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture), message));
+            Console.WriteLine(String.Format("[{0}] {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture), message));
             Console.ForegroundColor = c;
         }
 
@@ -258,7 +274,7 @@ namespace PRMasterServer
         {
             ConsoleColor c = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Magenta;
-            Console.Error.WriteLine(String.Format("[{0}] {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture), message));
+            Console.WriteLine(String.Format("[{0}] {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture), message));
             //Console.ForegroundColor = ;
             Console.ForegroundColor = ConsoleColor.Gray;
         }
@@ -267,9 +283,20 @@ namespace PRMasterServer
         {
             ConsoleColor c = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.Error.WriteLine(String.Format("[{0}] {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture), message));
+            Console.WriteLine(String.Format("[{0}] {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture), message));
             //Console.ForegroundColor = ;
             Console.ForegroundColor = ConsoleColor.Gray;
+        }
+        public static void LogControl(string message)
+        {
+            //ConsoleColor c = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.BackgroundColor = ConsoleColor.White;
+            Console.WriteLine(String.Format("[{0}] {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture), message));
+            //Console.ForegroundColor = ;
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.WriteLine(" ");
         }
 	}
 }
