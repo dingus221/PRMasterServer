@@ -25,7 +25,7 @@ namespace PRMasterServer.Servers
         
 
 		private static Socket _socket;
-		private readonly ServerListReport _report;
+		public static ServerListReport _report;//was private readonly slr 07.10
 
 		private readonly ManualResetEvent _reset = new ManualResetEvent(false);
 		private AsyncCallback _socketSendCallback;
@@ -34,13 +34,7 @@ namespace PRMasterServer.Servers
 
         static public int tmp1=0;
         static public Socket tmpS1;
-        static public byte[] resp11 = new byte[] {0x7F,0x00,0x00,0x01,0x19,0x64,0x0E,0x00,0x68,0x6F,0x73,0x74,0x6E,0x61,0x6D,0x65,0x00,0x00,0x67,0x61,0x6D,0x65,0x6D,0x6F,0x64,0x65,0x00,0x00,0x68,0x6F,0x73,0x74,0x6E,0x61,0x6D,0x65,0x00,0x00,0x67,0x61,0x6D,0x65,0x76,0x65,0x72,0x00,0x00,0x70,
-0x61,0x73,0x73,0x77,0x64,0x00,0x00,0x68,0x6F,0x73,0x74,0x70,0x6F,0x72,0x74,0x00,0x00,0x73,0x74,0x61,0x67,0x69,0x6E,0x67,0x00,0x00,0x6E,0x65,0x77,0x67,0x61,0x6D,0x65,0x00,0x00,0x6D,0x61,0x70,0x6E,0x61,0x6D,0x65,0x00,0x00,0x67,0x61,
-0x6D,0x65,0x74,0x79,0x70,0x65,0x00,0x00,0x6D,0x79,0x6E,0x75,0x6D,0x70,0x6C,0x61,0x79,0x65,0x72,0x73,0x00,0x00,0x6D,0x61,0x78,0x6E,0x75,0x6D,0x70,0x6C,0x61,0x79,0x65,0x72,0x73,0x00,0x00,0x6E,0x75,0x6D,0x6D,0x69,0x73,0x73,
-0x69,0x6E,0x67,0x00,0x00,0x70,0x69,0x74,0x62,0x6F,0x73,0x73,0x00,0x00,0x73,0xC0,0xA8,0x89,0xCC,0x19,0x64,0xC0,0xA8,0x89,0xCC,0x19,0x64,0xFF,0x61,0x64,0x6D,0x69,0x6E,0x6F,0x73,0x74,0x72,0x61,0x74,0x65,0x72,0x27,0x73,
-0x20,0x47,0x61,0x6D,0x65,0x00,0xFF,0x6F,0x70,0x65,0x6E,0x73,0x74,0x61,0x67,0x69,0x6E,0x67,0x00,0xFF,0x61,0x64,0x6D,0x69,0x6E,0x6F,0x73,0x74,0x72,0x61,0x74,0x65,0x72,0x27,0x73,0x20,0x47,0x61,0x6D,0x65,0x00,0xFF,0x30,0x00,0xFF,
-0x30,0x00,0xFF,0x32,0x30,0x35,0x36,0x00,0xFF,0x31,0x00,0xFF,0x31,0x00,0xFF,0x4D,0x65,0x64,0x69,0x75,0x6D,0x5F,0x61,0x6E,0x64,0x5F,0x53,0x6D,0x61,0x6C,0x6C,0x00,0xFF,0x00,0xFF,0x31,0x00,0xFF,0x37,0x00,0xFF,0x36,0x00,0xFF,0x30,0x00,0x00,0xFF,0xFF,0xFF,0xFF};
-            
+
             
             /*{0x7F,0x00,0x00,0x01,0x19,0x64,0x0E,0x00,0x68,0x6F,0x73,0x74,0x6E,0x61,0x6D,0x65,0x00,0x00,0x67,0x61,0x6D,0x65,0x6D,0x6F,
 0x64,0x65,0x00,0x00,0x68,0x6F,0x73,0x74,0x6E,0x61,0x6D,0x65,0x00,0x00,0x67,0x61,0x6D,0x65,0x76,0x65,0x72,0x00,0x00,0x70,
@@ -55,37 +49,40 @@ namespace PRMasterServer.Servers
 0x31,0x00,0xFF,0x31,0x00,0xFF,0x4D,0x65,0x64,0x69,0x75,0x6D,0x5F,0x61,0x6E,0x64,0x5F,0x53,0x6D,0x61,0x6C,0x6C,0x00,
 0xFF,0x00,0xFF,0x31,0x00,0xFF,0x37,0x00,0xFF,0x36,0x00,0xFF,0x30,0x00,0x00,0xFF,0xFF,0xFF,0xFF
     };*/
-        static public byte[] resp12 = new byte[] {
-            0x51,0x7F,0x00,0x00,0x01,0x19,0x64,0xFF,0x61,0x64,
-0x6D,0x69,0x6E,0x27,0x73,0x20,0x47,0x61,0x6D,0x65,0x00,0xFF,0x6F,0x70,0x65,0x6E,0x73,0x74,0x61,0x67,0x69,0x6E,
-0x67,0x00,0xFF,0x61,0x64,0x6D,0x69,0x6E,0x27,0x73,0x20,0x47,0x61,0x6D,0x65,0x00,0xFF,0x30,0x00,0xFF,0x30,0x00,0xFF,0x32,
-0x30,0x35,0x36,0x00,0xFF,0x31,0x00,0xFF,0x31,0x00,0xFF,0x42,0x61,0x6C,0x61,0x6E,0x63,0x65,0x64,0x00,0xFF,0x00,0xFF,0x31,0x00,
-0xFF,0x33,0x00,0xFF,0x32,0x00,0xFF,0x30,0x00,0x00,0xFF,0xFF,0xFF,0xFF
-        };
+
 
         public static void SendToAllConnected(string validateX)
         {
-            //byte[] unencryptedServerList = "POTATA";// PackServerList(state, servers, fields);
-            //byte[] encryptedServerList = GSEncoding.Encode(key, DataFunctions.StringToBytes(validate), unencryptedServerList, unencryptedServerList.LongLength);
-            //_socket
-            //SendToClient(state, encryptedServerList);
-            //;
-            byte[] key = DataFunctions.StringToBytes(Program.getGKey(Program.gameName));
-            Program.LogBlue(Encoding.ASCII.GetString(key));
-            Program.LogBlue(tmpS1.Connected.ToString());
-            byte[] resp13 = GSEncoding.Encode(key, DataFunctions.StringToBytes(validateX), resp11, resp11.LongLength);
-            Program.LogBlue(Encoding.ASCII.GetString(resp13));
-            tmpS1.Send(resp13);
+
+            //byte[] key = DataFunctions.StringToBytes(Program.getGKey(Program.gameName));
+            //Program.LogBlue(Encoding.ASCII.GetString(key));
+            //Program.LogBlue(tmpS1.Connected.ToString());
+            //byte[] resp13 = GSEncoding.Encode(key, DataFunctions.StringToBytes(validateX), resp11, resp11.LongLength);
+            //Program.LogBlue(Encoding.ASCII.GetString(resp13));
+            //tmpS1.Send(resp13);
            
             // ParseRequest.
             
         }
+
        
+        public static void printSLinfo() {
+        IQueryable<GameServer> servers = _report.Servers.ToList().Select(x => x.Value).Where(x => x.Valid).AsQueryable();
+        int zz = 0;
+            foreach (var server in servers) {
+                zz = zz + 1;
+        Program.LogControl(zz.ToString() + "." + server.hostname + "(" + server.mynumplayers + "/" + server.maxnumplayers + ");"+"Staging:"+server.staging.ToString());
+        }
+        Program.LogControl("SL.Count: " + servers.Count().ToString()); 
+           
+        
+        }
 
 		public ServerListRetrieve(IPAddress listen, ushort port, ServerListReport report, Action<string, string> log, Action<string, string> logError)
 		{
 			Log = log;
 			LogError = logError;
+            
             //logError("public","serverlistretrieve");
 			_report = report;
 			//*
@@ -284,6 +281,8 @@ namespace PRMasterServer.Servers
 				state.ReceivedData.Append(Encoding.UTF8.GetString(state.Buffer, 0, received));
 				string receivedData = state.ReceivedData.ToString();
                 Program.LogCyan("SB.OnDataReceived:"+ receivedData);
+
+
 				// does what we received end with \x00\x00\x00\x00\x??
 				if (receivedData.Substring(receivedData.Length - 5, 4) == "\x00\x00\x00\x00") {
 					state.ReceivedData.Clear();
@@ -293,7 +292,7 @@ namespace PRMasterServer.Servers
                     //LogError(messages[1], messages[2]);
                     //LogError(messages[3], messages[4]);
 					for (int i = 0; i < messages.Length; i++) {
-						if (messages[i].StartsWith(Program.gameName/*"civ4"/*battlefield2*/)) {
+						/*if (messages[i].StartsWith(Program.gameName/*"civ4"/*battlefield2)) COMMENTED OUT 07.10*/{
 							if (ParseRequest(state, messages[i]))
 								return;
 						}
@@ -388,12 +387,12 @@ namespace PRMasterServer.Servers
             /////////////////Ahtung
             Program.LogCyan("SB.Parserequest." + message);
 			string[] data = message.Split(new char[] { '\x00' }, StringSplitOptions.RemoveEmptyEntries);
-			if (data.Length != 4 ||
-                !data[0].Equals(Program.gameName/*"civ4"/*battlefield2*/, StringComparison.InvariantCultureIgnoreCase) ||
-				(
-                
-                    !data[1].Equals(Program.gameName/*"civ4"/*battlefield2*/, StringComparison.InvariantCultureIgnoreCase) &&
-					!data[1].Equals("gslive", StringComparison.InvariantCultureIgnoreCase)
+           if (data.Length != 4 || /*                COMOUT 07.10
+               */ (!data[0].Equals("civ4bts"/*Program.gameName/*"civ4"/*battlefield2*/, StringComparison.InvariantCultureIgnoreCase) && !data[0].Equals("civ4btsjp", StringComparison.InvariantCultureIgnoreCase)         && !data[0].Equals("civ4", StringComparison.InvariantCultureIgnoreCase)             ) ||//*/   
+		  	(
+
+                  /*COMOUT 07.10 */ (!data[1].Equals("civ4bts"/*Program.gameName/*"civ4"/*battlefield2*/, StringComparison.InvariantCultureIgnoreCase) && !data[1].Equals("civ4btsjp", StringComparison.InvariantCultureIgnoreCase) && !data[1].Equals("civ4", StringComparison.InvariantCultureIgnoreCase)         ) &&
+					!data[1].Equals("gslive", StringComparison.InvariantCultureIgnoreCase)       
 				)
 			) {
                 Program.LogCyan("SB.CHECKPOINT X.");
@@ -426,20 +425,21 @@ namespace PRMasterServer.Servers
 
 			// http://aluigi.altervista.org/papers/gslist.cfg
 			byte[] key;
-            if (gamename == Program.gameName)
+            //if (gamename == Program.gameName)     COMOUT 07.10
             {/*"civ4")/*battlefield2*/
-                Program.LogCyan("GKey:" + Program.getGKey(gamename));
+                //Program.LogCyan("GKey:" + Program.getGKey(gamename));
                 key = DataFunctions.StringToBytes(Program.getGKey(gamename));
             }//("y3D9Hw"/*"Cs2iIq"/*hW6m9a*/);
-            else if (gamename == "arma2oapc")
+           /* else if (gamename == "arma2oapc")
                 key = DataFunctions.StringToBytes("sGKWik");
             else
                 key = DataFunctions.StringToBytes("Xn221z");
-			
+			*/
 			byte[] unencryptedServerList = PackServerList(state, servers, fields);
 			byte[] encryptedServerList = GSEncoding.Encode(key, DataFunctions.StringToBytes(validate), unencryptedServerList, unencryptedServerList.LongLength);
 
-            Program.LogCyan(System.Text.Encoding.ASCII.GetString(encryptedServerList));
+            //Program.LogCyan("SB.UnencSL. "+System.Text.Encoding.ASCII.GetString(unencryptedServerList));
+            if (encryptedServerList.Count() < 1) { Program.LogCyan("SB.CheckPoint44.EncrSList is empty."); }
             SendToClient(state, encryptedServerList);
             //SendToClient(state, unencryptedServerList);
             
@@ -475,7 +475,7 @@ namespace PRMasterServer.Servers
 				// 81 (\x51)	= public ip / public port
                 //WAS COMMENTED OUT
                 //30.09
-                /**/Console.WriteLine(server.IPAddress);
+                /*Console.WriteLine(server.IPAddress);
                 Console.WriteLine(server.QueryPort);
                 Console.WriteLine(server.localip0);
                 Console.WriteLine(server.localip1);
@@ -520,18 +520,18 @@ namespace PRMasterServer.Servers
 
 			data.AddRange(new byte[] { 0, 255, 255, 255, 255 });
             //Console.WriteLine("Packlist, checkpoint 4");
-            Program.LogCyan("SB.ListCount:"+data.Count.ToString());
+            //Program.LogCyan("SB.ListCount:"+data.Count.ToString());
             byte[] bong = data.ToArray();
            /* foreach (byte color in data)
             {*/
-                for (int i = 0; i < bong.Count(); i++)
-                {
-                    Console.Write(bong[i] + ",");
-                }
+             //   for (int i = 0; i < bong.Count(); i++)
+              //  {
+               //     Console.Write(bong[i] + ",");
+              //  }
                 //Program.LogCyan(color.ToString());
                 //Program.LogCyan(color);
             //}
-            Program.LogCyan( System.Text.Encoding.ASCII.GetString(bong));
+           // Program.LogCyan( System.Text.Encoding.ASCII.GetString(bong));
             
 
 
