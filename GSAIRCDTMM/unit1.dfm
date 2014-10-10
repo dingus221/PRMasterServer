@@ -1,7 +1,7 @@
 object Form1: TForm1
-  Left = 390
-  Top = 121
-  Width = 622
+  Left = 282
+  Top = 91
+  Width = 787
   Height = 583
   Caption = 'GS adapted IRC Daemon "The Most Moist"'
   Color = clBlack
@@ -20,7 +20,7 @@ object Form1: TForm1
   object Memo1: TMemo
     Left = 0
     Top = 20
-    Width = 606
+    Width = 576
     Height = 493
     Align = alClient
     BorderStyle = bsNone
@@ -28,7 +28,7 @@ object Form1: TForm1
     Font.Charset = RUSSIAN_CHARSET
     Font.Color = clWhite
     Font.Height = -11
-    Font.Name = 'Fixedsys'
+    Font.Name = 'Courier'
     Font.Style = []
     ParentFont = False
     ScrollBars = ssVertical
@@ -120,7 +120,7 @@ object Form1: TForm1
   object Panel3: TPanel
     Left = 0
     Top = 513
-    Width = 606
+    Width = 771
     Height = 32
     Align = alBottom
     Color = clLime
@@ -128,7 +128,7 @@ object Form1: TForm1
     object Clitoris: TEdit
       Left = 2
       Top = 2
-      Width = 599
+      Width = 735
       Height = 27
       BorderStyle = bsNone
       Color = clBlack
@@ -146,7 +146,7 @@ object Form1: TForm1
   object Panel4: TPanel
     Left = 0
     Top = 0
-    Width = 606
+    Width = 771
     Height = 20
     Align = alTop
     Caption = 'MOISTURE PARAMETERS(DONT WORK YET)'
@@ -200,7 +200,7 @@ object Form1: TForm1
     end
   end
   object Memo2: TMemo
-    Left = 568
+    Left = 560
     Top = 24
     Width = 17
     Height = 17
@@ -239,6 +239,22 @@ object Form1: TForm1
     TabOrder = 11
     Visible = False
     WordWrap = False
+  end
+  object RichEdit1: TRichEdit
+    Left = 576
+    Top = 20
+    Width = 195
+    Height = 493
+    Align = alRight
+    Font.Charset = RUSSIAN_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -8
+    Font.Name = 'Arial'
+    Font.Style = []
+    ParentFont = False
+    ScrollBars = ssVertical
+    TabOrder = 12
+    OnKeyDown = Memo1KeyDown
   end
   object Daemon: TServerSocket
     Active = False
