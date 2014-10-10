@@ -38,7 +38,6 @@ Investigation directions.<br>
 1.1.1. To find out if its the right hypothesis, it is needed to look into more logs of communications with real gamespy SB available on internet, and hopefully find some of more similar game than bf.<br>
 1.2.1. I tested it a little, and if this is the right hypothesis, correct content of the header of this kind of updating serverlist for client is needed. Currently i only tried to send whole serverlist.<br>
 <br>
-2. Testing shows, that some players connect better than others, while some can't connect to anyone. We were able to start a game with 3 people somehow (needs testing)<br>
 3. Hosts still get error from time to time - "sb not responsive"<br>
 
 <strong>7. How gamespy server works for nabs</strong>
@@ -58,7 +57,7 @@ Here i will write some bullshit for nabs
 
 6. Set up irc server - run GSAIRCDTMM, doesnt need no configurationing.
 
-7. To join the lobby from the game you need to configure windows/system32/drivers/etc/hosts file (or redirect dead official gamespy server traffick of the game to the server in other ways). Will include hosts file for hosts testing, redirecting all to 127.0.0.1.
+7. To join the lobby from the game you need to configure windows/system32/drivers/etc/hosts file (or redirect dead official gamespy server traffick of the game to the server in other ways). Correct hosts file included.
 
 
 9. Credits (in order of importance)
