@@ -224,15 +224,15 @@ namespace PRMasterServer.Servers
 				Array.Copy(e.Buffer, e.Offset, receivedBytes, 0, e.BytesTransferred);
                                 
                Program.LogPink("Q&R. Data recieved.");
-                Program.LogPink("[Bytes(" + e.BytesTransferred + ")]");
+               /* Program.LogPink("[Bytes(" + e.BytesTransferred + ")]");
                 for (int i = 0; i < e.BytesTransferred; i++)
                 {
                     Console.Write(receivedBytes[i] + ",");
                 }
-                Console.WriteLine(' ');
+                Console.WriteLine(' ');*/
                 Program.LogPink("[Q&R, Characters]"+System.Text.Encoding.ASCII.GetString(receivedBytes));
-                
-                if (receivedBytes.SequenceEqual(_initialMessage))
+
+                if (receivedBytes.Length > 5 && receivedBytes[0] == 0x09)//(receivedBytes.SequenceEqual(_initialMessage)) replaced on 07.10
                 {
                     // the initial message is basically the gamename, 0x09 0x00 0x00 0x00 0x00 battlefield2
                     // reply back a good response
@@ -254,9 +254,10 @@ namespace PRMasterServer.Servers
                         Program.LogPink("0x03 requested");
                         byte[] uniqueId = new byte[4];
                         Array.Copy(receivedBytes, 1, uniqueId, 0, 4);
-                        Program.LogPink("0x03UID:" +  uniqueId[0] + ',' + uniqueId[1] + ',' + uniqueId[2] + ',' + uniqueId[3] + ',');
+                        //Program.LogPink("0x03UID:" +  uniqueId[0] + ',' + uniqueId[1] + ',' + uniqueId[2] + ',' + uniqueId[3] + ',');
                         
-                        if (!ParseServerDetails(remote, receivedBytes.Skip(5).ToArray()))
+                        //17:25
+                         if (!ParseServerDetails(remote, receivedBytes.Skip(5).ToArray()))//) COMMENTED OUT 08.10
                         {
                             // this should be some sort of proper encrypted challenge, but for now i'm just going to hard code it because I don't know how the encryption works...
                             //byte[] response = new byte[] { 0xfe, 0xfd, 0x01, uniqueId[0], uniqueId[1], uniqueId[2], uniqueId[3], 0x44, 0x3d, 0x73, 0x7e, 0x6a, 0x59, 0x30, 0x30, 0x37, 0x43, 0x39, 0x35, 0x41, 0x42, 0x42, 0x35, 0x37, 0x34, 0x43, 0x43, 0x00 };
@@ -267,12 +268,12 @@ namespace PRMasterServer.Servers
                             byte[] response = new byte[] { 0xfe, 0xfd, 0x01, uniqueId[0], uniqueId[1], uniqueId[2], uniqueId[3], 0x41, 0x43, 0x4E, 0x2B, 0x78, 0x38, 0x44, 0x6D, 0x57, 0x49, 0x76, 0x6D, 0x64, 0x5A, 0x41, 0x51, 0x45, 0x37, 0x68, 0x41, 0x00 };
                            
                             _socket.SendTo(response, remote);
-                            Program.LogPink("ResponseTo0x03: ");
-                            for (int i = 0; i < response.Length-1; i++)
-                            {
-                                Console.Write(response[i] + ",");
-                            }
-                            Console.WriteLine(" ");
+                            //Program.LogPink("ResponseTo0x03: ");
+                            //for (int i = 0; i < response.Length-1; i++)
+                            //{
+                             //   Console.Write(response[i] + "!");
+                            //}
+                            //Console.WriteLine(" ");
                             Program.LogPink("ResponseTo0x03(S): " + System.Text.Encoding.ASCII.GetString(response));
                             
                         }
@@ -299,22 +300,22 @@ namespace PRMasterServer.Servers
                         // if we validate, reply back a good response
                         if (/*clientResponse.SequenceEqual(validate)*/true)//29.09 so is always accepted
                         {
-                            Program.LogPink("Challenge accepted");
+                            //Program.LogPink("Challenge accepted");
                             byte[] response = new byte[] { 0xfe, 0xfd, 0x0a, uniqueId[0], uniqueId[1], uniqueId[2], uniqueId[3] };//, 0x00, 0x00, 0x00, 0x00
                             _socket.SendTo(response, remote);
 
-                            AddValidServer(remote);
+                            //AddValidServer(remote);
 
                             //Console.WriteLine("0x01 response: ");
                             // + System.Text.Encoding.ASCII.GetString(clientResponse));
-                            for (int i = 0; i < response.Length - 1; i++)
-                            {
-                                Console.Write(response[i] + ",");
-                            }
-                            Console.WriteLine(" ");
+                         //   for (int i = 0; i < response.Length - 1; i++)
+                          //  {
+                            //    Console.Write(response[i] + ",");
+                           // }
+                           // Console.WriteLine(" ");
 
                         }
-                        else Program.LogPink("CHALLENGE IS WRONGUS");
+                        //else Program.LogPink("CHALLENGE IS WRONGUS"); COMMENTED OUT 07.10
 
                     }
                     else if (receivedBytes.Length == 5 && receivedBytes[0] == 0x08)
@@ -371,16 +372,11 @@ namespace PRMasterServer.Servers
 			// the players/teams separator is really 00, but because 00 may also be used elsewhere (an empty value for example), we hardcode it to 002
 			// the 2 is the size of the teams, for BF2 this is always 2.
 			string[] sections = receivedData.Split(new string[] { "\x00\x00\x00", "\x00\x00\x02" }, StringSplitOptions.None);
-            //Program.LogGreen("----------");
-            //Program.LogGreen(sections[0]);
-            //Program.LogGreen("----------");
-            //Program.LogGreen(sections[1]);
-            //Program.LogGreen("----------");
-            //Program.LogGreen(sections[2]);
-			//Console.WriteLine(sections.Length);
 
-			//if (sections.Length != 3 && !receivedData.EndsWith("\x00\x00"))// COMMENTED OUT ON 23.09
-			//	return true; // true means we don't send back a response
+            //Program.LogPink("QR.PARS.SecLen:" + sections.Length.ToString());
+            //Program.LogPink("QR.PARS.receivedData.EndsWith:" + receivedData.EndsWith("\x00\x00").ToString());
+			if (sections.Length != 3 && !receivedData.EndsWith("\x00\x00"))// COMMENTED OUT ON 23.09
+				return true; // true means we don't send back a response
             
 			string serverVars = sections[0];
 			//string playerVars = sections[1];//turned that on on 2809
@@ -395,7 +391,7 @@ namespace PRMasterServer.Servers
 				LastRefreshed = DateTime.UtcNow,
 				LastPing = DateTime.UtcNow
 			};
-
+            
 			// set the country based off ip address
 			if (GeoIP.Instance == null || GeoIP.Instance.Reader == null) {
 				server.country = "??";
@@ -418,23 +414,11 @@ namespace PRMasterServer.Servers
 
 				if (property.Name == "hostname") {
 					// strip consecutive whitespace from hostname
-
+                   // Program.LogBlue(serverVarsSplit[i + 1]);
                     //if (s11.Length>0)
                     {
                         property.SetValue(server, Regex.Replace(serverVarsSplit[i + 1], @"\s+", " ").Trim(), null);
                     }
-				} else if (property.Name == "bf2_plasma") {
-					// set plasma to true if the ip is in plasmaservers.txt
-					if (PlasmaServers.Any(x => x.Equals(remote.Address)))
-						property.SetValue(server, true, null);
-					else
-						property.SetValue(server, false, null);
-				} else if (property.Name == "bf2_ranked") {
-					// we're always a ranked server (helps for mods with a default bf2 main menu, and default filters wanting ranked servers)
-					property.SetValue(server, true, null);
-				} else if (property.Name == "bf2_pure") {
-					// we're always a pure server
-					property.SetValue(server, true, null);
 				} else if (property.PropertyType == typeof(Boolean)) {
 					// parse string to bool (values come in as 1 or 0)
 					int value;
@@ -459,49 +443,62 @@ namespace PRMasterServer.Servers
 				}
 			}
             //LogError("doing", "server coming to be valid");
-            if (String.IsNullOrWhiteSpace(server.gamename) || !server.gamename.Equals(Program.gameName/*"civ4"/*changed from battlefield2*/, StringComparison.InvariantCultureIgnoreCase))
-            {
-				// only allow servers with a gamename of battlefield2
-				return true; // true means we don't send back a response
-			}/* else if (String.IsNullOrWhiteSpace(server.gamevariant) || !ModWhitelist.ToList().Any(x => SQLMethods.EvaluateIsLike(server.gamevariant, x))) {
+         //   if (String.IsNullOrWhiteSpace(server.gamename) /*|| !server.gamename.Equals(Program.gameName  COMMENTED OUT 07.10 */  /*"civ4"/*changed from battlefield2, StringComparison.InvariantCultureIgnoreCase)*/)
+        //    {
+                //Program.LogBlue("dosh");
+                    // only allow servers with a gamename of battlefield2
+				//return true; // true means we don't send back a response COMENTED OUT 07.10
+			/*}/* else if (String.IsNullOrWhiteSpace(server.gamevariant) || !ModWhitelist.ToList().Any(x => SQLMethods.EvaluateIsLike(server.gamevariant, x))) {
 				// only allow servers with a gamevariant of those listed in modwhitelist.txt, or (pr || pr_*) by default
 				return true; // true means we don't send back a response
 			}*/
 
 			// you've got to have all these properties in order for your server to be valid
             //LogPink("server nearly valid");
+            bool tits = false;
 			if (!String.IsNullOrWhiteSpace(server.hostname) &&
 				//!String.IsNullOrWhiteSpace(server.gamevariant) &&
 				//!String.IsNullOrWhiteSpace(server.gamever) &&
 				//!String.IsNullOrWhiteSpace(server.gametype) &&
 				//!String.IsNullOrWhiteSpace(server.mapname) &&
-				server.hostport > 1024 && server.hostport <= UInt16.MaxValue &&
-				server.maxplayers > 0) {
+				server.hostport > 1024 && server.hostport <= UInt16.MaxValue /*&&
+				server.maxplayers > 0*/) {
 				server.Valid = true;
                 server.groupid = null;//were "1", changed 28.09
                 Program.LogPink("server is valid");
-
+                tits = true;
                 }
             else Program.LogPink("server is NOT valid");
 
 			// if the server list doesn't contain this server, we need to return false in order to send a challenge
 			// if the server replies back with the good challenge, it'll be added in AddValidServer
 
-            Program.LogPink("pars.KEY?"+key);
-            
-            //if (!Servers.ContainsKey(key)){
-			//	return false; }     //        COMMENTED OUT ON 22.09 WILL LOOK INTO IT LATER
+            if (tits == true)
+            {
+                bool vaginaworship = false;
+                if (!Servers.ContainsKey(key)) { vaginaworship = false; } else { vaginaworship = true; }
+                //		return false; }     //        COMMENTED OUT ON 22.09 WILL LOOK INTO IT LATER
 
-			Servers.AddOrUpdate(key, server, (k, old) => {
-                //if (server.Valid) LogError("doing", "DAFUQ IS OLD");
-				if (!old.Valid && server.Valid) {//if (old.Valid && server.Valid) {//WAS: if (!old.Valid && server.Valid) {
-					Log(Category, String.Format("Added new server at: {0}:{1} ({2}) ({3})", server.IPAddress, server.QueryPort, server.country, server.gamevariant));
-				}
+                //LogError("DIS IS AN ERORR AGAIN NOOB", "fak me");
 
-                return  server;
-			});
-            
-            return  true;// false;//true; commented out 23.09
+                Servers.AddOrUpdate(key, server, (k, old) =>
+                {
+                    //if (server.Valid) LogError("doing", "DAFUQ IS OLD");
+                    Program.LogBlue("QR.SAoU.CP1");
+                    if (!old.Valid && server.Valid)
+                    {//if (old.Valid && server.Valid) {//WAS: if (!old.Valid && server.Valid) {
+                        Log(Category, String.Format("Added new server at: {0}:{1} ({2}) ({3})", server.IPAddress, server.QueryPort, server.country, server.gamevariant));
+                        Program.LogBlue("QR.SAoU.CP2");
+                    }
+                    //else Program.LogBlue("QR.SAoU.CP3");
+
+                    return server;
+                });
+
+                if (!vaginaworship) { Program.LogBlue("NOKEY"); return false; } else { Program.LogBlue("YESKEY"); return false; }//true; }
+            }
+            else return true;
+            //return  true;// false;//true; commented out 23.09
 		}
 
 		private void AddValidServer(IPEndPoint remote)
@@ -509,7 +506,7 @@ namespace PRMasterServer.Servers
 			string key = String.Format("{0}:{1}", remote.Address, remote.Port);
             Program.LogPink("Q&A.Server added.");
 			GameServer server = new GameServer() {
-				Valid = false,
+				Valid = true,                      //hmmm 10:25
 				IPAddress = remote.Address.ToString(),
 				QueryPort = remote.Port,
 				LastRefreshed = DateTime.UtcNow,
