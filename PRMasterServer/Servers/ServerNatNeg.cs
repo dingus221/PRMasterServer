@@ -1,4 +1,4 @@
-﻿using Alivate;
+using Alivate;
 using MaxMind.GeoIP2;
 using PRMasterServer.Data;
 using System;
@@ -167,8 +167,9 @@ namespace PRMasterServer.Servers
                 }
                 else
                 {
-                    Log(Category, "Received message " + message.ToString() + " from " + remote.ToString());
-                    Log(Category, "(Message bytes: " + string.Join(" ", receivedBytes.Select((b) => { return b.ToString("X2"); }).ToArray()) + ")");
+                    //commented out 10.10
+                    //Program.LogError('['+ Category+']' + "Received message " + message.ToString() + " from " + remote.ToString());
+                    //Log(Category, "(Message bytes: " + string.Join(" ", receivedBytes.Select((b) => { return b.ToString("X2"); }).ToArray()) + ")");
                     if (message.RecordType == 0)
                     {
                         // INIT, return INIT_ACK
@@ -219,7 +220,7 @@ namespace PRMasterServer.Servers
                                 message.ClientPublicPort = (ushort)client.Guest.PublicAddress.Port;
                                 SendResponse(client.Host.CommunicationAddress, message);
 
-                                Log(Category, "Sent connect messages to peers with clientId " + client.ClientId + " connecting host " + client.Host.PublicAddress.ToString() + " and guest " + client.Guest.PublicAddress.ToString());
+                                //Log(Category, "Sent connect messages to peers with clientId " + client.ClientId + " connecting host " + client.Host.PublicAddress.ToString() + " and guest " + client.Guest.PublicAddress.ToString());
                             }
                         }
                     }
@@ -228,6 +229,7 @@ namespace PRMasterServer.Servers
                         // REPORT, return REPORT_ACK
                         message.RecordType = 14;
                         SendResponse(remote, message);
+                        //Console.WriteLine("somon natnegd in servernatneg.cs 'else if (message.RecordType == 13)'");
                     }
                 }
 			} catch (Exception ex) {
@@ -240,8 +242,8 @@ namespace PRMasterServer.Servers
         private void SendResponse(IPEndPoint remote, NatNegMessage message)
         {
             byte[] response = message.ToBytes();
-            Log(Category, "Sending response " + message.ToString() + " to " + remote.ToString());
-            Log(Category, "(Response bytes: " + string.Join(" ", response.Select((b) => { return b.ToString("X2"); }).ToArray()) + ")");
+            //Log(Category, "Sending response " + message.ToString() + " to " + remote.ToString());
+            //Log(Category, "(Response bytes: " + string.Join(" ", response.Select((b) => { return b.ToString("X2"); }).ToArray()) + ")");
             _socket.SendTo(response, remote);
         }
 
