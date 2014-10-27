@@ -28,16 +28,7 @@ It is roughly 75% done yet.<br>
 
 
 <strong>6. Current problems and directions of investigation:<br></strong>
-1. Serverlist refresh button doesn't work. Or works only cosmetically, pretending that serverlist is refreshed (NO FUCKIGN KIDDING).
-It turns out to be hard to figure out how to fix this. The reason for that is that when player hits refresh button, no data is sent from gameclient. And thereafter no new data is recieved when refresh is hit.<br>
-Currently I have 2 hypothesis why no data is sent and how it works.<br>
-1.1. Refreshing doesn't send any data because gameclient thinks its not logged in particularly in SB. It might be expecting and not getting some kind of SB related challenge at logging in. And refreshing button checks if that SB challenge was recieved everytime and if no doesnt do its function.<br>
-1.2. It doesn't send any data because it was designed to be a fraud button. Data is sent at the point of logging in. And each time new game is hosted only new data about this game is sent. And gameclient has unshown serverlist that is being updated. But visible list of games is updated from that invisible one on hitting refresh. It makes sense cause this way gamespy saves its traffick, sending whole list of servers each time someone hits refresh might take some bandwidth.<br>
-Investigation directions.<br>
-1.1.1. To find out if its the right hypothesis, it is needed to look into more logs of communications with real gamespy SB available on internet, and hopefully find some of more similar game than bf.<br>
-1.2.1. I tested it a little, and if this is the right hypothesis, correct content of the header of this kind of updating serverlist for client is needed. Currently i only tried to send whole serverlist.<br>
-<br>
-3. Hosts still get error from time to time - "sb not responsive"<br>
+1. Serverlist refresh button doesn't work and information about servers like number of players in game, map and ping is not updated. Supposedly game should request that info directly from other gameservers.<br>
 
 <strong>7. How gamespy server works for nabs</strong>
 <br>
