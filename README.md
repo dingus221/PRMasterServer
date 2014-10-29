@@ -1,23 +1,19 @@
 PRMasterServer
 ==============
 
-A GameSpy replacement Master Server for [Project Reality: BF2](http://www.realitymod.com). This emulates the GameSpy API in order to keep PR:BF2 playable after the Battlefield 2 GameSpy shutdown.
+A GameSpy replacement Master Server for Civilization 4 (and Beyond the Sword addon). This emulates the GameSpy API in order to keep Civilziation 4 playable via the lobby after the GameSpy shutdown.
+
+This is a cleaned up version of
+https://github.com/dingus221/PRMasterServer
 
 Features
 ---------------------
-Supports **Battlefield 2**'s GameSpy implementation. No other games are supported (yet?). If you wish to modify the code and add support for your game, or add any additional features, please feel free to make a **fork** and submit a [pull request](https://help.github.com/articles/using-pull-requests).
-
-- Login Server (Uses SQLite for the database)
-    - Creating Accounts
-    - Retrieving accounts by username/email (allows multiple accounts per email)
-    - Log in
-- Server Browser
-    - Server Reporting (Game Server registering with Master Server)
-    - Server Retrieval (Client requesting a server list)
-    - Supports filters
-    - GeoIP
-- CD Key Authentication
-    - Accepts all CD Keys with no further checks.
+- Master server(port 29900) - logging in and registering new users (works)
+- Natneg server (port 27901) - provides connection information to players about other players when they join staging room.
+- Serverbrowser (port 28910) is currently not fully functional. People in lobby can see the hosted games. But refresh button doesn't work. To refresh you need to re-login.
+- Queryserver (port 27900) - game hosts report status of their server into it. Interlinked with serverbrowser. Refreshing problem might be in this one.
+- Webserver (port 80) - I suspect it is needed only for automatically downloading of new patches (or just checking for them). 
+- For a peerchat server(port 6667) see https://github.com/Zulan/miniircd
 
 Setting up the project
 ---------------------
@@ -27,22 +23,26 @@ Setting up the project
 
 3. Grab the latest [MaxMind GeoIP2 Country](https://www.maxmind.com/en/country) database, or use the free [GeoLite2 Country](http://dev.maxmind.com/geoip/geoip2/geolite2/) database. Put it in the same folder as **PRMasterServer.exe**.
 
-4. Create a **modwhitelist.txt** file containing line separated mod names (i.e. bf2, pr, fh2) to allow servers running these mods to register with the master server. Or, just use **%** to allow all mods. If you don't have a **modwhitelist.txt** file, it will default to Project Reality: BF2 mod names (*pr* and *pr!_%*).
-> **Tip:** % is wildcard, _ is placeholder, ! is escape, # at the start of the line is a comment, empty lines are ignored.
+4. Run **PRMasterServer.exe +db logindb.db3 +game civ4bts +servers master,login,cdkey,list,natneg**, now game parameter doesnt matter, it will service civ4, civ4bts and civ4btsjp
 
-5. Run **PRMasterServer.exe +db LoginDatabase.db3** and it should start up with no errors. You can use an optional **+bind xxx.xxx.xxx.xxx** paramter to bind the server to a specific network interface, or by default it will bind to all available interfaces.
+5. Setup the IRC server https://github.com/Zulan/miniircd
 
-6. If there's issues, unlucky, I'm sure you'll be able to figure them out :).
-    
-Stuff to do
+6. To join the lobby from the game you need to configure windows/system32/drivers/etc/hosts file (or redirect dead official GameSpy server traffic of the game to the server in other ways such as modifying the exe file). A hosts file  with necessary redirects is included.
+
 ---------------------
-Of course, no project is ever really *complete*, there's plenty of other stuff that could be done. Maybe in the future it just might happen.
+Current issues
 
-- Comment the code so you poor folk can understand the black magic.
-- Manage account protocol (delete accounts, change password, change email).
-- Maybe support some other games than just Battlefield 2. But isn't that the point of open sourcing and putting it on GitHub? If you  want it, make a fork and do it ;).
+1. Serverlist refresh button doesn't work and information about servers like number of players in game, map and ping is not updated. Supposedly game should request that info directly from other gameservers.
 
 Credits
 ---------------------
 
-[Luigi Auriemma](http://aluigi.org) for reverse engineering the GameSpy protocol and encryption.
+[dingus221] for the modifications of the masterserver towards Civilization 4 support
+[novice-rb] for natneg
+[AncientMan2002] for original masterserver
+[Luigi Auriemma](http://aluigi.org) </strong> for reverse engineering the GameSpy protocol and encryption.
+[Caledorn] - users on realmsbeyond.net, for running the initial natneg server
+[SexIsBad2TheBone], [DimosEngel] civ4 players (testing)
+[GameSpy] for not being too hard encrypted and secretive [Rest in peace]
+[Sid Meyer and Firaxis] for great game
+[Zulan] code cleanup and server hosting
