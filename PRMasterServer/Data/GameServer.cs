@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace PRMasterServer.Data
 {
@@ -39,20 +39,45 @@ namespace PRMasterServer.Data
 		[NonFilter]
 		public int statechanged { get; set; }
 
+        public string groupid{ get; set; }
+   //     public int ugroupid { get; set; }
 		public string country { get; set; }
 		public string hostname { get; set; }
 		public string gamename { get; set; }
+        
 		public string gamever { get; set; }
 		public string mapname { get; set; }
-		public string gametype { get; set; }
+
+
+
+        public bool staging { get; set; }//Important?
+        public bool newgame { get; set; }
+        public int mynumplayers { get; set; }
+        public int maxnumplayers { get; set; }
+        public int nummissing { get; set; }
+        public bool pitboss { get; set; }
+
+
+        public string publicip { get; set; }
+        public int publicport { get; set; }
+        
+        public string gametype { get; set; }
 		public string gamevariant { get; set; }
 		public int numplayers { get; set; }
 		public int maxplayers { get; set; }
 		public string gamemode { get; set; }
 		public bool password { get; set; }
+        public bool sv_punkbuster { get; set; }
+        public bool pb { get; set; }
+        public bool punkbuster { get; set; }
+       // sv_punkbuster
+        public bool passwd { get; set; }
 		public int timelimit { get; set; }
 		public int roundtime { get; set; }
 		public int hostport { get; set; }
+        public bool dedicated { get; set; }
+        public bool ranked { get; set; }
+        public bool fraglimit { get; set; }
 		public bool bf2_dedicated { get; set; }
 		public bool bf2_ranked { get; set; }
 		public bool bf2_anticheat { get; set; }

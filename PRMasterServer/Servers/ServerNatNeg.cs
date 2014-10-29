@@ -1,4 +1,4 @@
-﻿using Alivate;
+using Alivate;
 using MaxMind.GeoIP2;
 using PRMasterServer.Data;
 using System;

@@ -1,4 +1,4 @@
-﻿using PRMasterServer.Data;
+using PRMasterServer.Data;
 using PRMasterServer.Servers;
 using System;
 using System.Globalization;
@@ -19,6 +19,31 @@ namespace PRMasterServer
     /// </summary>
 	class Program
 	{
+        //public struct supportedgames { string gamename;}
+        
+        public static string gameName = null;
+
+
+        public static string getGKey(string gname)
+        {
+            string[] gamelist = { "civ4", "civ4bts", "civ4btsjp" };
+            string[] GKlist = { "y3D9Hw", "Cs2iIq", "Cs2iIq" };
+            for (int i = 0; i < gamelist.Length; i++) {
+                if (gname == gamelist[i]) {
+                    return GKlist[i];
+                }
+            }
+            return "UNKNOWN GAME";
+        }
+
+        public static bool isSupported(string gn) 
+        { 
+            string[] gamelist = { "civ4", "civ4bts", "civ4btsjp" };
+            for (int i = 0; i < gamelist.Length; i++) {
+                if (gamelist[i] == gn) return true;
+            }
+            return false; 
+        }
 		private static readonly object _lock = new object();
 
 		static void Main(string[] args)
@@ -36,8 +61,8 @@ namespace PRMasterServer
 			};
 
             bool runLoginServer = true;
-            bool runNatNegServer = false;
-            bool runCdKeyServer = true;
+            bool runNatNegServer = true;
+            bool runCdKeyServer = false;
             bool runMasterServer = true;
             bool runListServer = true;
             string gameName = null;
@@ -69,7 +94,8 @@ namespace PRMasterServer
                     {
                         if ((i >= args.Length - 1))
                         {
-                            LogError("+game value must be a game name");
+                             //gameName = "civ4bts";
+                             Log("supported games: civ4, civ4bts, civ4btsjp");
                         }
                         else
                         {

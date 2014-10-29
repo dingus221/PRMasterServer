@@ -1,4 +1,4 @@
-﻿using PRMasterServer.Data;
+using PRMasterServer.Data;
 using Reality.Net.Extensions;
 using Reality.Net.GameSpy.Servers;
 using System;
@@ -40,22 +40,30 @@ namespace PRMasterServer.Servers
 			_report.Servers.TryAdd("test", new List<GameServer>() {
 				new GameServer() {
 					Valid = true,
+                          
+             newgame=false,
+            staging=false,
+            mynumplayers=61,
+            maxnumplayers=139,
+            nummissing=78,
+            pitboss=false,
 					IPAddress = "192.168.1.2",
-					QueryPort = 29900,
+					QueryPort = 29300,
 					country = "AU",
-					hostname = "[PR v1.2.0.0] 42",
-					gamename = "battlefield2",
-					gamever = "1.5.3153-802.0",
+					hostname = "Teamer 35vs49",
+					gamename = "civ4",
+					gamever = "3.19",
 					mapname = "Awesome Map",
 					gametype = "gpm_cq",
 					gamevariant = "pr",
-					numplayers = 100,
-					maxplayers = 100,
+					numplayers = 61,
+					maxplayers = 183,
 					gamemode = "openplaying",
 					password = false,
 					timelimit = 14400,
 					roundtime = 1,
-					hostport = 16567,
+					hostport = 16567}
+                / *    ,
 					bf2_dedicated = true,
 					bf2_ranked = true,
 					bf2_anticheat = false,
@@ -87,13 +95,13 @@ namespace PRMasterServer.Servers
 					bf2_coopbotratio = 0,
 					bf2_coopbotcount = 0,
 					bf2_coopbotdiff = 0,
-					bf2_novehicles = false
-				}
-			});
+					bf2_novehicles = false* /
+				
+			);*/
 
 			IQueryable<GameServer> servers = _report.Servers.Select(x => x.Value).AsQueryable();
-			Console.WriteLine(servers.Where("gamever = '1.5.3153-802.0' and gamevariant = 'pr' and hostname like '%[[]PR v1.2.0.0% %' and hostname like '%2%'").Count());
-			*/
+            //Console.WriteLine(servers.Where("gamever = '3.19' and gamevariant = 'pr' and hostname like '%[[]PR v1.2.0.0% %' and hostname like '%2%'").Count());
+		//	*/
 
 			Thread = new Thread(StartServer) {
 				Name = "Server Retrieving Socket Thread"
@@ -224,7 +232,7 @@ namespace PRMasterServer.Servers
 					string[] messages = receivedData.Split(new string[] { "\x00\x00\x00\x00" }, StringSplitOptions.RemoveEmptyEntries);
 
 					for (int i = 0; i < messages.Length; i++) {
-						if (messages[i].StartsWith("battlefield2")) {
+						/*if (messages[i].StartsWith(Program.gameName/*"civ4"/*battlefield2)) COMMENTED OUT 07.10*/{
 							if (ParseRequest(state, messages[i]))
 								return;
 						}
@@ -315,19 +323,21 @@ namespace PRMasterServer.Servers
 		private bool ParseRequest(SocketState state, string message)
 		{
 			string[] data = message.Split(new char[] { '\x00' }, StringSplitOptions.RemoveEmptyEntries);
-			if (data.Length != 4 ||
-				!data[0].Equals("battlefield2", StringComparison.InvariantCultureIgnoreCase) ||
-				(
-					!data[1].Equals("battlefield2", StringComparison.InvariantCultureIgnoreCase) &&
-					!data[1].Equals("gslive", StringComparison.InvariantCultureIgnoreCase)
-				)
-			) {
+			if (data.Length != 4
+                || (!data[0].Equals("civ4bts", StringComparison.InvariantCultureIgnoreCase)
+				    && !data[0].Equals("civ4btsjp", StringComparison.InvariantCultureIgnoreCase)
+					&& !data[0].Equals("civ4", StringComparison.InvariantCultureIgnoreCase))
+				|| (!data[1].Equals("civ4bts", StringComparison.InvariantCultureIgnoreCase)
+				    && !data[1].Equals("civ4btsjp", StringComparison.InvariantCultureIgnoreCase)
+					&& !data[1].Equals("civ4", StringComparison.InvariantCultureIgnoreCase)
+					&& !data[1].Equals("gslive", StringComparison.InvariantCultureIgnoreCase)))
+			{
 				return false;
 			}
 
 			string gamename = data[1].ToLowerInvariant();
 			string validate = data[2].Substring(0, 8);
-			string filter = FixFilter(data[2].Substring(8));
+			string filter = "numplayers>-1";//Temporarily so that it shows all games //"gamemode=\"openstaging\"";//FixFilter(data[2].Substring(8));
 			string[] fields = data[3].Split(new char[] { '\\' }, StringSplitOptions.RemoveEmptyEntries);
 
 			Log(Category, String.Format("Received client request: {0}:{1}", ((IPEndPoint)state.Socket.RemoteEndPoint).Address, ((IPEndPoint)state.Socket.RemoteEndPoint).Port));
@@ -347,13 +357,8 @@ namespace PRMasterServer.Servers
 
 			// http://aluigi.altervista.org/papers/gslist.cfg
 			byte[] key;
-			if (gamename == "battlefield2")
-				key = DataFunctions.StringToBytes("hW6m9a");
-			else if (gamename == "arma2oapc")
-				key = DataFunctions.StringToBytes("sGKWik");
-			else
-				key = DataFunctions.StringToBytes("Xn221z");
-			
+			key = DataFunctions.StringToBytes(Program.getGKey(gamename));
+
 			byte[] unencryptedServerList = PackServerList(state, servers, fields);
 			byte[] encryptedServerList = GSEncoding.Encode(key, DataFunctions.StringToBytes(validate), unencryptedServerList, unencryptedServerList.LongLength);
 			SendToClient(state, encryptedServerList);

@@ -1,4 +1,4 @@
-﻿using Alivate;
+using Alivate;
 using MaxMind.GeoIP2;
 using PRMasterServer.Data;
 using System;
@@ -36,7 +36,7 @@ namespace PRMasterServer.Servers
 		private byte[] _socketReceivedBuffer;
 
 		// 09 then 4 00's then battlefield2
-        private string _gameName = "battlefield2";
+        private string _gameName = Program.gameName;//"civ4";//changed from battlefield2
 		private byte[] _initialMessage;
 
 		public ServerListReport(IPAddress listen, ushort port, Action<string, string> log, Action<string, string> logError, string gameName)
@@ -210,7 +210,7 @@ namespace PRMasterServer.Servers
 				
 				// there by a bunch of different message formats...
 
-                if (receivedBytes.SequenceEqual(_initialMessage))
+                if (receivedBytes.Length > 5 && receivedBytes[0] == 0x09)//(receivedBytes.SequenceEqual(_initialMessage)) replaced on 07.10
                 {
                     // the initial message is basically the gamename, 0x09 0x00 0x00 0x00 0x00 battlefield2
                     // reply back a good response
@@ -229,7 +229,13 @@ namespace PRMasterServer.Servers
                         if (!ParseServerDetails(remote, receivedBytes.Skip(5).ToArray()))
                         {
                             // this should be some sort of proper encrypted challenge, but for now i'm just going to hard code it because I don't know how the encryption works...
-                            byte[] response = new byte[] { 0xfe, 0xfd, 0x01, uniqueId[0], uniqueId[1], uniqueId[2], uniqueId[3], 0x44, 0x3d, 0x73, 0x7e, 0x6a, 0x59, 0x30, 0x30, 0x37, 0x43, 0x39, 0x35, 0x41, 0x42, 0x42, 0x35, 0x37, 0x34, 0x43, 0x43, 0x00 };
+                            //byte[] response = new byte[] { 0xfe, 0xfd, 0x01, uniqueId[0], uniqueId[1], uniqueId[2], uniqueId[3], 0x44, 0x3d, 0x73, 0x7e, 0x6a, 0x59, 0x30, 0x30, 0x37, 0x43, 0x39, 0x35, 0x41, 0x42, 0x42, 0x35, 0x37, 0x34, 0x43, 0x43, 0x00 };
+                            // trying different challenge
+                            //1,86,95,97,96,65,67,78,43,120,56,68,109,87,73,118,109,100,90,65,81,69,55,104,65,118,115,90,106,120,90,115,65,0,
+                            //0x01,0x56,0x5F,0x61,0x60,
+                            //0x41,0x43,0x4E,0x2B,0x78,0x38,0x44,0x6D,0x57,0x49,0x76,0x6D,0x64,0x5A,0x41,0x51,0x45,0x37,0x68,0x41,
+                            byte[] response = new byte[] { 0xfe, 0xfd, 0x01, uniqueId[0], uniqueId[1], uniqueId[2], uniqueId[3], 0x41, 0x43, 0x4E, 0x2B, 0x78, 0x38, 0x44, 0x6D, 0x57, 0x49, 0x76, 0x6D, 0x64, 0x5A, 0x41, 0x51, 0x45, 0x37, 0x68, 0x41, 0x00 };
+                           
                             _socket.SendTo(response, remote);
                         }
                     }
@@ -241,17 +247,24 @@ namespace PRMasterServer.Servers
                         Array.Copy(receivedBytes, 1, uniqueId, 0, 4);
 
                         // confirm against the hardcoded challenge
-                        byte[] validate = new byte[] { 0x72, 0x62, 0x75, 0x67, 0x4a, 0x34, 0x34, 0x64, 0x34, 0x7a, 0x2b, 0x66, 0x61, 0x78, 0x30, 0x2f, 0x74, 0x74, 0x56, 0x56, 0x46, 0x64, 0x47, 0x62, 0x4d, 0x7a, 0x38, 0x41, 0x00 };
+                        //byte[] validate = new byte[] { 0x72, 0x62, 0x75, 0x67, 0x4a, 0x34, 0x34, 0x64, 0x34, 0x7a, 0x2b, 0x66, 0x61, 0x78, 0x30, 0x2f, 0x74, 0x74, 0x56, 0x56, 0x46, 0x64, 0x47, 0x62, 0x4d, 0x7a, 0x38, 0x41, 0x00 };
+                        //trying diff one for civ
+                        //1,21,67,66,101,
+                        //65,66,74,54,71,116,78,66,53,109,85,89,72,122,48,43,120,52,56,70,54,52,118,74,84,81,69,65,0,
+                        //0x41,0x42,0x4A,0x36,0x47,0x74,0x4E,0x42,0x35,0x6D,0x55,0x59,0x48,0x7A,0x30,0x2B,0x78,0x34,0x38,0x46,0x36,0x34,0x76,0x4A,0x54,0x51,0x45,0x41
+                        byte[] validate = new byte[] { 0x41, 0x42, 0x4A, 0x36, 0x47, 0x74, 0x4E, 0x42, 0x35, 0x6D, 0x55, 0x59, 0x48, 0x7A, 0x30, 0x2B, 0x78, 0x34, 0x38, 0x46, 0x36, 0x34, 0x76, 0x4A, 0x54, 0x51, 0x45, 0x41, 0x00 };
+                        
+                        
                         byte[] clientResponse = new byte[validate.Length];
                         Array.Copy(receivedBytes, 5, clientResponse, 0, clientResponse.Length);
 
                         // if we validate, reply back a good response
-                        if (clientResponse.SequenceEqual(validate))
+                        if (/*clientResponse.SequenceEqual(validate)*/true)//29.09 so is always accepted
                         {
                             byte[] response = new byte[] { 0xfe, 0xfd, 0x0a, uniqueId[0], uniqueId[1], uniqueId[2], uniqueId[3] };
                             _socket.SendTo(response, remote);
 
-                            AddValidServer(remote);
+                            //AddValidServer(remote);
                         }
                     }
                     else if (receivedBytes.Length == 5 && receivedBytes[0] == 0x08)
@@ -335,18 +348,6 @@ namespace PRMasterServer.Servers
 				if (property.Name == "hostname") {
 					// strip consecutive whitespace from hostname
 					property.SetValue(server, Regex.Replace(serverVarsSplit[i + 1], @"\s+", " ").Trim(), null);
-				} else if (property.Name == "bf2_plasma") {
-					// set plasma to true if the ip is in plasmaservers.txt
-					if (PlasmaServers.Any(x => x.Equals(remote.Address)))
-						property.SetValue(server, true, null);
-					else
-						property.SetValue(server, false, null);
-				} else if (property.Name == "bf2_ranked") {
-					// we're always a ranked server (helps for mods with a default bf2 main menu, and default filters wanting ranked servers)
-					property.SetValue(server, true, null);
-				} else if (property.Name == "bf2_pure") {
-					// we're always a pure server
-					property.SetValue(server, true, null);
 				} else if (property.PropertyType == typeof(Boolean)) {
 					// parse string to bool (values come in as 1 or 0)
 					int value;
@@ -378,22 +379,21 @@ namespace PRMasterServer.Servers
 				// only allow servers with a gamevariant of those listed in modwhitelist.txt, or (pr || pr_*) by default
 				return true; // true means we don't send back a response
 			}
-
 			// you've got to have all these properties in order for your server to be valid
 			if (!String.IsNullOrWhiteSpace(server.hostname) &&
-				!String.IsNullOrWhiteSpace(server.gamevariant) &&
-				!String.IsNullOrWhiteSpace(server.gamever) &&
-				!String.IsNullOrWhiteSpace(server.gametype) &&
-				!String.IsNullOrWhiteSpace(server.mapname) &&
-				server.hostport > 1024 && server.hostport <= UInt16.MaxValue &&
-				server.maxplayers > 0) {
+				//!String.IsNullOrWhiteSpace(server.gamevariant) &&
+				//!String.IsNullOrWhiteSpace(server.gamever) &&
+				//!String.IsNullOrWhiteSpace(server.gametype) &&
+				//!String.IsNullOrWhiteSpace(server.mapname) &&
+				server.hostport > 1024 && server.hostport <= UInt16.MaxValue /*&&
+				server.maxplayers > 0*/) {
 				server.Valid = true;
+				server.groupid = null;//were "1", changed 28.09
 			}
 
 			// if the server list doesn't contain this server, we need to return false in order to send a challenge
 			// if the server replies back with the good challenge, it'll be added in AddValidServer
-			if (!Servers.ContainsKey(key))
-				return false;
+			// XXX Maybe we have to make all this conditional
 
 			Servers.AddOrUpdate(key, server, (k, old) => {
 				if (!old.Valid && server.Valid) {
@@ -402,7 +402,6 @@ namespace PRMasterServer.Servers
 
 				return server;
 			});
-
 			return true;
 		}
 
@@ -410,7 +409,7 @@ namespace PRMasterServer.Servers
 		{
 			string key = String.Format("{0}:{1}", remote.Address, remote.Port);
 			GameServer server = new GameServer() {
-				Valid = false,
+				Valid = true,                      //hmmm 10:25
 				IPAddress = remote.Address.ToString(),
 				QueryPort = remote.Port,
 				LastRefreshed = DateTime.UtcNow,

@@ -1,4 +1,4 @@
-﻿using PRMasterServer.Data;
+using PRMasterServer.Data;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -377,10 +377,7 @@ namespace PRMasterServer.Servers
 
 			Log(Category, String.Format("[{0}] Received {1} query from: {2}:{3}", state.Type, query, ((IPEndPoint)state.Socket.RemoteEndPoint).Address, ((IPEndPoint)state.Socket.RemoteEndPoint).Port));
 
-			if (keyValues.ContainsKey("gamename") && !keyValues["gamename"].Equals("battlefield2", StringComparison.InvariantCultureIgnoreCase)) {
-				// say no to those not using bf2... Begone evil demon, bf2 for life!
-				return;
-			}
+
 
 			switch (state.Type) {
 				case LoginSocketState.SocketType.Client:

@@ -1,4 +1,4 @@
-﻿using PRMasterServer.Data;
+using PRMasterServer.Data;
 using Reality.Net.Extensions;
 using Reality.Net.GameSpy.Servers;
 using System;
@@ -15,7 +15,7 @@ namespace PRMasterServer.Servers
 
 		public static byte[] GenerateServerChallenge(ref LoginSocketState state)
 		{
-			state.ServerChallenge = _random.GetString(10);
+			state.ServerChallenge = _random.GetString(8);/*there was 10*/
 			string message = String.Format(@"\lc\1\challenge\{0}\id\1\final\", state.ServerChallenge);
 			return DataFunctions.StringToBytes(message);
 		}
