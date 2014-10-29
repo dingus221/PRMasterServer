@@ -52,10 +52,10 @@ namespace PRMasterServer.Data
 			DatabaseReader reader;
 
 			if (File.Exists("GeoIP2-Country.mmdb")) {
-				reader = new DatabaseReader("GeoIP2-Country.mmdb");
+                reader = new DatabaseReader("GeoIP2-Country.mmdb", MaxMind.Db.FileAccessMode.Memory);
 				log(category, "Loaded GeoIP2-Country.mmdb");
 			} else if (File.Exists("GeoLite2-Country.mmdb")) {
-				reader = new DatabaseReader("GeoLite2-Country.mmdb");
+                reader = new DatabaseReader("GeoLite2-Country.mmdb", MaxMind.Db.FileAccessMode.Memory);
 				log(category, "Loaded GeoLite2-Country.mmdb");
 			} else {
 				reader = null;
