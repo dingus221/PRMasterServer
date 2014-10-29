@@ -1,0 +1,37 @@
+#CIVILIZATION 4 VANILLA, BTS AND BTSJP HOSTS FILE (swap 109.200.147.107 to your public ip of server)
+
+#universal entries
+109.200.147.107	motd.gamespy.com
+109.200.147.107	gmtest.master.gamespy.com
+109.200.147.107	peerchat.gamespy.com
+109.200.147.107	gamespy.com
+109.200.147.107	gpcm.gamespy.com
+109.200.147.107	gpsp.gamespy.com
+109.200.147.107	gamestats.gamespy.com
+109.200.147.107	master.gamespy.com
+
+#vanilla specific entries
+109.200.147.107	civ4.available.gamespy.com
+109.200.147.107	civ4.ms18.gamespy.com
+109.200.147.107	civ4.master.gamespy.com
+109.200.147.107	civ4.natneg1.gamespy.com
+109.200.147.107	civ4.natneg2.gamespy.com
+109.200.147.107	civ4.natneg3.gamespy.com
+
+#bts specific entries
+109.200.147.107	civ4bts.available.gamespy.com
+109.200.147.107	civ4bts.ms7.gamespy.com
+109.200.147.107	civ4bts.master.gamespy.com
+109.200.147.107	civ4bts.natneg1.gamespy.com
+109.200.147.107	civ4bts.natneg2.gamespy.com
+109.200.147.107	civ4bts.natneg3.gamespy.com
+
+#additional stuff for japan dudes
+109.200.147.107	civ4btsjp.available.gamespy.com
+109.200.147.107	civ4btsjp.ms5.gamespy.com
+109.200.147.107	civ4btsjp.master.gamespy.com
+109.200.147.107	civ4btsjp.natneg1.gamespy.com
+109.200.147.107	civ4btsjp.natneg2.gamespy.com
+109.200.147.107	civ4btsjp.natneg3.gamespy.com
+
+#End of file
