@@ -19,7 +19,9 @@ Logs of wireshark or other software, would help significantly. Is really lame th
 
 
 <strong>4. PEERCHAT SERVER</strong><br>
-GSAIRCDTMM - irc daemon supporting gs encoding and some gs custom irc commands.  It is written in delphi7SE, it uses additional dll(LALCIRCENCDEC).
+Python implementatnion of irc server, supporting gs crypting https://github.com/Zulan/miniircd
+Delphi implementation, little bit messy, but works good is included here in folder GSAIRCDTMM.
+
 
 
 <strong>
@@ -45,7 +47,7 @@ Here i will write some bullshit for nabs
 
 5. Run **PRMasterServer.exe +db logindb.db3 +game civ4bts +servers master,login,cdkey,list,natneg**, now game parameter doesnt matter, it will service civ4, civ4bts and civ4btsjp
 
-6. Set up irc server - run GSAIRCDTMM, doesnt need no configurationing.
+6. Run irc server.
 
 7. To join the lobby from the game you need to configure windows/system32/drivers/etc/hosts file (or redirect dead official gamespy server traffick of the game to the server in other ways). Correct hosts file included.
 
