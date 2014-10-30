@@ -231,16 +231,29 @@ namespace PRMasterServer.Servers
                 }
                 Console.WriteLine(' ');*/
                 Program.LogPink("[Q&R, Characters]"+System.Text.Encoding.ASCII.GetString(receivedBytes));
-
-                if (receivedBytes.Length > 5 && receivedBytes[0] == 0x09)//(receivedBytes.SequenceEqual(_initialMessage)) replaced on 07.10
+                if (receivedBytes.Length < 1) { receivedBytes[0] = 0x77; }
+                
+              if (receivedBytes.Length > 5 && receivedBytes[0] == 0x09)//(receivedBytes.SequenceEqual(_initialMessage)) replaced on 07.10
                 {
+
                     // the initial message is basically the gamename, 0x09 0x00 0x00 0x00 0x00 battlefield2
                     // reply back a good response
-                    byte[] response = new byte[] { 0xfe, 0xfd, 0x09, 0x00, 0x00, 0x00, 0x00};//{ 0x0A, 0x00, 0x00, 0x00, 0x00 };//0xfe, 0xfd, 0x09, 0x00, 0x00, 0x00, 0x00 /* added new line & shit, 0x0d, 0x0a*/ };
+                    byte[] uniqueId = new byte[4];
+                    Array.Copy(receivedBytes, 1, uniqueId, 0, 4);
+
+
+                    ///byte[] response = new byte[] { 0xfe, 0xfd, 0x00, uniqueId[0], uniqueId[1], uniqueId[2], uniqueId[3], 0xff, 0xff,0xff,0x01 };
+                    byte[] response = new byte[] { 0xfe, 0xfd, 0x09, uniqueId[0], uniqueId[1], uniqueId[2], uniqueId[3],0x30,0x00 }; //0x00, 0x00, 0x00, 0x00};//{ 0x0A, 0x00, 0x00, 0x00, 0x00 };//0xfe, 0xfd, 0x09, 0x00, 0x00, 0x00, 0x00 /* added new line & shit, 0x0d, 0x0a*/ };
                     //byte[] response2 = new byte[] { 0xFE, 0xFD, 0x02 };
                     //byte[] nl = new byte[] { 0x0d, 0x0a };
-                    Program.LogPink("0x09 requested");                     
-                    _socket.SendTo(response, remote);
+                    Program.LogPink("0x09 requested");
+
+                    try
+                    {
+                        _socket.SendTo(response, remote);
+                    }
+                    catch (Exception eee) { Program.LogGreen("Error with QR socketsending09" + eee); }
+                    //_socket.SendTo(response, remote);
                     //_socket.SendTo(nl, remote);
                     
                     //_socket.SendTo(response2, remote);
@@ -266,8 +279,13 @@ namespace PRMasterServer.Servers
                             //0x01,0x56,0x5F,0x61,0x60,
                             //0x41,0x43,0x4E,0x2B,0x78,0x38,0x44,0x6D,0x57,0x49,0x76,0x6D,0x64,0x5A,0x41,0x51,0x45,0x37,0x68,0x41,
                             byte[] response = new byte[] { 0xfe, 0xfd, 0x01, uniqueId[0], uniqueId[1], uniqueId[2], uniqueId[3], 0x41, 0x43, 0x4E, 0x2B, 0x78, 0x38, 0x44, 0x6D, 0x57, 0x49, 0x76, 0x6D, 0x64, 0x5A, 0x41, 0x51, 0x45, 0x37, 0x68, 0x41, 0x00 };
-                           
-                            _socket.SendTo(response, remote);
+                            Program.LogPink("QR.03before socketsend");
+                            try
+                            {
+                                _socket.SendTo(response, remote);
+                            }
+                            catch (Exception eee) { Program.LogGreen("Error with QR socketsending03" + eee); }
+                            Program.LogPink("QR.03after socketsend");
                             //Program.LogPink("ResponseTo0x03: ");
                             //for (int i = 0; i < response.Length-1; i++)
                             //{
@@ -302,7 +320,11 @@ namespace PRMasterServer.Servers
                         {
                             //Program.LogPink("Challenge accepted");
                             byte[] response = new byte[] { 0xfe, 0xfd, 0x0a, uniqueId[0], uniqueId[1], uniqueId[2], uniqueId[3] };//, 0x00, 0x00, 0x00, 0x00
-                            _socket.SendTo(response, remote);
+                            try
+                            {
+                                _socket.SendTo(response, remote);
+                            }
+                            catch (Exception eee) { Program.LogGreen("Error with QR socketsending01" + eee); }
 
                             //AddValidServer(remote);
 
@@ -328,6 +350,11 @@ namespace PRMasterServer.Servers
                         RefreshServerPing(remote);
                         //byte[] response = new byte[] { 0xfe, 0xfd, 0x0a, uniqueId[0], uniqueId[1], uniqueId[2], uniqueId[3] };
                         byte[] response = new byte[] { 0xfe, 0xfd, 0x08,uniqueId[0], uniqueId[1], uniqueId[2], uniqueId[3]};
+                        try
+                        {
+                            _socket.SendTo(response, remote);
+                        }
+                        catch (Exception eee) { Program.LogGreen("Error with QR socketsending08" + eee); }
                         //there was none originaly in bf, and seems there shouldnt be _socket.SendTo(response, remote);
                         //Program.LogPink("Q&R.Ping.Response." + System.Text.Encoding.ASCII.GetString(uniqueId));
                         //{ 0xfe, 0xfd, 0x0a, uniqueId[0], uniqueId[1], uniqueId[2], uniqueId[3],0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00 ,0x00};
@@ -346,15 +373,16 @@ namespace PRMasterServer.Servers
 
 		private void RefreshServerPing(IPEndPoint remote)
 		{
-          //  Program.LogPink("RSP CHECKPOINT 1");
+            //Program.LogPink("QR.RSP CHECKPOINT 1");
 			string key = String.Format("{0}:{1}", remote.Address, remote.Port);
+            
 			if (Servers.ContainsKey(key)) {
-          //      Program.LogPink("RSP CHECKPOINT 2");
+                //Program.LogPink("QR.RSP CHECKPOINT 2");
 				GameServer value;
 				if (Servers.TryGetValue(key, out value)) {
-                    Program.LogPink("OldPing" + value.LastPing);
+                    //Program.LogPink("QR.RSP CHECKPOINT 3");
 					value.LastPing = DateTime.UtcNow;
-                    Program.LogPink("NewPing" + value.LastPing);
+                    
 					Servers[key] = value;
 				}
 			}
@@ -393,7 +421,8 @@ namespace PRMasterServer.Servers
 			};
             
 			// set the country based off ip address
-			if (GeoIP.Instance == null || GeoIP.Instance.Reader == null) {
+            // do we need it in civ4?
+			/* if (GeoIP.Instance == null || GeoIP.Instance.Reader == null) {
 				server.country = "??";
 			} else {
 				try {
@@ -402,21 +431,15 @@ namespace PRMasterServer.Servers
 					LogError(Category, e.ToString());
 					server.country = "??";
 				}
-			}
+			}*/
 
 			for (int i = 0; i < serverVarsSplit.Length - 1; i += 2) {
-               // Console.WriteLine(server.hostname);
-              //  if (server.hostname != "" && serverVarsSplit[i]=="hostname") { }
                 PropertyInfo property = server.GetType().GetProperty(serverVarsSplit[i]);
-                //LogError("doing", "some parsing");
 				if (property == null)
 					continue;
 
 				if (property.Name == "hostname") {
-					// strip consecutive whitespace from hostname
-                   // Program.LogBlue(serverVarsSplit[i + 1]);
-                    //if (s11.Length>0)
-                    {
+					{
                         property.SetValue(server, Regex.Replace(serverVarsSplit[i + 1], @"\s+", " ").Trim(), null);
                     }
 				} else if (property.PropertyType == typeof(Boolean)) {
@@ -442,7 +465,9 @@ namespace PRMasterServer.Servers
 					property.SetValue(server, serverVarsSplit[i + 1], null);
 				}
 			}
-            //LogError("doing", "server coming to be valid");
+            
+           
+
          //   if (String.IsNullOrWhiteSpace(server.gamename) /*|| !server.gamename.Equals(Program.gameName  COMMENTED OUT 07.10 */  /*"civ4"/*changed from battlefield2, StringComparison.InvariantCultureIgnoreCase)*/)
         //    {
                 //Program.LogBlue("dosh");
@@ -454,48 +479,36 @@ namespace PRMasterServer.Servers
 			}*/
 
 			// you've got to have all these properties in order for your server to be valid
-            //LogPink("server nearly valid");
             bool tits = false;
-			if (!String.IsNullOrWhiteSpace(server.hostname) &&
-				//!String.IsNullOrWhiteSpace(server.gamevariant) &&
-				//!String.IsNullOrWhiteSpace(server.gamever) &&
-				//!String.IsNullOrWhiteSpace(server.gametype) &&
-				//!String.IsNullOrWhiteSpace(server.mapname) &&
-				server.hostport > 1024 && server.hostport <= UInt16.MaxValue /*&&
-				server.maxplayers > 0*/) {
+			if (!String.IsNullOrWhiteSpace(server.hostname) && server.hostport > 1024 && server.hostport <= UInt16.MaxValue)
+                {
 				server.Valid = true;
                 server.groupid = null;//were "1", changed 28.09
-                Program.LogPink("server is valid");
                 tits = true;
                 }
-            else Program.LogPink("server is NOT valid");
-
-			// if the server list doesn't contain this server, we need to return false in order to send a challenge
-			// if the server replies back with the good challenge, it'll be added in AddValidServer
-
+            
+            if (server.statechanged == 2 && String.IsNullOrWhiteSpace(server.hostname)) { Program.LogPink("QR.ServerDeleted"); GameServer temp; Servers.TryRemove(key, out temp); }
             if (tits == true)
             {
-                bool vaginaworship = false;
-                if (!Servers.ContainsKey(key)) { vaginaworship = false; } else { vaginaworship = true; }
-                //		return false; }     //        COMMENTED OUT ON 22.09 WILL LOOK INTO IT LATER
+                //23//bool vaginaworship = false;
+                //23//if (!Servers.ContainsKey(key)) { vaginaworship = false; } else { vaginaworship = true; }
+                
 
-                //LogError("DIS IS AN ERORR AGAIN NOOB", "fak me");
+                
+                    Servers.AddOrUpdate(key, server, (k, old) =>
+                    {
+                        if (!old.Valid && server.Valid)
+                        {//if (old.Valid && server.Valid) {//WAS: if (!old.Valid && server.Valid) {
+                            Log(Category, String.Format("Added new server at: {0}:{1} ({2}) ({3})", server.IPAddress, server.QueryPort, server.country, server.gamevariant));
+                            
+                        }
+                        return server;
+                    });
 
-                Servers.AddOrUpdate(key, server, (k, old) =>
-                {
-                    //if (server.Valid) LogError("doing", "DAFUQ IS OLD");
-                    Program.LogBlue("QR.SAoU.CP1");
-                    if (!old.Valid && server.Valid)
-                    {//if (old.Valid && server.Valid) {//WAS: if (!old.Valid && server.Valid) {
-                        Log(Category, String.Format("Added new server at: {0}:{1} ({2}) ({3})", server.IPAddress, server.QueryPort, server.country, server.gamevariant));
-                        Program.LogBlue("QR.SAoU.CP2");
-                    }
-                    //else Program.LogBlue("QR.SAoU.CP3");
+                    return false;
+                //23//if (!vaginaworship) { Program.LogBlue("NOKEY"); return false; } else { Program.LogBlue("YESKEY"); return false; }//true; }
 
-                    return server;
-                });
-
-                if (!vaginaworship) { Program.LogBlue("NOKEY"); return false; } else { Program.LogBlue("YESKEY"); return false; }//true; }
+                
             }
             else return true;
             //return  true;// false;//true; commented out 23.09
@@ -506,7 +519,7 @@ namespace PRMasterServer.Servers
 			string key = String.Format("{0}:{1}", remote.Address, remote.Port);
             Program.LogPink("Q&A.Server added.");
 			GameServer server = new GameServer() {
-				Valid = true,                      //hmmm 10:25
+				Valid = true,                    
 				IPAddress = remote.Address.ToString(),
 				QueryPort = remote.Port,
 				LastRefreshed = DateTime.UtcNow,
