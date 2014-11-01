@@ -84,27 +84,37 @@ namespace PRMasterServer.Servers
 
 			Log(Category, "Starting Login Server ClientManager");
 
-			try {
-				_clientManagerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp) {
-					SendTimeout = 30000,
-					ReceiveTimeout = 30000,
-					SendBufferSize = 8192,
-					ReceiveBufferSize = 8192,
-					Blocking = false
-				};
+            Boolean connected = false;
+            do
+            {
+                try
+                {
+                    _clientManagerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
+                    {
+                        SendTimeout = 6000,
+                        ReceiveTimeout = 6000,
+                        SendBufferSize = 8192,
+                        ReceiveBufferSize = 8192,
+                        Blocking = false
+                    };
 
-				_clientManagerSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ExclusiveAddressUse, true);
-				_clientManagerSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
-				_clientManagerSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Linger, false);
-				_clientManagerSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-				
-				_clientManagerSocket.Bind(new IPEndPoint(info.Address, info.Port));
-				_clientManagerSocket.Listen(10);
-			} catch (Exception e) {
-				LogError(Category, String.Format("Unable to bind Login Server ClientManager to {0}:{1}", info.Address, info.Port));
-				LogError(Category, e.ToString());
-				return;
-			}
+                    _clientManagerSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ExclusiveAddressUse, true);
+                    _clientManagerSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+                    _clientManagerSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Linger, false);
+                    _clientManagerSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+
+                    _clientManagerSocket.Bind(new IPEndPoint(info.Address, info.Port));
+                    _clientManagerSocket.Listen(10);
+                    connected = true;
+                }
+                catch (Exception e)
+                {
+                    LogError(Category, String.Format("Unable to bind Login Server ClientManager to {0}:{1}", info.Address, info.Port));
+                    LogError(Category, e.ToString());
+                    Log(Category, "will retry in 300 ms");
+                    Thread.Sleep(300);
+                }
+            } while (!connected);
 
 			while (true) {
 				_clientManagerReset.Reset();
@@ -512,7 +522,7 @@ namespace PRMasterServer.Servers
 				LoginSocketState state = this;
 				HeartbeatState++;
 
-				Console.WriteLine("sending keep alive");
+				// Console.WriteLine("sending keep alive");
 				if (!server.SendToClient(ref state, LoginServerMessages.SendKeepAlive())) {
 					Dispose();
 					return;
@@ -520,7 +530,7 @@ namespace PRMasterServer.Servers
 
 				// every 2nd keep alive request, we send an additional heartbeat
 				if (HeartbeatState % 2 == 0) {
-					Console.WriteLine("sending heartbeat");
+					// Console.WriteLine("sending heartbeat");
 					if (!server.SendToClient(ref state, LoginServerMessages.SendHeartbeat())) {
 						Dispose();
 						return;

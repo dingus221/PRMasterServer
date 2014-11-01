@@ -204,7 +204,6 @@ namespace PRMasterServer.Servers
 		{
 			try {
 				IPEndPoint remote = (IPEndPoint)e.RemoteEndPoint;
-
 				byte[] receivedBytes = new byte[e.BytesTransferred];
 				Array.Copy(e.Buffer, e.Offset, receivedBytes, 0, e.BytesTransferred);
 				
@@ -372,13 +371,12 @@ namespace PRMasterServer.Servers
 				}
 			}
 
-			if (String.IsNullOrWhiteSpace(server.gamename) || !server.gamename.Equals("battlefield2", StringComparison.InvariantCultureIgnoreCase)) {
-				// only allow servers with a gamename of battlefield2
-				return true; // true means we don't send back a response
-			} else if (String.IsNullOrWhiteSpace(server.gamevariant) || !ModWhitelist.ToList().Any(x => SQLMethods.EvaluateIsLike(server.gamevariant, x))) {
-				// only allow servers with a gamevariant of those listed in modwhitelist.txt, or (pr || pr_*) by default
+            // XXX TODO FIXME check server.gamename to be a valid gamename
+			if (String.IsNullOrWhiteSpace(server.gamename)) {
+                Log(Category, String.Format("ParseServerDetails: server.gamename rejected {0}", server.gamename ?? "(null)"));
 				return true; // true means we don't send back a response
 			}
+            // XXX TODO FIXME do we need to check server.gamevariant? I don't think so right now
 			// you've got to have all these properties in order for your server to be valid
 			if (!String.IsNullOrWhiteSpace(server.hostname) &&
 				//!String.IsNullOrWhiteSpace(server.gamevariant) &&
@@ -394,15 +392,15 @@ namespace PRMasterServer.Servers
 			// if the server list doesn't contain this server, we need to return false in order to send a challenge
 			// if the server replies back with the good challenge, it'll be added in AddValidServer
 			// XXX Maybe we have to make all this conditional
-
+            // Log(Category, String.Format("Trying to addOrUpdate: {0}, server.hostport: {1}, server.Valid: {2}, server.IPAddress: {3}, server.QueryPort: {4}, server.country: {5}, server.gamevariant: {6}",
+            //     key, server.hostport, server.Valid, server.IPAddress, server.QueryPort, server.country, server.gamevariant ?? "(null)"));
 			Servers.AddOrUpdate(key, server, (k, old) => {
 				if (!old.Valid && server.Valid) {
-					Log(Category, String.Format("Added new server at: {0}:{1} ({2}) ({3})", server.IPAddress, server.QueryPort, server.country, server.gamevariant));
+					Log(Category, String.Format("Added new server at: {0}:{1} ({2}) ({3})", server.IPAddress, server.QueryPort, server.country, server.gamevariant ?? "(null)"));
 				}
-
 				return server;
 			});
-			return true;
+			return false;
 		}
 
 		private void AddValidServer(IPEndPoint remote)
