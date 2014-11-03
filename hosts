@@ -2,11 +2,12 @@
 148.251.130.188	motd.gamespy.com
 148.251.130.188	gmtest.master.gamespy.com
 148.251.130.188	peerchat.gamespy.com
-148.251.130.188	gamespy.com
 148.251.130.188	gpcm.gamespy.com
 148.251.130.188	gpsp.gamespy.com
 148.251.130.188	gamestats.gamespy.com
 148.251.130.188	master.gamespy.com
+# should not need this
+#148.251.130.188	gamespy.com
 
 #vanilla specific entries
 148.251.130.188	civ4.available.gamespy.com
