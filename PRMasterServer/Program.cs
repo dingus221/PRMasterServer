@@ -141,9 +141,10 @@ namespace PRMasterServer
                     ServerListRetrieve serverListRetrieve = new ServerListRetrieve(bind, 28910, serverListReport, log, logError);
                 }
             }
+            ServerNatNeg serverNatNeg = null;
             if (runNatNegServer)
             {
-                ServerNatNeg serverNatNeg = new ServerNatNeg(bind, 27901, log, logError);
+                serverNatNeg = new ServerNatNeg(bind, 27901, log, logError);
             }
             if (runLoginServer)
             {
@@ -151,6 +152,14 @@ namespace PRMasterServer
             }
 
 			while (true) {
+                string command = Console.ReadLine();
+                if (command == "/nndclear")
+                {
+                    if (serverNatNeg != null)
+                    {
+                        serverNatNeg._clientsClear();
+                    }
+                }
 				Thread.Sleep(1000);
 			}
 		}

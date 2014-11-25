@@ -31,6 +31,17 @@ namespace PRMasterServer.Servers
 		private byte[] _socketReceivedBuffer;
         private ConcurrentDictionary<int, NatNegClient> _Clients = new ConcurrentDictionary<int,NatNegClient>();
 
+        public void _clientsClear()
+        {
+            Log(Category, "ClientsClearFunction");
+            foreach (var display in _Clients)
+            {
+                Log(Category, "id: " + display.Value.ClientId.ToString() + "; host: " + display.Value.Host.ToString() + "; guest: " + display.Value.Guest.ToString());
+            }
+            Log(Category, "ClientsClearFunction - END");
+            _Clients.Clear();
+        }
+
 		public ServerNatNeg(IPAddress listen, ushort port, Action<string, string> log, Action<string, string> logError)
 		{
 			Log = log;
