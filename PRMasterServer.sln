@@ -13,13 +13,27 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|Win32 = Debug|Win32
+		Final Debug|Any CPU = Final Debug|Any CPU
+		Final Debug|Win32 = Final Debug|Win32
+		Final Release|Any CPU = Final Release|Any CPU
+		Final Release|Win32 = Final Release|Win32
 		Release|Any CPU = Release|Any CPU
+		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{64BC01A8-FCD2-4AB7-8811-3200F83AE124}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{64BC01A8-FCD2-4AB7-8811-3200F83AE124}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64BC01A8-FCD2-4AB7-8811-3200F83AE124}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{64BC01A8-FCD2-4AB7-8811-3200F83AE124}.Final Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64BC01A8-FCD2-4AB7-8811-3200F83AE124}.Final Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64BC01A8-FCD2-4AB7-8811-3200F83AE124}.Final Debug|Win32.ActiveCfg = Debug|Any CPU
+		{64BC01A8-FCD2-4AB7-8811-3200F83AE124}.Final Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64BC01A8-FCD2-4AB7-8811-3200F83AE124}.Final Release|Any CPU.Build.0 = Release|Any CPU
+		{64BC01A8-FCD2-4AB7-8811-3200F83AE124}.Final Release|Win32.ActiveCfg = Release|Any CPU
 		{64BC01A8-FCD2-4AB7-8811-3200F83AE124}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{64BC01A8-FCD2-4AB7-8811-3200F83AE124}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64BC01A8-FCD2-4AB7-8811-3200F83AE124}.Release|Win32.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
