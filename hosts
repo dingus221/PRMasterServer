@@ -8,6 +8,9 @@
 148.251.130.188	master.gamespy.com
 # should not need this
 #148.251.130.188	gamespy.com
+148.251.130.188	natneg1.gamespy.com
+148.251.130.188	natneg2.gamespy.com
+148.251.130.188	natneg3.gamespy.com
 
 #vanilla specific entries
 148.251.130.188	civ4.available.gamespy.com
