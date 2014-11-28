@@ -1,4 +1,4 @@
-#CIVILIZATION 4 VANILLA, BTS AND BTSJP HOSTS FILE (swap 109.200.147.107 to your public ip of server)
+#CIVILIZATION 4 VANILLA, BTS AND BTSJP HOSTS FILE
 
 #                                         _.._
 #                                  .,c="""  _JLccccc,
@@ -93,151 +93,73 @@
 #                   ,P`.`.`.`.`.`.`.`.`.`.`.`.`.`.$.`.`.`.`.`.`.`.`.`.`.`.3
 
 #universal entries
-109.200.147.107	motd.gamespy.com
-109.200.147.107	gmtest.master.gamespy.com
-109.200.147.107	peerchat.gamespy.com
-109.200.147.107	gamespy.com
-109.200.147.107	gpcm.gamespy.com
-109.200.147.107	gpsp.gamespy.com
-109.200.147.107	gamestats.gamespy.com
-109.200.147.107	master.gamespy.com
+148.251.130.188	motd.gamespy.com
+148.251.130.188	gmtest.master.gamespy.com
+148.251.130.188	peerchat.gamespy.com
+148.251.130.188	gamespy.com
+148.251.130.188	gpcm.gamespy.com
+148.251.130.188	gpsp.gamespy.com
+148.251.130.188	gamestats.gamespy.com
+148.251.130.188	master.gamespy.com
 
 #vanilla specific entries
-109.200.147.107	civ4.available.gamespy.com
-109.200.147.107	civ4.ms18.gamespy.com
-109.200.147.107	civ4.master.gamespy.com
-109.200.147.107	civ4.natneg1.gamespy.com
-109.200.147.107	civ4.natneg2.gamespy.com
-109.200.147.107	civ4.natneg3.gamespy.com
+148.251.130.188	civ4.available.gamespy.com
+148.251.130.188	civ4.ms18.gamespy.com
+148.251.130.188	civ4.master.gamespy.com
+148.251.130.188	civ4.natneg1.gamespy.com
+148.251.130.188	civ4.natneg2.gamespy.com
+148.251.130.188	civ4.natneg3.gamespy.com
+148.251.130.188	natneg1.gamespy.com
+148.251.130.188	natneg2.gamespy.com
+148.251.130.188	natneg3.gamespy.com
 
 #bts specific entries
-109.200.147.107	civ4bts.available.gamespy.com
-109.200.147.107	civ4bts.ms7.gamespy.com
-109.200.147.107	civ4bts.master.gamespy.com
-109.200.147.107	civ4bts.natneg1.gamespy.com
-109.200.147.107	civ4bts.natneg2.gamespy.com
-109.200.147.107	civ4bts.natneg3.gamespy.com
+148.251.130.188	civ4bts.available.gamespy.com
+148.251.130.188	civ4bts.ms7.gamespy.com
+148.251.130.188	civ4bts.master.gamespy.com
+148.251.130.188	civ4bts.natneg1.gamespy.com
+148.251.130.188	civ4bts.natneg2.gamespy.com
+148.251.130.188	civ4bts.natneg3.gamespy.com
 
 #additional stuff for japan dudes
-109.200.147.107	civ4btsjp.available.gamespy.com
-109.200.147.107	civ4btsjp.ms5.gamespy.com
-109.200.147.107	civ4btsjp.master.gamespy.com
-109.200.147.107	civ4btsjp.natneg1.gamespy.com
-109.200.147.107	civ4btsjp.natneg2.gamespy.com
-109.200.147.107	civ4btsjp.natneg3.gamespy.com
+148.251.130.188	civ4btsjp.available.gamespy.com
+148.251.130.188	civ4btsjp.ms5.gamespy.com
+148.251.130.188	civ4btsjp.master.gamespy.com
+148.251.130.188	civ4btsjp.natneg1.gamespy.com
+148.251.130.188	civ4btsjp.natneg2.gamespy.com
+148.251.130.188	civ4btsjp.natneg3.gamespy.com
 
-#           .:IIIIHIHHIHHHII::I:.
-#         .IIIIHIHHHHHHIHIIIIMHHI:,
-#       :IIIIHIHHHHHHMMHHIHHIIHHIII:.
-#     .:IHIHHHHHHHHHHHHHIHIHHIHHHIH:I:,
-#    ,.:HIHHHHHHHHHHHHHHHHHHHHHIHIHHII:.
-#   ,.:IHHHHHHHHHHMMMMHHHHHHHIIHHHIHIII,
-#  .:IIHHHHHHHHMMMMMHHHHMMMHHMHHHIIIHIIII:
-#  .IIHHHMMMMMMMHHMMMHHHMMMHHMHII:HHHII:I.
-#  :HIHHHMHMMMMMMMMMMMMHMHHHHII:HHMMHII:II
-# :HHHHMHMMMMMMMMMMMMMMMHIIHIHHMMHHHHII::I:
-#:IIHHHHHMHMMMMMMMMMMHMMHIHMMMMHHHI:"::IIHII:
-#:IHHHHHMHMMMMMMMMMMMMHHI:II::I:"' .   '"IHH.
-#::HHHHMHMMMMMMMMMMHMHHI:II::.'  .       'VMA.
-#IHHHHHMHNMMMMMMMMHMHHI:II:. . .          "MMH.
-#HHHHHMHMMMMMMMMMMHMHI:I::.' .  . .      .,MMM:.
-#HHHHMHMMMMMMMMMMMHMHI:II:. ..  .    ..LI:"IMMI.
-#HMHMMMMMMMMMMMMMMHMHI:II.'.        :HT;.,, VHI:
-#HHHHHMHMMMMMMMMMHMHHHI:HMHII:,.   ':,MHP"HPIHII.
-#IHHHHMHMMMMMMMMMHMHHHII::IT:.I:.  'HMMH ,:" VII:
-#:HHHHHHHMHMMMMMHMHHHHIIMMMPVHI::. .P"TIT"'  IH:I
-#HHIHHHHHHMHMMMMHMHHHHH:VMMM:.HI:H:. :. . . .II:I.
-#:HHHHHMHMMMMMHMHHHHIIHMMHHI:.:HI:. . .. .   :III;
-#IHHHHMHMMMMMMMHHHHHI:IT:TI:..:HI:.. ..:. .  :IHII
-# IHHMHMMMMMMMMMMMHHI:I::.:. ..:II::.. :I..  :HIIH.
-# 'HHHMHMMMMMHMHHHH:II:.. ...:II:II./'::.  ' IHHIH;
-#  HHMHMMMMMMMHMHHHH:I:I::....::VIHI;, ' . . IHHIHA
-#  MHHMMMMMMMMMHMHHH:II:::...::II:::.;,,,:   AHHIHH;
-#  ;HHMHMMMMMMMMHMHH-:II::..:::I::"",,:"''  .HHHIHHI.
-#  'HHHMHMMMMMMMMHMHHA:II:.:H.::-"'""' ,'. .AMHHIHHH;
-#   :HHMHMMMMMMMMMMHMHA:II::.::::-;,,:: .. :AMHI:IHHI
-#   'HHMHMMMMMMMMMMHMHHA:III:::II:II::. . .AMMHI:IHHH.
-#    :HHHMHMMMMMMMMMHMHHA:IIIHII:.:::. . .AMMMHI:IHHH:.
-#    'HHMHMMMMMMMMMMMMHMHHHI:":VIII::...:AMMMMHHI:IHHHI
-#     ;IHMHMMMMMMMMMMMMMHMHHII:. '"" 'AMMMMMMMHI:IIHHH:I.
-#     :IMHMMMMMMMMMMMMMMHMHHHII:.  .:IHMMMMMMHHHIHIHHHI::.
-#     ;HHHMHMMMMMMMMMMMMMMHMHHHI:..IHHMHMMHHHHHIHHHMHH;I:".'
-#     ;HHHHHMHMMMMMNMMMMMMMHMHHHI::.HHHHMMHHHHHIHIHHHHHI:'
-#     :HHHHHHHHMHMMMMMMMMMHHHMHHHI:IHHMHMMHHHHHMHIHHHHIHI;
-#     ;HHHHHHHHMMHMMMMMHMHHMMHIHMI:IIHHHMHHHHMHMHIHIHHHHI:.
-#     IHHHHHHHHHHMHMMMMMHMHHMMHHMMII:IHHMMHMHHHHMMHMHMHHHH;
-#     ;HH:":IHHHHMHMMMMMHMHIHMHIIMMHI:IMHMMMI:HHHHHMMHHHHI:I.
-#    ;HV" . .:IIHHHMMMMMMMHHHMMHIIHMHHI:HHHMHI:IHHIHHIHHMHI:II;.
-#   ;IV"   . .''":VMMMMMMHMHHHMMHI:HHHHI:HHHIHI:IHHHHHIHHHIHII;,
-#   .II"   .. .  ':VHHHMHMMMMMHMHHI:HMMHI:IHHHI::IHHHI:HIHHHI:I:.
-#  .II . . .  . .  ':HHHHMHMMMHMMMHIHIMMMHI:HHHMI:IHHHIHI:HHHHII:I.
-# .;V' . .. .  .    'IHMMMHHMHHHMMMHIHIHHHHI:IHHHI:IHHHHHIHHHHHIIHII:.
-#.:I" .. . .    .   :IHMMMHHHMHHIHHHI:HHIHHHIHIHHHAIHHHHHHI:HHHIHII:.
-#'..:  .  .       .  :IMMMHMHHIMHIIHHI:IHHI:IHHIHHHHIHIHHHHIHIHHHHIHI:.
-#.: .. . . .      ..:IHMMMHMHMHMHHHHMHIHHI:.IVIIHHHIHHHHHHHHI:HIHHIHII:.
-#.: .   . .        . :IHMMMHMIHIH:IIHHHIHH:.I:IIHHHIHHHHHHHHIHI:IHHHI:;.
-#:: .:. .  .   .   ..:IHHMMMHMIHIH:IIHHHMHH::..:HHHHI:HHHHHHI:I:IIIHII;
-#:. ... . .  .     ..::HHHMMHMHHII:HIIHHMMHH:..:HHHMHHIHHHI:: . :IHII:I
-#':....   . .      . ..:IHHHMMMMHMHI:HIHMMMHA...VHMMHHHMI:'  .' :IH::"
-# :. ..  ....    .    ..IHHHHMMMMHHII:I:IHMMHA. .VHMHHHI:' ''    '':,
-# ::...  . .... .   . ..::IHHHMMMMIHII::I:IHMMHHMHIHIHI''   .  .     ,
-# ::.... . .....  ..  ...::IIIHHHMMIHI::IHHHIIIHHHIIHI".  ..   .      ,
-# ::.:.......... .. . ....:::HHIIHHHHHHHIIHMMMHI:' 'VI::..  . .        ,
-# ::.:............. .. . ...AHIHIIIIIHHHI::""'      'VII:.. ..    .
-# ::.:.:.......... .. .  ...HHHIIIIIIHHHI::. .       'VII::. . .       ,
-# ':::.:.:..... .. . . . ..:MHHIHIIIII:I::. .         'VII:::. ..      .
-#  :::::.:..:.... . . . ...AHHHHIHIIII:::. .           'VII:::. . .   :.
-#  :::::::.:..... .. . ....MHHHHHIHIII::.:.. .          'VII::.  .   ::
-#  :::::::::.:.... .. ....:MHHHHIHII:I::::...  .         'VI::. .   ::I)
-#  '::::::::::.:... .. ...:MHHHHIHIIII::::..  .           'VI:.    ...:V
-#   .:::::::::::.:.... . .AMMHHIHIII:I::::...  .  .        I::.   ...:-"
-#   :.::I::::::::.:. .  ..MMMHHIHIIII:I:::... .  .        .::.  ,..-"
-#   :..:II:I:::::.:.. . ..MMMHHIHIIIIIII:I::.... .  .    ..::""'
-#  .::.:III:I::::::.:.. ..MMMMIVHIHIIIII:I::::.... .   .....:,
-#.:.::..:III:I:::::.:... .MMHMAIVHHIHIIIII:I::::.. .  ..::..:,
-#. .:::.::III:I::::.:... .VMMHMAIVHHHIHIIII:I::::..  ..:...:::
-#. :::I.:::III:I:::.::.. .:MMHHMAIVHHIHIIIII:I::::....:::.::::
-# .::IIH.:::III:I::::.:.. .MMHMHMAIVHHHIHIIIIII:I:::.:::::::I)
-#.::IIHH.II:::II:I::::.:...MMMHMHMAIVHHHHHIHII:I:::..::::::HV
-#::IIIHIH.III::I:I::::.:. .MHHMHHHIAIIVHHHHIHIII:...::::.:-"
-#:IIHIHHA.VIHII:I:::::::...HHHHHHIHI::":VHHHII:I:::...:-'
-#IIHIHHHHI.HHIHII:I:::::...HHHIHII:' .  .'"VIIIII::-'
-#IHIHHHHH-:HHIHIIII:I::.:..HIHI::. ..  ...:"
-#HIHHHHIHHH:HHHIHIIII:I::.:HII:'. .   ..:"
-#HHHHHHMHHHIHHHHHHIHIII::.IHI:.  .    ..:-.,
-#HHHHHHHMHHIHHHHHHHIHII:..II:'  .    .:"    ''"-.
-#HHHHHHHMHHIHHHHHHIHII::..I;'. .   ..:"          '"-.
-#HHHHHHHMHIHHHHHHHHIHI::,.I;' . .   .;"          "- . ",
-#MMHMHHHHHH-IHHHHHHIHII::.::;.   :.:;.... .             '"-.
-#MMMHMHHHHHHIHHHHHHIHII::..:.,  .N.:I::.... .               '"-.
-#MMMMHMHHHHHIHHHHHHIHIII:..:.;. :.:AI:::..... .  .             .'-.
-#MMMMMHMHHHIHHHHHHHHHIHII:..:.;:.:AIII::::....... .               .':,
-#MMMMHMHHHHIHHHHHHHHHHIH:I:.:.,::AHIHIII:I::::::::...... .    .  ...::,
-#MMMHMHHHHHIHVHHHHHHHHHIII::.:.:AHHIHIHIIIII:I:::::::.:....... .. ...::.
-#MHMHHHIHIIII:HHHHHHHIHII:I:. :AHHHHHHHHHHHIHIIHIIIIIII:I::.:..... ..::.
-#HHHHIHIIII:I:HHHHHHHHIHII:: .IHHHHHHHHHHHHHHHHHHHHIIHIII:I::::::::::::.
-#HHIHIIIII:I::VHHHHHHHIHII::. :MHHHHHHHHHHHHHHHHHHHHHHIHIIHIIIIIIIIIIIV
-#HHIHIIII:I::::MHHHHHHHIII::.. MMMMMMMMMMMMMMMMMMMMHMHHHHHHIIHIIIHIIIV'
-#HHHIHII:I::I::MHHHHHHIHIII:: .HHIHHHHHIHHHHHHHHIHHIHHHIHHHHIHHIHIHHV'
-#HHHHIHII:I::::HHHHHHHIHII:I:. MHHHIHHHHHHHIHHHHHHIHHHHHHHIHHHHHHHHV'
-#MMHHHIHIII:I::HHHHHHHHIHIII: .:MMMMMMMMMMMMMHMHHHHHHHHHHHHHHHHHV:'
-#II:IHMHHI::::AIHHHHHHHHHIII::. MMMMMMMMMMMMMMMMMMMMMHMHHHHHHHV:'
-#III:IHMHIAMMMIHHHHHHHHHIHII....MMMMMMMMMMMMMMMMM--"""''
-#IIIII:I:IIHMMMMMHHHHHHHHHHHII:::"""""""""""""''
-#IIIII:I:II:.T,  'VHHHHHHHHIHI:::
-#IIIHIII:I:::.:,  :HHHHHHHHHHIHII
-#IIIIII:I::::::.,  VHHHHHHHHHHIHI
-#IIHII:I::::.:..., 'MMMHMHHHHHIHI.
-#IIII:I:::::.:....:.VMMMHMHHHHHIH.
-#IIIIII:I::::::.:..:.MMMMMHMHHHHH:
-#IHIIIIII:II::::.:.:.VMMMMMHMHHHHA.
-#IIIHIIIHIII:I::::.:..VMMMMMHMHHHHA
-#IIIIIHIIIIIII:I:::.:..VMMMMHMMHHHH.
-#IIHIIIIIIHIIIII:I:::..IMMMMMMMHMHHI
-#HIIIIIHIIIIIIIII:I:.:..VMMMMMHMHHI:.
-#HIHIIIIHIIIIIHIHI:I::..IMMMMHMHIHI:.
-#HHIHIIIIIIHIIIIHIHIII:.:MMMMMHMHHI::
-#HHHIHHHHHHIIIIIIHHHHIHI:MMMMMHMHHII:
-#HHHHI
+
+#                                 ,~~~,
+#                                ,( ( ),
+#                               (  )(  ))
+#                               ))(  )(((
+#                               (( )(  )))
+#                                ))( )(((
+#                               ((  )( )))
+#                           ,  --))(  (((--
+#                           )/   ((  )  ))) \
+#                        ,  / `  ))(  (((    \ ~
+#                        )`/  /\((  )  ))) \  \ )
+#                         /  /__\          /\  \
+#                         \_'____\         \`\  \
+#                         || |\|| )         \___/
+#                         | \||!|/          |\|| |
+#                         | |/\|/          /| || |
+#                         |/ \|/           | \\| |
+#                         |/  '   (         \   \|
+#                             `    `.        \
+#                              \     `.       \
+#                               \     |`.      \
+#                                \    |   \     \
+#                                 )   )    )    )
+#                                /   (    /    /
+#                               |     \  |    /
+#                                \    /  |   /
+#                                 \  /   |  /
+#                                  )(    ) (
+#                                 (__)  (__ `.
+#                                          `._`..
+
 
 #End of file
