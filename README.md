@@ -59,7 +59,7 @@ That's all<br>
 <strong>9. To join the lobby from the game you need to redirect traffic that is going to official gs ip address to ur server. Best way known to me at this point is to configure windows/system32/drivers/etc/hosts file. Correctly configured hosts file for Zulan's server is included.</strong><br>
 
 
-9. Credits
+<strong>10. Credits</strong><br>
 <br><font size=14><strong>[novice-rb]</strong> for work on natneg
 <br><font size=14><strong>[AncientMan2002]</strong> for work on PRMasterServer
 <br><font size=14><strong>[polaris-]</strong> and others who created this: https://github.com/polaris-/dwc_network_server_emulator
