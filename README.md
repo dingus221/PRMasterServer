@@ -12,7 +12,7 @@
 
 <strong>2. Projects that are included in this repository.</strong><br>
 1) PRMasterserver - 4 servers in one application. Has option to run only wanted separate servers, so you can use other applications for other servers. Written in c#<br>
-2) SBQRC4  - ServerBrowser and Query&Reporting servers in one project. Has 2 more function than PRMasterserver. Written in python.<br>
+2) SBQRC4  - ServerBrowser and Query&Reporting servers in one project. Has 2 more functions than PRMasterserver's version of these servers. Written in python.<br>
 3) Miniircd - basic irc server with gs encription support (latest version https://github.com/Zulan/miniircd). Written in python.<br>
 4) GSAIRCDTMM - irc server with gs encoding, written on delphi. It works with some bugs, i used it in the beginning. Miniircd is a better irc server.<br>
 
