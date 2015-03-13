@@ -64,7 +64,7 @@ That's all<br>
 <br><font size=14><strong>[AncientMan2002]</strong> for work on PRMasterServer
 <br><font size=14><strong>[polaris-]</strong> and others who created this: https://github.com/polaris-/dwc_network_server_emulator
 <br><font size=14><strong>[Luigi Auriemma](http://aluigi.org) </strong> for reverse engineering the GameSpy protocol and encryption.
-<br><font size=14><strong>[Zulan], for running the testing lobby servers, help with testing and his works: https://github.com/Zulan 
+<br><font size=14><strong>[Zulan]</strong> , for running the testing lobby servers, help with testing and his works: https://github.com/Zulan 
 <br><font size=14><strong>[Zulan], [Caledorn]</strong> - users on realmsbeyond.net, for running natneg servers
 <br><font size=14><strong>[gamespy] </strong> For GsOpenSDK. [Rest in peace]
 <br><font size=14><strong>[SexIsBad2TheBone], [DimosEngel], [galatt]</strong> civ4 players (testing)
