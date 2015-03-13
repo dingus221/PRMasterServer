@@ -1,62 +1,71 @@
-<strong>Fully functional(not yet) gayspy substitute for civ4bts and civ4 (which is based on https://github.com/novice-rb/PRMasterServer)
+<strong>Fully functional(almost) gs substitute for civ4bts and civ4 (which is based on https://github.com/novice-rb/PRMasterServer)
 
 
 <strong>1. Give a man a lobby and he spams shit in it for a life or what is done so far.</strong><br>
 
-1. Master server(port 29900) - logging in and registering new users - works like a swiss clock.
-2. Peerchat server(port 6667) - chatting works perfectly good (as far as tested) 
-3. Natneg server (port 27901) - provides connection information to players about other players when they join staging room.
-4. Serverbrowser (port 28910) is currently not fully functional. People in lobby can see the hosted games. But refresh button doesnt work. To refresh u need to relogin.
-5. Queryserver (port 27900) - game hosts report status of their server into it. Interlinked with SB. Refreshing problem might be in this one.
-6. Webservver (port 80) - i suspect it is needed only for automatically downloading of new patches (or just checking for them). 
+1. Master server(port 29900) - works 8/10 good. Buddies functions not implemented.
+2. Irc server(port 6667) - works 10/10 in miniircd implementation.
+3. Natneg server (port 27901) - works 9/10 (Sometimes people can't join supposedly because of bad works of this server, hope to manage to fix it soon). Not tested much with people who are inside inner networks that are inside other inner networks.
+4. Serverbrowser (port 28910) - theoretically works 10/10. Not tested much yet.
+5. Queryserver (port 27900) - theoretically works 10/10. Not tested much yet.
+6. Webservver (port 80) - use any, or use none, but make sure skype doesnt use your port 80 (or people will wait 2 minute to enter lobby).
+
+<strong>2. Projects that are included in this repository.</strong><br>
+1) PRMasterserver - 4 servers in one application. Has option to run only wanted separate servers, so you can use other applications for other servers. Written in c#
+2) SBQRC4  - ServerBrowser and Query&Reporting servers in one project. Has 2 more function than PRMasterserver. Written in python.
+3) Miniircd - basic irc server with gs encription support (latest version https://github.com/Zulan/miniircd). Written in python.
+4) GSAIRCDTMM - irc server with gs encoding, written on delphi. It works with some bugs, i used it in the beginning. Miniircd is a better irc server.
 
 
-<strong>2. How shit is done.</strong><br>
-Most functionality is already implemented in PR Master server. We just comment out parts of code that give errors. And substitute all mentions of battlefield for civ4.
-
-<strong>3. WANTED LOGS OF REAL GAMESPY<->CIV4 COMMUNICATIONS</strong><br>
-Logs of wireshark or other software, would help significantly. Is really lame that nobody figured out how to use wireshark while gamespy was still up.
-
-
-<strong>4. PEERCHAT SERVER</strong><br>
-Python implementatnion of irc server, supporting gs crypting https://github.com/Zulan/miniircd
-Delphi implementation, little bit messy, but works good is included here in folder GSAIRCDTMM.
-
+<strong>3. Wanted logs of gs<->civ4 traffic</strong><br>
+Captures taken in wireshark or other programs. Send them to my mail bobodobo11@gmail.com. Quick.
 
 
 <strong>
-5. Current progress</strong>
-It is roughly 75% done yet.<br>
+4. Current progress</strong>
+It is roughly 95% done now.<br>
 
 
 <strong>6. Current problems and directions of investigation:<br></strong>
-1. Serverlist refresh button doesn't work and information about servers like number of players in game, map and ping is not updated. Supposedly game should request that info directly from other gameservers.<br>
+1. When it is run under wine in linux, PRMasterServer gives errors related to threads after several days of running<br>
+2. There is a rare and hard to get when needed bug when a badconnection avalance is started, most likely its cause is in NatNeg server<br>
+3. Refresh button is fixed.
 
-<strong>7. How gamespy server works for nabs</strong>
+
+<strong>7. How gamespy server works for nabs with small brains</strong>
 <br>
-Here i will write some bullshit for nabs
+to be written later 
 
 
-<strong>8. Setting up the project</strong><br>
+<strong>8. Running the server</strong><br>
 
 1. Be sure to have [Visual Studio 2013](http://www.microsoft.com/en-us/download/details.aspx?id=40787) installed.  You might be able to compile it using previous versions of Visual Studio or using Mono, but this is untested and may not work.
 
 2. Open **PRMasterServer.sln**, and build. This should download via NuGet any extra packages required.
 
-3. Grab the latest [MaxMind GeoIP2 Country](https://www.maxmind.com/en/country) database, or use the free [GeoLite2 Country](http://dev.maxmind.com/geoip/geoip2/geolite2/) database. Put it in the same folder as **PRMasterServer.exe**.
+3. Run **PRMasterServer.exe +db logindb.db3 +game civ4bts +servers login,cdkey,natneg** (it will include civ4 vanilla and japan version too). That will get 29900(profile) and 27901(natneg) servers running.
 
-5. Run **PRMasterServer.exe +db logindb.db3 +game civ4bts +servers master,login,cdkey,list,natneg**, now game parameter doesnt matter, it will service civ4, civ4bts and civ4btsjp
+4. Get python 2.7.8.
 
-6. Run irc server.
+5. Run SBQRC4.py. That will get 28910(ServerBrowser) and 27900 (Q&R) servers running
 
-7. To join the lobby from the game you need to configure windows/system32/drivers/etc/hosts file (or redirect dead official gamespy server traffick of the game to the server in other ways). Correct hosts file included.
+6. Run miniircd.py. That will get 6667(irc) server running.
+
+7. Check that skype is not listening on port 80.
+
+That's all<br>
 
 
-9. Credits (in order of importance)
-<br><font size=14><strong>[novice-rb]</strong> for natneg
-<br><font size=14><strong>[AncientMan2002]</strong> for original masterserver
+<strong>9. To join the lobby from the game you need to redirect traffic that is going to official gs ip address to ur server. Best way known to me at this point is to configure windows/system32/drivers/etc/hosts file. Correctly configured hosts file for Zulan's server is included.</strong><br>
+
+
+9. Credits
+<br><font size=14><strong>[novice-rb]</strong> for work on natneg
+<br><font size=14><strong>[AncientMan2002]</strong> for work on PRMasterServer
+<br><font size=14><strong>[polaris-]</strong> and others who created this: https://github.com/polaris-/dwc_network_server_emulator
 <br><font size=14><strong>[Luigi Auriemma](http://aluigi.org) </strong> for reverse engineering the GameSpy protocol and encryption.
-<br><font size=14><strong>[Caledorn], [Zulan] </strong> - users on realmsbeyond.net, for running natneg servers
-<br><font size=14><strong>[SexIsBad2TheBone], [DimosEngel]</strong> civ4 players (testing)
-<br><font size=14><strong>[gamespy] </strong> for not being too hard encrypted and secretive [Rest in peace]
+<br><font size=14><strong>[Zulan], for running the testing lobby servers, help with testing and his works: https://github.com/Zulan 
+<br><font size=14><strong>[Zulan], [Caledorn]</strong> - users on realmsbeyond.net, for running natneg servers
+<br><font size=14><strong>[gamespy] </strong> For GsOpenSDK. [Rest in peace]
+<br><font size=14><strong>[SexIsBad2TheBone], [DimosEngel], [galatt]</strong> civ4 players (testing)
 <br><font size=14><strong>[sid meyer and firaxis] </strong> for great game
