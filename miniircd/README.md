@@ -6,4 +6,4 @@ based on:
 Latest version of it may be found:
 - https://github.com/Zulan/miniircd
 
-Including here version with which i tested last time (not necessarily bug free)
+Including here version with which i tested on windows last time (it has a bug which happens when bad crypting variables are inputed, i remember now. In latest version its fixed)
