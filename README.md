@@ -1,7 +1,7 @@
 <strong>Fully functional(almost) gs substitute for civ4bts and civ4 (which is based on https://github.com/novice-rb/PRMasterServer)
 
 
-<strong>1. Give a man a lobby and he spams shit in it for a life or what is done so far.</strong><br>
+<strong>1. Give a man a lobby and he spams shit in it for life or what is done so far.</strong><br>
 
 1. Master server(port 29900) - works 8/10 good. Buddies functions not implemented.
 2. Irc server(port 6667) - works 10/10 in miniircd implementation.
