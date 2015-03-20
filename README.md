@@ -23,7 +23,7 @@ Captures taken in wireshark or other programs. Send them to my mail bobodobo11@g
 
 <strong>
 4. Current progress</strong>
-It is roughly 95% done now.<br>
+It is roughly 95% done now.(5% that arent done include: testing, buddy functions, which i dont want to implement because they add alot of traffick and processing resources that goes to getting info from the database about users each time someone logs in)<br>
 
 
 <strong>6. Current problems and directions of investigation:<br></strong>
