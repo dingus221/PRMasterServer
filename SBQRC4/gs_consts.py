@@ -16,12 +16,15 @@ gngk = {'civ4': 'y3D9Hw', 'civ4bts': 'Cs2iIq', 'civ4btsjp': 'Cs2iIq', 'gmtest': 
 defaultfields = ['hostname', 'gamemode', 'hostname', 'gamever', 'passwd', 'hostport', 'staging', 'newgame', 'mapname',
                  'gametype', 'mynumplayers', 'maxnumplayers', 'nummissing', 'pitboss']
 
-junk0 = ['teamer', 'Teamer', 'TEAMER', 'TEAMERXP', 't e a m e r', 'Teams', 'FFA', 'pangea', 'ffa', 'earth',
-         'normalgame', 'f.f.a', 'F F A', 'PangeaFFA', 'FFABalanced', 'FFA XP', 'duel', 'DUEL', '1v1', 'islands',
-         'island ffa']
-junk1 = ['expirienced', 'no crashers', 'no joiners', 'no retards', 'retards', 'just', 'blazing', 'noobs', 'no noobs',
-         'NN', 'TBG', '2v2', '3v3', '5v5', 'boobs', 'hurry', 'no laggers', 'no lagsters', 'no cheaters', 'no tards',
-         'NOOBS FREE', '+1', 're', 'rehost', 'pro', 'newbs', 'PLS', 'PLEASE', 'quick', 'fast turns', 'HOST HERE', 'hot',
-         'bacon', 'chilling']
-junk2 = ['Pangea', 'Balanced', 'Team battle ground', 'tbg', 'Fractal', 'Inland Sea', 'Donut', 'E18', 'inland_sea',
-         'islands']
+fakenames = {
+    'types': ['teamer', 'Teamer', 'TEAMER', 'TEAMERXP', 't e a m e r', 'Teams', 'FFA', 'pangea', 'ffa', 'earth',
+              'normalgame', 'f.f.a', 'F F A', 'PangeaFFA', 'FFABalanced', 'FFA XP', 'duel', 'DUEL', '1v1', 'islands',
+              'island ffa'],
+    'tags': ['expirienced', 'no crashers', 'no joiners', 'no retards', 'retards', 'just', 'blazing', 'noobs',
+             'no noobs',
+             'NN', 'TBG', '2v2', '3v3', '5v5', 'boobs', 'hurry', 'no laggers', 'no lagsters', 'no cheaters', 'no tards',
+             'NOOBS FREE', '+1', 're', 'rehost', 'pro', 'newbs', 'PLS', 'PLEASE', 'quick', 'fast turns', 'HOST HERE',
+             'hot',
+             'bacon', 'chilling'],
+    'maps': ['Pangea', 'Balanced', 'Team battle ground', 'tbg', 'Fractal', 'Inland Sea', 'Donut', 'E18', 'inland_sea',
+             'islands']}
