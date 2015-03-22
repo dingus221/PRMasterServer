@@ -5,9 +5,10 @@ import socket
 import select
 import time
 import random
-
 import argparse
 
+
+import byteencode
 import enc
 from gs_consts import *
 from gs_utils import *
@@ -185,6 +186,8 @@ class SBQRServer:
     def __init__(self):
         self.clients = {}  # Socket --> Client instance
         self.hosts = {}  # key = ip:port; value = other stuff
+        self.qr_socket = None
+        self.sb_socket = None
 
     def addfakehost(self, hostname, mapname, nump, maxp, new):
         addr = ('.'.join(str(random.randrange(0, 256)) for _ in range(4)), 6500)
@@ -231,7 +234,6 @@ class SBQRServer:
         return dict(cooked)
 
     def qr_send_to(self, resp, address, location):
-        #sending from qr, with error handliing
         try:
             self.qr_socket.sendto(resp, address)
         except socket.error, x:
@@ -327,7 +329,6 @@ class SBQRServer:
             msg += chr(int(x))
         msg += chr(address[1] / 256)
         msg += chr(address[1] % 256)
-        #iterate through SBClients and make a message for each
         for key in self.clients:
             self.clients[key].message(msg)
 
@@ -335,14 +336,13 @@ class SBQRServer:
         del self.clients[client.socket]
 
     def run(self):
-        #Starting qr socket
         self.qr_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
             self.qr_socket.bind(("0.0.0.0", 27900))
         except socket.error as msg:
             print('Bind failed for qr. Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
         self.qr_socket.setblocking(0)
-        #starting sb socket
+
         self.sb_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             self.sb_socket.bind(("0.0.0.0", 28910))
@@ -350,7 +350,7 @@ class SBQRServer:
             print('Bind failed for sb. Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
         self.sb_socket.listen(5)
         last_aliveness_check = time.time()
-        #socket processing loop
+
         while True:
             (rlst, wlst, _) = select.select(
                 [self.qr_socket, self.sb_socket] + [x.socket for x in self.clients.values()],
