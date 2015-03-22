@@ -80,8 +80,9 @@ class SBClient:
                         lips.append(value1)
                 for x1 in lips[random.randrange(0, len(lips))].split('.'):  #value.data['localip0'].split('.'):
                     flags_buffer += chr(int(x1))
-                flags_buffer += chr(int(host.data.get('localport', 6500)) / 256)
-                flags_buffer += chr(int(host.data.get('localport', 6500)) % 256)
+                localport = int(host.data.get('localport', 6500))
+                flags_buffer += chr(localport / 256)
+                flags_buffer += chr(localport % 256)
                 r += chr(flags)
                 r += flags_buffer
                 #adding fields
@@ -153,18 +154,19 @@ class SBClient:
 
     def socket_writable_notification(self):
         try:
+            # FIXME: this seems to be a blocking send... not so nice :-(
             sent = self.socket.send(self.__writebuffer[:1024])
             self.__writebuffer = self.__writebuffer[sent:]
-        except socket.error, x:
-            self.disconnect(x)
+        except socket.error as err:
+            self.disconnect(err)
 
     def disconnect(self, quitmsg):
-        print('client disconnected ({}:{}): {}', self.host, str(self.port), str(quitmsg))
+        print('client disconnected ({}:{}): {}', self.host, self.port, quitmsg)
         self.socket.close()
         self.server.remove_client(self, quitmsg)
 
     def message(self, msg):
-        if self.out_crypt != None:
+        if self.out_crypt is not None:
             msg = self.out_crypt.GOAEncrypt(bytearray(msg))
         self.__writebuffer += msg
 
@@ -182,7 +184,7 @@ class SBClient:
 class SBQRServer:
     def __init__(self):
         self.clients = {}  # Socket --> Client instance
-        self.hosts = {}  #key = ip:port; value = other stuff
+        self.hosts = {}  # key = ip:port; value = other stuff
 
     def addfakehost(self, hostname, mapname, nump, maxp, new):
         addr = ('.'.join(str(random.randrange(0, 256)) for _ in range(4)), 6500)
@@ -204,8 +206,8 @@ class SBQRServer:
 
     def qr_forw_to(self, rawdata):
         if rawdata[9:15] == '\xfd\xfc\x1e\x66\x6a\xb2':
-            ip = str(ord(rawdata[3])) + '.' + str(ord(rawdata[4])) + '.' + str(ord(rawdata[5])) + '.' + str(
-                ord(rawdata[6]))
+            ip = str(ord(rawdata[3])) + '.' + str(ord(rawdata[4])) + '.' + str(ord(rawdata[5])) + '.'\
+               + str(ord(rawdata[6]))
             port = ord(rawdata[7]) * 256 + ord(rawdata[8])
             if (ip, port) in self.hosts:
                 print('forwarding to existing host')
@@ -224,26 +226,9 @@ class SBQRServer:
 
     @staticmethod
     def qr_parse03(raw):
-        r = {}
-        cur = True  # true - key, false - value
-        curstr = ''
-        prevstr = ''
-        prev00 = -2
-        for y, x in enumerate(raw[5:]):
-            if x == '\x00':
-                if prev00 + 1 == y and cur:  #if second \x00 in row and its where key should be, stop
-                    break
-                else:
-                    if not cur:
-                        r[prevstr] = curstr
-                    else:
-                        prevstr = curstr
-                    curstr = ''
-                    cur = not cur
-                    prev00 = y
-            else:
-                curstr += x
-        return r
+        prepared = raw[5:].split('\x00\x00\x00\x01')[0].split('\x00')
+        cooked = [(prepared[i], prepared[i + 1]) for i in range(0, len(prepared), 2)]
+        return dict(cooked)
 
     def qr_send_to(self, resp, address, location):
         #sending from qr, with error handliing
@@ -308,13 +293,21 @@ class SBQRServer:
             flags_buffer += chr(int(x))
         flags_buffer += chr(host.port / 256)
         flags_buffer += chr(host.port % 256)
-        lips = []
+        localips = []
         for key1, value1 in host.data.items():
             if key1.startswith('localip'):
-                lips.append(value1)
-        for x1 in random.choice(lips).split('.'):
+                localips.append(value1)
+        if len(localips) == 1:
+            localip = localips[0]
+            print("sb_sendpush02, single localip: {}".format(localip))
+        elif not localips:
+            print("WARNING: sb_sendpush02: Missing localips, using fake")
+            localip = '127.0.0.1'
+        else:
+            localip = random.choice(localips)
+            print("WARNING: sb_sendpush02: Multiple localips: {}, using random: {}".format(localips, localip))
+        for x1 in localip.split('.'):
             flags_buffer += chr(int(x1))
-            print(chr(int(x1)))
         port = int(host.data.get('localport', 6500))
         flags_buffer += chr(port / 256)
         flags_buffer += chr(port % 256)
@@ -322,9 +315,9 @@ class SBQRServer:
         for field in defaultfields:
             msg += host.data[field] + '\x00'
         msg += '\x01'
-        l = ''.join([chr(i) for i in divmod(len(msg) + 2, 256)])  #length of the msg stored in 2 bytes
+        l = ''.join([chr(i) for i in divmod(len(msg) + 2, 256)])  # length of the msg stored in 2 bytes
         msg = l + msg
-        #iterate through SBClients and make a message for each
+        # iterate through SBClients and make a message for each
         for key in self.clients:
             self.clients[key].message(msg)
 
