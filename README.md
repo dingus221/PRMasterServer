@@ -68,4 +68,4 @@ That's all<br>
 <br><font size=14><strong>[Zulan], [Caledorn]</strong> - users on realmsbeyond.net, for running natneg servers
 <br><font size=14><strong>[gamespy] </strong> For GsOpenSDK. [Rest in peace]
 <br><font size=14><strong>[SexIsBad2TheBone], [DimosEngel], [galatt]</strong> civ4 players (testing)
-<br><font size=14><strong>[sid meyer and firaxis] </strong> for great game
+<br><font size=14><strong>[sid meier and firaxis] </strong> for great game
