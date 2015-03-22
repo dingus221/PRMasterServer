@@ -60,11 +60,11 @@ class GOACryptState:
 
     #4/5
     def GOAEncrypt(self, bp):
-        rotor = self.rotor;
-        ratchet = self.ratchet;
-        avalanche = self.avalanche;
-        last_plain = self.last_plain;
-        last_cipher = self.last_cipher;
+        rotor = self.rotor
+        ratchet = self.ratchet
+        avalanche = self.avalanche
+        last_plain = self.last_plain
+        last_cipher = self.last_cipher
         for i in xrange(0, len(bp)):
             ratchet += self.cards[rotor]
             ratchet %= 256
@@ -93,11 +93,11 @@ class GOACryptState:
 
     #5/5
     def GOADecrypt(self, bp):
-        rotor = self.rotor;
-        ratchet = self.ratchet;
-        avalanche = self.avalanche;
-        last_plain = self.last_plain;
-        last_cipher = self.last_cipher;
+        rotor = self.rotor
+        ratchet = self.ratchet
+        avalanche = self.avalanche
+        last_plain = self.last_plain
+        last_cipher = self.last_cipher
         for i in xrange(0, len(bp)):
             ratchet += self.cards[rotor]
             ratchet %= 256
