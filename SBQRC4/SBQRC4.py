@@ -43,11 +43,9 @@ class SBClient:
     def sb_00respgen(self, fields):
         #keysheader
         r = ''
-        for x in self.host.split('.'):
-            r += chr(int(x))
-        r += chr(self.port / 256)
-        r += chr(self.port % 256)
-        r += chr(len(fields))
+        r += byteencode.ipaddr(self.host)
+        r += byteencode.uint16(self.port)
+        r += byteencode.uint8(len(fields))
         for field in fields:
             r += '\x00' + field + '\x00'
         r += '\x00'
@@ -68,11 +66,8 @@ class SBClient:
                     flags |= NONSTANDARD_PORT_FLAG
                     flags |= PRIVATE_IP_FLAG  #?
                     flags |= NONSTANDARD_PRIVATE_PORT_FLAG  #?
-                #adding ?public? ip, port
-                for x in host.ip.split('.'):
-                    flags_buffer += chr(int(x))
-                flags_buffer += chr(host.port / 256)
-                flags_buffer += chr(host.port % 256)
+                flags_buffer += byteencode.ipaddr(host.ip)
+                flags_buffer += byteencode.uint16(host.port)
                 #adding 1 of local ip's :localport
                 #for now server sends a random localip from all supplied
                 lips = []
@@ -81,10 +76,8 @@ class SBClient:
                         lips.append(value1)
                 for x1 in lips[random.randrange(0, len(lips))].split('.'):  #value.data['localip0'].split('.'):
                     flags_buffer += chr(int(x1))
-                localport = int(host.data.get('localport', 6500))
-                flags_buffer += chr(localport / 256)
-                flags_buffer += chr(localport % 256)
-                r += chr(flags)
+                flags_buffer += byteencode.uint16(host.data.get('localport', 6500))
+                r += byteencode.uint8(flags)
                 r += flags_buffer
                 #adding fields
                 if len(host.data) != 0:
@@ -290,11 +283,9 @@ class SBQRServer:
                 flags |= NONSTANDARD_PORT_FLAG
                 flags |= PRIVATE_IP_FLAG  #?
                 flags |= NONSTANDARD_PRIVATE_PORT_FLAG  #?
-        msg += chr(flags)
-        for x in host.ip.split('.'):
-            flags_buffer += chr(int(x))
-        flags_buffer += chr(host.port / 256)
-        flags_buffer += chr(host.port % 256)
+        msg += byteencode.uint8(flags)
+        flags_buffer += byteencode.ipaddr(host.ip)
+        flags_buffer += byteencode.uint16(host.port)
         localips = []
         for key1, value1 in host.data.items():
             if key1.startswith('localip'):
@@ -308,16 +299,13 @@ class SBQRServer:
         else:
             localip = random.choice(localips)
             print("WARNING: sb_sendpush02: Multiple localips: {}, using random: {}".format(localips, localip))
-        for x1 in localip.split('.'):
-            flags_buffer += chr(int(x1))
-        port = int(host.data.get('localport', 6500))
-        flags_buffer += chr(port / 256)
-        flags_buffer += chr(port % 256)
+        flags_buffer += byteencode.ipaddr(localip)
+        flags_buffer += byteencode.uint16(host.data.get('localport', 6500))
         msg += flags_buffer
         for field in defaultfields:
             msg += host.data[field] + '\x00'
         msg += '\x01'
-        l = ''.join([chr(i) for i in divmod(len(msg) + 2, 256)])  # length of the msg stored in 2 bytes
+        l = byteencode.uint16(len(msg))
         msg = l + msg
         # iterate through SBClients and make a message for each
         for key in self.clients:
@@ -325,10 +313,8 @@ class SBQRServer:
 
     def sb_senddel04(self, address):
         msg = '\x00\x09\x04'
-        for x in address[0].split('.'):
-            msg += chr(int(x))
-        msg += chr(address[1] / 256)
-        msg += chr(address[1] % 256)
+        msg += byteencode.ipaddr(address[0])
+        msg += byteencode.uint16(address[1])
         for key in self.clients:
             self.clients[key].message(msg)
 
