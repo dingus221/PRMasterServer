@@ -337,6 +337,7 @@ class SBQRServer:
         self.sb_socket.listen(5)
         last_aliveness_check = time.time()
 
+        print('Started QR and SB sockets. Waiting for clients.')
         while True:
             (rlst, wlst, _) = select.select(
                 [self.qr_socket, self.sb_socket] + [x.socket for x in self.clients.values()],
