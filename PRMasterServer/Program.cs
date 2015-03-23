@@ -133,12 +133,13 @@ namespace PRMasterServer
             {
                 CDKeyServer serverCdKey = new CDKeyServer(bind, 29910, log, logError);
             }
+            ServerListRetrieve serverListRetrieve = null;
             if (runMasterServer)
             {
                 ServerListReport serverListReport = new ServerListReport(bind, 27900, log, logError, gameName);
                 if (runListServer)
                 {
-                    ServerListRetrieve serverListRetrieve = new ServerListRetrieve(bind, 28910, serverListReport, log, logError);
+                    serverListRetrieve = new ServerListRetrieve(bind, 28910, serverListReport, log, logError);
                 }
             }
             ServerNatNeg serverNatNeg = null;
@@ -152,14 +153,38 @@ namespace PRMasterServer
             }
 
 			while (true) {
+//*
                 string command = Console.ReadLine();
-                if (command == "/nndclear")
+
+                Log("Executing command: " + command);
+                if (command == "/nndclear" && serverNatNeg != null)
                 {
-                    if (serverNatNeg != null)
-                    {
-                        serverNatNeg._clientsClear();
-                    }
+                    serverNatNeg.clientsClear();
                 }
+                else if (command == "/list" && serverListRetrieve != null)
+                { 
+                    serverListRetrieve.printSLinfo(); 
+                }
+                else if (command == "/quit")
+                {
+                    Log("Good bye");
+                    serverListRetrieve.Dispose();
+
+                    Environment.Exit(0);
+                }
+                else
+                {
+                    Log("Unknown command");
+                }
+ //*/
+                /*
+                ConsoleKeyInfo cki = Console.ReadKey(false);
+                Console.Write("You pressed ");
+                if ((cki.Modifiers & ConsoleModifiers.Alt) != 0) Console.Write("ALT+");
+                if ((cki.Modifiers & ConsoleModifiers.Shift) != 0) Console.Write("SHIFT+");
+                if ((cki.Modifiers & ConsoleModifiers.Control) != 0) Console.Write("CTL+");
+                Console.WriteLine("{0} (character '{1}')", cki.Key, cki.KeyChar);
+                */
 				Thread.Sleep(1000);
 			}
 		}
