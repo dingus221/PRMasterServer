@@ -31,7 +31,7 @@ namespace PRMasterServer.Servers
 		private byte[] _socketReceivedBuffer;
         private ConcurrentDictionary<int, NatNegClient> _Clients = new ConcurrentDictionary<int,NatNegClient>();
 
-        public void _clientsClear()
+        public void clientsClear()
         {
             Log(Category, "ClientsClearFunction");
             foreach (var display in _Clients)
