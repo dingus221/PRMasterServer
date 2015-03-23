@@ -19,3 +19,4 @@ def ipaddr(addr):
         i = int(number)
         assert 0 <= i < 256, "ERROR encoding invalid ipv4 address: {}".format(addr)
         r += chr(i)
+    return r
