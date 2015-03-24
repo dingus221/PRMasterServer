@@ -2,7 +2,7 @@ def uint16(number):
     number = int(number)
     assert 0 <= number < 2 ** 16, "ERROR encoding invalid uint16: {}".format(number)
     (high, low) = divmod(number, 256)
-    return chr(low) + chr(high)
+    return chr(high) + chr(low)
 
 
 def uint8(number):
