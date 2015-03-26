@@ -225,7 +225,7 @@ class SBQRServer:
 
     @staticmethod
     def qr_parse03(raw):
-        prepared = raw[5:].split('\x00\x00\x00\x01')[0].split('\x00')
+        prepared = raw[5:].split('\x00\x00\x00')[0].split('\x00')
         if len(prepared) % 2 == 1:
             print("WARNING: Could not correctly parse03: {}".format(prepared))
         cooked = [(prepared[i], prepared[i + 1]) for i in range(0, len(prepared) - 1, 2)]
