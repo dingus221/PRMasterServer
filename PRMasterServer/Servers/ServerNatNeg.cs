@@ -31,42 +31,44 @@ namespace PRMasterServer.Servers
 		private byte[] _socketReceivedBuffer;
         private ConcurrentDictionary<int, NatNegClient> _Clients = new ConcurrentDictionary<int,NatNegClient>();
 
-	public static void _clientsClear(bool clear1)
+        public void clientsClear(bool clear1)
 		{
-            		Program.Log("ClientsClearFunction(+show)");
+            Log(Category, "ClientsClearFunction(+show)");
 			foreach (var display in _Clients)
 			{
-                		string cid = display.Value.ClientId.ToString();
-                		string h1 = "null";string h2 = "null";
-        			string g1 = "null";string g2 = "null";
-                		if (display.Value.Host != null)
-                		{
-                    			if (display.Value.Host.PublicAddress != null)
-                			{
-                        			h1 = display.Value.Host.PublicAddress.ToString();
-                    			}
-                    			if (display.Value.Host.CommunicationAddress != null)
-                    			{
-                        		h2 = display.Value.Host.CommunicationAddress.ToString();
-                    			}
-                		}
-                		if (display.Value.Guest != null) 
-                		{ 
-                			if (display.Value.Guest.PublicAddress !=null) 
-                			{
-                    				display.Value.Guest.PublicAddress.ToString();    
-                			}
-                			if (display.Value.Guest.CommunicationAddress != null) 
-                			{
-                				g2 = display.Value.Guest.CommunicationAddress.ToString();
-                			}
-                		}
-                		Program.LogControl("id:"+cid);
-                		Program.LogControl("h1:" + h1 + ";h2:" + h2);
-                		Program.LogControl("g1:" + g1 + ";g2:" + g2);
+                string cid = display.Value.ClientId.ToString();
+                string h1 = "null";string h2 = "null";
+                string g1 = "null"; string g2 = "null";
+                if (display.Value.Host != null)
+                {
+                    if (display.Value.Host.PublicAddress != null)
+                    {
+                        h1 = display.Value.Host.PublicAddress.ToString();
+                    }
+                    if (display.Value.Host.CommunicationAddress != null)
+                    {
+                        h2 = display.Value.Host.CommunicationAddress.ToString();
+                    }
+                }
+                if (display.Value.Guest != null)
+                {
+                    if (display.Value.Guest.PublicAddress != null)
+                    {
+                        display.Value.Guest.PublicAddress.ToString();
+                    }
+                    if (display.Value.Guest.CommunicationAddress != null)
+                    {
+                        g2 = display.Value.Guest.CommunicationAddress.ToString();
+                    }
+                }
+                Log(Category, "id:" + cid);
+                Log(Category, "h1:" + h1 + ";h2:" + h2);
+                Log(Category, "g1:" + g1 + ";g2:" + g2);
 			}
-            		Program.LogBlue("Count:"+_Clients.Count.ToString());
-            		if (clear1 == true){_Clients.Clear();}
+            Log(Category, "Count:" + _Clients.Count.ToString());
+            if (clear1 == true){
+                _Clients.Clear();
+            }
 		}
 
 		public ServerNatNeg(IPAddress listen, ushort port, Action<string, string> log, Action<string, string> logError)

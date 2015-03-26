@@ -159,11 +159,11 @@ namespace PRMasterServer
                 Log("Executing command: " + command);
                 if (command == "/nndclear" && serverNatNeg != null)
                 {
-                    ServerNatNeg._clientsClear(true);
+                    serverNatNeg.clientsClear(true);
                 }
                 else if (command == "/nndshow" && serverNatNeg != null)
                 {
-                    ServerNatNeg._clientsClear(false);
+                    serverNatNeg.clientsClear(false);
                 }
                 else if (command == "/list" && serverListRetrieve != null)
                 { 
