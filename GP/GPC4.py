@@ -16,7 +16,6 @@
 ##?|lt
 ##?|ka
 
-
 import socket
 import select
 import time
@@ -39,10 +38,26 @@ class GPClient:
         pass
     
     def socket_readable_notification(self):
-        pass
+        try:
+            data = self.socket.recv(2 ** 10)
+            quitmsg = "EOT"
+        except socket.error, x:
+            data = ""
+            quitmsg = x
+        if data:
+            self.__readbuffer += data
+            self.__parse_read_buffer()
+            self.__timestamp = time.time()
+            self.__sent_ping = False
+        else:
+            self.disconnect(quitmsg)
 
     def socket_writable_notification(self):
-        pass
+        try:
+            sent = self.socket.send(self.__writebuffer[:1024])
+            self.__writebuffer = self.__writebuffer[sent:]
+        except socket.error, x:
+            self.disconnect(x)
 
     def disconnect(self, quitmsg):
         print 'GPClient disconnected(' + self.host + ':' + str(self.port) + '). ' + str(quitmsg)
@@ -50,7 +65,7 @@ class GPClient:
         self.server.remove_GPClient(self, quitmsg)
 
     def message(self, msg):
-        pass
+        self.__writebuffer += msg
 
     def check_aliveness(self):
         pass
@@ -63,7 +78,19 @@ class GPServer:
         del self.GPClients[GPClient.socket]
 
     def Start(self):
-        pass
+        a4 = ("0.0.0.0",29900)
+        self.gp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.gp.setblocking(0)
+        try:
+            self.gp.bind(a4)
+        except socket.error as msg:
+            print('Bind failed for sb. Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
+        self.gp.listen(10)
+        last_aliveness_check = time.time()
+        #while True:
+        #main thing
+
+        
 
 def Main():
     server = GPServer()
