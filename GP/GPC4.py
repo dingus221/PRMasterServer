@@ -2,12 +2,12 @@
 #based on works: prmasterserver, miniircd, gsopensdk
 #
 #
-#ONE TCP SERVER SOCKET BASE
+#ONE TCP SERVER SOCKET BASE     CHECK
 #Session number bundled with socket instance
 #ONE DATABASE FOR USER INFORMATION
 #CHALLENGE DECODING PROCEDURE
 #PASSWORD ENCODING/DECODING, MD5-HASHING PROCEDURES
-##<|lc\1 <- (login or newuser) X
+##<|lc\1 <- (login or newuser) CHECK
 ##>|login -> lc\2
 ##>|newuser -> nur
 ##<|bdy,blk,bm
