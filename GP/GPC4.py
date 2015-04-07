@@ -4,19 +4,19 @@
 #
 #RECHECK input info for wrong characters and lengths
 #ONE TCP SERVER SOCKET BASE                             CHECK
-#Session number bundled with socket instance
+#Session number bundled with socket instance            CHECK
 #ONE DATABASE FOR USER INFORMATION                      CHECK
 #PASSWORD GSBASE64DEC, GSENC, MD5-HASHING PROCEDURES    CHECK
 #PASSWORD LOGINCHECK_TRANSFORMATION                     CHECK
 #PASSWORD -> PROOF TRANSFORMATION                       CHECK
 ##<|lc\1 <- (login or newuser)                          CHECK
-##>|login -> lc\2                                       ?
+##>|login -> lc\2                                       CHECK
 ##>|newuser -> nur                                      CHECK
-##<|bdy,blk,bm
-##>|getprofile -> pi
-##>|status ->bdy,blk,bm
-##?|lt
-##?|ka
+##<|bdy,blk,bm                                          Not needed
+##>|getprofile -> pi                                    Not needed
+##>|status ->bdy,blk,bm                                 Not needed
+##?|lt                                                  Not needed
+##?|ka                                                  Not needed
 
 import socket
 import select
@@ -31,12 +31,11 @@ class GPClient:
         self.server = server
         self.socket = socket        
         (self.host, self.port) = socket.getpeername()
-        self.__timestamp = time.time()
+        #self.__timestamp = time.time()
         self.__readbuffer = ""
         self.__writebuffer = ""
         self.__sent_ping = False
-        self.session = -1#??? session number generator utility
-        #?make session be equal or derived from logindb id field
+        self.session = -1
 
     def write_queue_size(self):
         return len(self.__writebuffer)
@@ -55,7 +54,7 @@ class GPClient:
                 #set session value
                 self.session = 3000000 + int(dbdata[0])
                 #update lastip, lasttime, session += 1 (session here - number of times logged in)
-                
+                self.server.db.chk_in_upd(data['uniquenick'], self.host, time.time(), int(dbdata[2]) + 1)
                 #generate response
                 m =  '\\lc\\2\\sesskey\\' + str(3000000+int(dbdata[0]))
                 m += '\\proof\\' + gsenc2.PW_Hash_to_Proof(dbdata[1],data['uniquenick'],gpschal,data['challenge'])
@@ -107,12 +106,15 @@ class GPClient:
 
     def GETPROFILE(self,data):
         print "GETPROFILE"
+        #Related to buddy-functionality
 
     def STATUS(self,data):
         print "STATUS"
+        if 'logout' in data:
+            self.disconnect('status logout')
 
     def UNKNOWN(self,data):
-        print "unknown"
+        print "unknown command"
         print data
         
         
@@ -143,7 +145,7 @@ class GPClient:
         if data:
             self.__readbuffer += data
             self.__parse_read_buffer()
-            self.__timestamp = time.time()
+            #self.__timestamp = time.time()
             self.__sent_ping = False
         else:
             self.disconnect(quitmsg)
@@ -163,8 +165,6 @@ class GPClient:
     def message(self, msg):
         self.__writebuffer += msg
 
-    def check_aliveness(self):
-        pass
 
 class DBobject:
     def __init__(self,path):
@@ -186,6 +186,9 @@ class DBobject:
     def chk_in_upd(self, uname, lastip, lasttime, session):
         print "chk_in_upd"
         #???
+        self.dbcur.execute("UPDATE users SET lastip = '" + lastip + "', lasttime = " + str(lasttime) + ", session = " + str(session) + " WHERE name = '" + uname + "';")
+        self.dbcon.commit()
+        
 
     def newusr(self,uname,pwhash,email,lastip,lasttime):
         print "db_new_usr"
@@ -213,7 +216,6 @@ class GPServer:
         except socket.error as msg:
             print('Bind failed for gp. Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
         self.gp.listen(10)
-        last_aliveness_check = time.time()
         #main loop
         while True:
             (rlst, wlst, xlst) = select.select(
@@ -234,11 +236,6 @@ class GPServer:
             for x in wlst:
                 if x in self.GPClients:
                     self.GPClients[x].socket_writable_notification()
-            now = time.time()
-            if last_aliveness_check + 10 < now:
-                for client in self.GPClients.values():
-                    client.check_aliveness()
-                last_aliveness_check = now
                 
                     
         
