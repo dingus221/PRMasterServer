@@ -45,6 +45,6 @@ def PW_Hash_to_Resp(pwhash,unick,schal,cchal):
     return md5.hexdigest()
 
 def PW_Hash_to_Proof(pwhash,unick,schal,cchal):
-    md5 = hashlib.md5(pwhash + (' '*48) + unick + schal + cchal + pwhash)
-    md5.update()
+    md5 = hashlib.md5()
+    md5.update(pwhash + (' '*48) + unick + schal + cchal + pwhash)
     return md5.hexdigest()
