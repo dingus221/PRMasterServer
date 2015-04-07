@@ -1,16 +1,17 @@
 #gs presence server (29900)
-#based on works: prmasterserver, miniircd, gsopensdk
+#based on works: prmasterserver, miniircd, gsopensdk, aluigi's works
 #
 #
+#RECHECK input info for wrong characters and lengths
 #ONE TCP SERVER SOCKET BASE                             CHECK
 #Session number bundled with socket instance
-#ONE DATABASE FOR USER INFORMATION
-#PASSWORD GSBASE64DEC, GSENC, MD5-HASHING PROCEDURES
-#PASSWORD LOGINCHECK_TRANSFORMATION
-#PASSWORD -> PROOF TRANSFORMATION
-##<|lc\1 <- (login or newuser)                         CHECK
-##>|login -> lc\2
-##>|newuser -> nur
+#ONE DATABASE FOR USER INFORMATION                      CHECK
+#PASSWORD GSBASE64DEC, GSENC, MD5-HASHING PROCEDURES    CHECK
+#PASSWORD LOGINCHECK_TRANSFORMATION                     CHECK
+#PASSWORD -> PROOF TRANSFORMATION                       CHECK
+##<|lc\1 <- (login or newuser)                          CHECK
+##>|login -> lc\2                                       ?
+##>|newuser -> nur                                      CHECK
 ##<|bdy,blk,bm
 ##>|getprofile -> pi
 ##>|status ->bdy,blk,bm
@@ -22,10 +23,11 @@ import select
 import time
 import sqlite3
 from gs_consts2 import *
+import gsenc2
 
 
 class GPClient:
-    def __init__(self,server, socket):
+    def __init__(self, server, socket):
         self.server = server
         self.socket = socket        
         (self.host, self.port) = socket.getpeername()
@@ -33,41 +35,70 @@ class GPClient:
         self.__readbuffer = ""
         self.__writebuffer = ""
         self.__sent_ping = False
-        self.session = 1#??? session number generator utility
+        self.session = -1#??? session number generator utility
+        #?make session be equal or derived from logindb id field
 
     def write_queue_size(self):
         return len(self.__writebuffer)
 
     def LOGIN(self,data):
         print "login"
+        #check  nick for forbidden characters?
+        #check if user exists
+        dbdata = self.server.db.get_usr(data['uniquenick'])
+        
+        #id, hashencpw, sess
+        if dbdata != None:
+            #compare pwderivatives
+            if data['response'] == gsenc2.PW_Hash_to_Resp(dbdata[1],data['uniquenick'],gpschal,data['challenge']):
+                print "PW CHECK"
+                #set session value
+                self.session = 3000000 + int(dbdata[0])
+                #update lastip, lasttime, session += 1 (session here - number of times logged in)
+                
+                #generate response
+                m =  '\\lc\\2\\sesskey\\' + str(3000000+int(dbdata[0]))
+                m += '\\proof\\' + gsenc2.PW_Hash_to_Proof(dbdata[1],data['uniquenick'],gpschal,data['challenge'])
+                m += '\\userid\\' + str(2000000 + int(dbdata[0]) )
+                m += '\\profileid\\' + str(1000000 + int(dbdata[0]) )
+                m += '\\uniquenick\\' + data['uniquenick']
+                m += '\\lt\\NONREPRESENTATIONALISM__\\id\\1\\final\\'
+                self.message(m)
+            else:
+                print "WRONG PW"
+                self.message('\\error\\\\err\\260\\fatal\\\\errmsg\\The password provided is incorrect.\\id\\1\\final\\')
+        else:
+            self.message("\\error\\\\err\\260\\fatal\\\\errmsg\\Username doesn`t exist!\\id\\1\\final\\")                            
+        #make session be equal or derived from logindb id field
+        #self.message("\\error\\\\err\\516\\fatal\\\\errmsg\\This account name is already in use!\\id\\1\\final\\")
         '''\login\\challenge\4jv99yxEnyNWrq6EUiBmsbUfrkgmYF4f\
            uniquenick\EvilLurksInternet-tk\partnerid\0\
            response\45f06fe0f350ae4e3cc1af9ffe258c93\
            firewall\1\port\0\productid\11081\gamename\civ4bts\
            namespaceid\17\sdkrevision\3\id\1\final\
         '''
-        self.message("\\error\\\\err\\516\\fatal\\\\errmsg\\This account name is already in use!\\id\\1\\final\\")
+        
 
     def NEWUSER(self,data):
         print "NEWUSER"
         if (5<len(data.get('nick',''))<24 and  #checking len of nick
             len(data.get('email',''))>2   and  #chkng len of email
             len(data.get('passwordenc',''))>4):#chkng len of passwenc
+            #check  nick for forbidden characters?
             #check if user exists
-            if self.server.db.db_chk_usr(data['nick']) == 0:
+            if self.server.db.chk_usr(data['nick']) == 0:
                 #prepare password
+                pwhash = gsenc2.gsPWDecHash(data['passwordenc'])
                 #store data
-                #send response
-                self.message("\\error\\\\err\\515\\fatal\\\\errmsg\\Derp error!\\id\\1\\final\\")
+                id_ = self.server.db.newusr(data['nick'], pwhash, data['email'], self.host, int(time.time()))
+                #send response                
+                self.message('\\nur\\\\userid\\'+str(2000000+int(id_))+'\\profileid\\' + str(1000000+int(id_)) + '\\id\\1\\final\\')
             else:
                 #name exists
                 self.message("\\error\\\\err\\516\\fatal\\\\errmsg\\This account name is already in use!\\id\\1\\final\\")
         else:
             #wrong len
             self.message("\\error\\\\err\\0\\fatal\\\\errmsg\\Error creating account, check length!\\id\\1\\final\\")
-        
-        #add data to db
-        #send response?
         '''\newuser\\email\qqq@qq\nick\borf-tk\passwordenc\J8DHxh7t\
             productid\11081\gamename\civ4bts\namespaceid\17\uniquenick\borf-tk\
             partnerid\0\id\1\final\
@@ -91,6 +122,7 @@ class GPClient:
         print self.__readbuffer
         #get first word and second word to determine command
         raw = self.__readbuffer[1:].split('\\')
+        self.__readbuffer = ''
         cooked = ['\\'.join(raw[i:i+2]) for i in range(0, len(raw), 2)]
         prepared = dict(item.split('\\') for item in cooked)
         header = cooked[0].split('\\')
@@ -141,9 +173,26 @@ class DBobject:
         self.dbcur.execute("create table if not exists users ( id INTEGER PRIMARY KEY, name TEXT NOT NULL, password TEXT NOT NULL, email TEXT NOT NULL, country TEXT NOT NULL, lastip TEXT NOT NULL, lasttime INTEGER NULL DEFAULT '0', session INTEGER NULL DEFAULT '0' );")
         self.dbcon.commit()
 
-    def db_chk_usr(self, uname):#chk if user exists?
-        print "db_chk_usr"
+    def chk_usr(self, uname):#chk if user exists?
+        print "chk_usr"
         self.dbcur.execute("SELECT EXISTS(SELECT name FROM users WHERE name='" + uname + "' LIMIT 1);")
+        return self.dbcur.fetchone()[0]
+
+    def get_usr(self, uname): #get 3 data pieces
+        print "get_usr"
+        self.dbcur.execute("SELECT id, password, session FROM users WHERE name = '" + uname + "' LIMIT 1;")
+        return self.dbcur.fetchone()
+
+    def chk_in_upd(self, uname, lastip, lasttime, session):
+        print "chk_in_upd"
+        #???
+
+    def newusr(self,uname,pwhash,email,lastip,lasttime):
+        print "db_new_usr"
+        self.dbcur.execute("INSERT INTO users VALUES(NULL,'"+uname+"','"+pwhash+"','"+email+"','','"+lastip+"',"+str(lasttime)+",0);")
+        self.dbcon.commit()
+        #return id
+        self.dbcur.execute("SELECT id FROM users WHERE name = '" + uname + "' LIMIT 1;")
         return self.dbcur.fetchone()[0]
     
 
