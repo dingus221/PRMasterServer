@@ -2,7 +2,7 @@
 #based on works: prmasterserver, miniircd, gsopensdk, aluigi's works
 #
 #
-#RECHECK input info for wrong characters and lengths
+#Recheck input info for wrong characters and lengths    To be checked
 #ONE TCP SERVER SOCKET BASE                             CHECK
 #Session number bundled with socket instance            CHECK
 #ONE DATABASE FOR USER INFORMATION                      CHECK
