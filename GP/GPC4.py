@@ -26,13 +26,11 @@ import re
 import sqlite3
 from gs_consts2 import *
 import gsenc2
-
-
     
 
 class GPClient:
     __valid_nickname_regexp = re.compile(
-        r"^[][\-`_^{|}A-Za-z][][\-`_^{|}A-Za-z0-9]{0,50}$") #copied from miniircd
+        r"^[][\-`_^{|}A-Za-z][][\-`_^{|}A-Za-z0-9]{0,50}$")
     
     def __init__(self, server, socket):
         self.server = server
@@ -50,10 +48,7 @@ class GPClient:
         if (5<len(data.get('uniquenick',''))<24): #chkng len of uniquenick
             #check  nick for forbidden characters?
             if self.__valid_nickname_regexp.match(data['uniquenick']):
-                #check  nick for forbidden characters?
-                #check if user exists
                 dbdata = self.server.db.get_usr(data['uniquenick'])
-                #id, hashencpw, sess
                 if dbdata != None:
                     #compare pwderivatives
                     if data['response'] == gsenc2.PW_Hash_to_Resp(dbdata[1],data['uniquenick'],gpschal,data['challenge']):
@@ -73,7 +68,6 @@ class GPClient:
                         self.message('\\error\\\\err\\260\\fatal\\\\errmsg\\The password provided is incorrect.\\id\\1\\final\\')
                 else:
                     self.message("\\error\\\\err\\260\\fatal\\\\errmsg\\Username doesn`t exist!\\id\\1\\final\\")                            
-                #self.message("\\error\\\\err\\516\\fatal\\\\errmsg\\This account name is already in use!\\id\\1\\final\\")
         '''\login\\challenge\4jv99yxEnyNWrq6EUiBmsbUfrkgmYF4f\
            uniquenick\EvilLurksInternet-tk\partnerid\0\
            response\45f06fe0f350ae4e3cc1af9ffe258c93\
@@ -81,7 +75,6 @@ class GPClient:
            namespaceid\17\sdkrevision\3\id\1\final\
         '''
         
-
     def NEWUSER(self,data):
         print "NEWUSER"
         if (5<len(data.get('nick',''))<24 and  #checking len of nick
@@ -98,25 +91,21 @@ class GPClient:
                     #send response                
                     self.message('\\nur\\\\userid\\'+str(2000000+int(id_))+'\\profileid\\' + str(1000000+int(id_)) + '\\id\\1\\final\\')
                 else:
-                    #name exists
                     self.message("\\error\\\\err\\516\\fatal\\\\errmsg\\This account name is already in use!\\id\\1\\final\\")
             else:
                 self.message("\\error\\\\err\\0\\fatal\\\\errmsg\\Error creating account, forbidden characters!\\id\\1\\final\\")
         else:
-            #wrong len
             self.message("\\error\\\\err\\0\\fatal\\\\errmsg\\Error creating account, check length!\\id\\1\\final\\")
         '''\newuser\\email\qqq@qq\nick\borf-tk\passwordenc\J8DHxh7t\
             productid\11081\gamename\civ4bts\namespaceid\17\uniquenick\borf-tk\
             partnerid\0\id\1\final\
         '''
         
-
     def GETPROFILE(self,data):
         print "GETPROFILE"
-        #Related to buddy-functionality
+        #Related to buddy-system
 
     def STATUS(self,data):
-        #print "STATUS"
         if 'logout' in data:
             self.disconnect('status logout')
 
@@ -124,11 +113,7 @@ class GPClient:
         print "unknown command"
         print data
         
-        
-
     def __parse_read_buffer(self):
-        #print self.__readbuffer
-        #get first and second words to determine command
         raw = self.__readbuffer[1:].split('\\')
         self.__readbuffer = ''
         cooked = ['\\'.join(raw[i:i+2]) for i in range(0, len(raw), 2)]
@@ -139,8 +124,7 @@ class GPClient:
                'getprofile':self.GETPROFILE,
                'status':self.STATUS}
         com.get(header[0], self.UNKNOWN)(prepared)
-        
-    
+            
     def socket_readable_notification(self):
         try:
             data = self.socket.recv(2 ** 10)
@@ -206,6 +190,7 @@ class GPServer:
         
     def Start(self):
         self.db = DBobject(dbpath)
+        #GP SOCKET
         a4 = ("0.0.0.0",29900)
         self.gp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.gp.setblocking(0)
@@ -214,6 +199,7 @@ class GPServer:
         except socket.error as msg:
             print('Bind failed for gp. Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
         self.gp.listen(10)
+        #GPS SOCKET
         a5 = ("0.0.0.0",29901)
         self.gps = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.gps.setblocking(0)
@@ -236,17 +222,13 @@ class GPServer:
                 else:
                     (conn, addr) = x.accept()
                     self.GPClients[conn] = GPClient(self,conn)
-                    lc1 = "\\lc\\1\\challenge\\xxxxxxxx\\id\\1\\final\\"
+                    lc1 = "\\lc\\1\\challenge\\"+ gpschal +"\\id\\1\\final\\"
                     self.GPClients[conn].message(lc1)
                     print 'accepted gp connection from %s:%s.' % (addr[0], addr[1])
             for x in wlst:
                 if x in self.GPClients:
                     self.GPClients[x].socket_writable_notification()
                 
-                    
-        
-
-        
 
 def Main():
     server = GPServer()
