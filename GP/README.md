@@ -2,7 +2,7 @@
 
 <strong>based on works: prmasterserver, miniircd, gsopensdk, aluigi's works
 
-Works on two sockets 29900(GP), 29901(GPSearch)
+Works on two sockets 29900(GP), 29901(GPSearch)<br>
 29901 socket doesnt process any commands, because they are related to buddysystem. Needed because game disconnects itself
 when client tries to add a buddy without tcp connection to 29901.
 
