@@ -2,7 +2,6 @@
 #Sources: GSOpenSDK, aluigi's works, PRMasterserver
 import base64
 import hashlib
-from gs_utils import *
 
 
 def gsPWDecHash(pwenc):
