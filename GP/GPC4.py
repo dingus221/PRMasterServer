@@ -3,9 +3,9 @@
 #
 #
 #RECHECK input info for wrong characters and lengths    CHECK
-#ONE TCP SERVER SOCKET BASE                             CHECK
+#2 TCP SERVER SOCKETs                                   CHECK
 #Session number bundled with socket instance            CHECK
-#ONE DATABASE FOR USER INFORMATION                      CHECK
+#1 DATABASE FOR USER INFORMATION                        CHECK
 #PASSWORD GSBASE64DEC, GSENC, MD5-HASHING PROCEDURES    CHECK
 #PASSWORD LOGINCHECK_TRANSFORMATION                     CHECK
 #PASSWORD -> PROOF TRANSFORMATION                       CHECK
@@ -30,7 +30,7 @@ import gsenc2
 
 class GPClient:
     __valid_nickname_regexp = re.compile(
-        r"^[][\-`_^{|}A-Za-z][][\-`_^{|}A-Za-z0-9]{0,50}$")
+        r"^[][\-`_^{|}A-Za-z][][\-`_^{|}A-Za-z0-9]{0,50}$") #copied from miniircd
     
     def __init__(self, server, socket):
         self.server = server
