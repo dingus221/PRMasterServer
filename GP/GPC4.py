@@ -9,7 +9,6 @@
 #PASSWORD GSBASE64DEC, GSENC, MD5-HASHING PROCEDURES    CHECK
 #PASSWORD LOGINCHECK_TRANSFORMATION                     CHECK
 #PASSWORD -> PROOF TRANSFORMATION                       CHECK
-#GPSearch socket on 29901                               CHECK
 ##<|lc\1 <- (login or newuser)                          CHECK
 ##>|login -> lc\2                                       CHECK
 ##>|newuser -> nur                                      CHECK
