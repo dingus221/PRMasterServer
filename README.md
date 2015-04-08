@@ -12,9 +12,10 @@
 
 <strong>2. Projects that are included in this repository.</strong><br>
 1) PRMasterserver - 4 servers in one application. Has option to run only wanted separate servers, so you can use other applications for other servers. Written in c#<br>
-2) SBQRC4  - ServerBrowser and Query&Reporting servers in one project. Has 2 more functions than PRMasterserver's version of these servers. Written in python.<br>
-3) Miniircd - basic irc server with gs encription support (latest version https://github.com/Zulan/miniircd). Written in python.<br>
-4) GSAIRCDTMM - irc server with gs encoding, written on delphi. It works with some bugs, i used it in the beginning. Miniircd is a better irc server.<br>
+2) GPC4 - GP and GPS servers in python.
+3) SBQRC4  - ServerBrowser and Query&Reporting servers in one project. Has 2 more functions than PRMasterserver's version of these servers. Written in python.<br>
+4) Miniircd - basic irc server with gs encription support (latest version https://github.com/Zulan/miniircd). Written in python.<br>
+5) GSAIRCDTMM - irc server with gs encoding, written on delphi. It works with some bugs, i used it in the beginning. Miniircd is a better irc server.<br>
 
 
 <strong>3. Wanted logs of gs<->civ4 traffic</strong><br>
@@ -43,15 +44,17 @@ to be written later
 
 2. Open **PRMasterServer.sln**, and build. This should download via NuGet any extra packages required.
 
-3. Run **PRMasterServer.exe +db logindb.db3 +game civ4bts +servers login,cdkey,natneg** (it will include civ4 vanilla and japan version too). That will get 29900(profile) and 27901(natneg) servers running.
+3. Run **PRMasterServer.exe +db logindb.db3 +game civ4bts +servers natneg** (it will include civ4 vanilla and japan version too). That will get 27901(natneg) server running.
 
 4. Get python 2.7.8.
 
-5. Run SBQRC4.py. That will get 28910(ServerBrowser) and 27900 (Q&R) servers running
+5. Run GPC4.py. That will get 29900(GS Presence) and 29901 (GP Search) servers running
 
-6. Run miniircd.py. That will get 6667(irc) server running.
+6. Run SBQRC4.py. That will get 28910(ServerBrowser) and 27900 (Q&R) servers running
 
-7. Check that skype is not listening on port 80.
+7. Run miniircd.py. That will get 6667(irc) server running.
+
+8. Check that skype is not listening on port 80.
 
 That's all<br>
 
