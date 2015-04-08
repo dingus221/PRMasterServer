@@ -1,5 +1,5 @@
-#gs presence server (GP)
-#based on works: prmasterserver, miniircd, gsopensdk, aluigi's works
+gs presence server (GP)
+based on works: prmasterserver, miniircd, gsopensdk, aluigi's works
 
 Works on two sockets 29900(GP), 29901(GPSearch)
 29901 socket doesnt process any commands, because they are related to buddysystem. Needed because game disconnects itself
