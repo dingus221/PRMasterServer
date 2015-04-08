@@ -128,7 +128,7 @@ class GPClient:
 
     def __parse_read_buffer(self):
         #print self.__readbuffer
-        #get first word and second word to determine command
+        #get first and second words to determine command
         raw = self.__readbuffer[1:].split('\\')
         self.__readbuffer = ''
         cooked = ['\\'.join(raw[i:i+2]) for i in range(0, len(raw), 2)]
