@@ -32,7 +32,7 @@ import gsenc2
 
 class GPClient:
     __valid_nickname_regexp = re.compile(
-        r"^[][\-`_^{|}A-Za-z][][\-`_^{|}A-Za-z0-9]{0,50}$")
+        r"^[][\-`_^{|}A-Za-z][][\-`_^{|}A-Za-z0-9]{0,50}$") #copied from miniircd
     
     def __init__(self, server, socket):
         self.server = server
