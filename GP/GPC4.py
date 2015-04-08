@@ -2,13 +2,14 @@
 #based on works: prmasterserver, miniircd, gsopensdk, aluigi's works
 #
 #
-#Recheck input info for wrong characters and lengths    To be checked
+#RECHECK input info for wrong characters and lengths    CHECK
 #ONE TCP SERVER SOCKET BASE                             CHECK
 #Session number bundled with socket instance            CHECK
 #ONE DATABASE FOR USER INFORMATION                      CHECK
 #PASSWORD GSBASE64DEC, GSENC, MD5-HASHING PROCEDURES    CHECK
 #PASSWORD LOGINCHECK_TRANSFORMATION                     CHECK
 #PASSWORD -> PROOF TRANSFORMATION                       CHECK
+#GPSearch socket on 29901                               CHECK
 ##<|lc\1 <- (login or newuser)                          CHECK
 ##>|login -> lc\2                                       CHECK
 ##>|newuser -> nur                                      CHECK
@@ -21,20 +22,24 @@
 import socket
 import select
 import time
+import re
 import sqlite3
 from gs_consts2 import *
 import gsenc2
 
 
+    
+
 class GPClient:
+    __valid_nickname_regexp = re.compile(
+        r"^[][\-`_^{|}A-Za-z][][\-`_^{|}A-Za-z0-9]{0,50}$")
+    
     def __init__(self, server, socket):
         self.server = server
         self.socket = socket        
         (self.host, self.port) = socket.getpeername()
-        #self.__timestamp = time.time()
         self.__readbuffer = ""
         self.__writebuffer = ""
-        self.__sent_ping = False
         self.session = -1
 
     def write_queue_size(self):
@@ -42,34 +47,33 @@ class GPClient:
 
     def LOGIN(self,data):
         print "login"
-        #check  nick for forbidden characters?
-        #check if user exists
-        dbdata = self.server.db.get_usr(data['uniquenick'])
-        
-        #id, hashencpw, sess
-        if dbdata != None:
-            #compare pwderivatives
-            if data['response'] == gsenc2.PW_Hash_to_Resp(dbdata[1],data['uniquenick'],gpschal,data['challenge']):
-                print "PW CHECK"
-                #set session value
-                self.session = 3000000 + int(dbdata[0])
-                #update lastip, lasttime, session += 1 (session here - number of times logged in)
-                self.server.db.chk_in_upd(data['uniquenick'], self.host, time.time(), int(dbdata[2]) + 1)
-                #generate response
-                m =  '\\lc\\2\\sesskey\\' + str(3000000+int(dbdata[0]))
-                m += '\\proof\\' + gsenc2.PW_Hash_to_Proof(dbdata[1],data['uniquenick'],gpschal,data['challenge'])
-                m += '\\userid\\' + str(2000000 + int(dbdata[0]) )
-                m += '\\profileid\\' + str(1000000 + int(dbdata[0]) )
-                m += '\\uniquenick\\' + data['uniquenick']
-                m += '\\lt\\NONREPRESENTATIONALISM__\\id\\1\\final\\'
-                self.message(m)
-            else:
-                print "WRONG PW"
-                self.message('\\error\\\\err\\260\\fatal\\\\errmsg\\The password provided is incorrect.\\id\\1\\final\\')
-        else:
-            self.message("\\error\\\\err\\260\\fatal\\\\errmsg\\Username doesn`t exist!\\id\\1\\final\\")                            
-        #make session be equal or derived from logindb id field
-        #self.message("\\error\\\\err\\516\\fatal\\\\errmsg\\This account name is already in use!\\id\\1\\final\\")
+        if (5<len(data.get('uniquenick',''))<24): #chkng len of uniquenick
+            #check  nick for forbidden characters?
+            if self.__valid_nickname_regexp.match(data['uniquenick']):
+                #check  nick for forbidden characters?
+                #check if user exists
+                dbdata = self.server.db.get_usr(data['uniquenick'])
+                #id, hashencpw, sess
+                if dbdata != None:
+                    #compare pwderivatives
+                    if data['response'] == gsenc2.PW_Hash_to_Resp(dbdata[1],data['uniquenick'],gpschal,data['challenge']):
+                        #set session value
+                        self.session = 30000 + int(dbdata[0])
+                        #update lastip, lasttime, session += 1
+                        self.server.db.chk_in_upd(data['uniquenick'], self.host, time.time(), int(dbdata[2]) + 1)
+                        #generate response
+                        m =  '\\lc\\2\\sesskey\\' + str(self.session)
+                        m += '\\proof\\' + gsenc2.PW_Hash_to_Proof(dbdata[1],data['uniquenick'],gpschal,data['challenge'])
+                        m += '\\userid\\' + str(2000000 + int(dbdata[0]) )
+                        m += '\\profileid\\' + str(1000000 + int(dbdata[0]) )
+                        m += '\\uniquenick\\' + data['uniquenick']
+                        m += '\\lt\\1112223334445556667778__\\id\\1\\final\\'
+                        self.message(m)
+                    else:
+                        self.message('\\error\\\\err\\260\\fatal\\\\errmsg\\The password provided is incorrect.\\id\\1\\final\\')
+                else:
+                    self.message("\\error\\\\err\\260\\fatal\\\\errmsg\\Username doesn`t exist!\\id\\1\\final\\")                            
+                #self.message("\\error\\\\err\\516\\fatal\\\\errmsg\\This account name is already in use!\\id\\1\\final\\")
         '''\login\\challenge\4jv99yxEnyNWrq6EUiBmsbUfrkgmYF4f\
            uniquenick\EvilLurksInternet-tk\partnerid\0\
            response\45f06fe0f350ae4e3cc1af9ffe258c93\
@@ -81,20 +85,23 @@ class GPClient:
     def NEWUSER(self,data):
         print "NEWUSER"
         if (5<len(data.get('nick',''))<24 and  #checking len of nick
-            len(data.get('email',''))>2   and  #chkng len of email
-            len(data.get('passwordenc',''))>4):#chkng len of passwenc
+            50>len(data.get('email',''))>2   and  #chkng len of email
+            24>len(data.get('passwordenc',''))>7): #chkng len of passwenc
             #check  nick for forbidden characters?
-            #check if user exists
-            if self.server.db.chk_usr(data['nick']) == 0:
-                #prepare password
-                pwhash = gsenc2.gsPWDecHash(data['passwordenc'])
-                #store data
-                id_ = self.server.db.newusr(data['nick'], pwhash, data['email'], self.host, int(time.time()))
-                #send response                
-                self.message('\\nur\\\\userid\\'+str(2000000+int(id_))+'\\profileid\\' + str(1000000+int(id_)) + '\\id\\1\\final\\')
+            if self.__valid_nickname_regexp.match(data['nick']):
+                #check if user exists
+                if self.server.db.chk_usr(data['nick']) == 0:
+                    #prepare password
+                    pwhash = gsenc2.gsPWDecHash(data['passwordenc'])
+                    #store data
+                    id_ = self.server.db.newusr(data['nick'], pwhash, data['email'], self.host, int(time.time()))
+                    #send response                
+                    self.message('\\nur\\\\userid\\'+str(2000000+int(id_))+'\\profileid\\' + str(1000000+int(id_)) + '\\id\\1\\final\\')
+                else:
+                    #name exists
+                    self.message("\\error\\\\err\\516\\fatal\\\\errmsg\\This account name is already in use!\\id\\1\\final\\")
             else:
-                #name exists
-                self.message("\\error\\\\err\\516\\fatal\\\\errmsg\\This account name is already in use!\\id\\1\\final\\")
+                self.message("\\error\\\\err\\0\\fatal\\\\errmsg\\Error creating account, forbidden characters!\\id\\1\\final\\")
         else:
             #wrong len
             self.message("\\error\\\\err\\0\\fatal\\\\errmsg\\Error creating account, check length!\\id\\1\\final\\")
@@ -109,7 +116,7 @@ class GPClient:
         #Related to buddy-functionality
 
     def STATUS(self,data):
-        print "STATUS"
+        #print "STATUS"
         if 'logout' in data:
             self.disconnect('status logout')
 
@@ -120,8 +127,7 @@ class GPClient:
         
 
     def __parse_read_buffer(self):
-        print "readbuffer"
-        print self.__readbuffer
+        #print self.__readbuffer
         #get first word and second word to determine command
         raw = self.__readbuffer[1:].split('\\')
         self.__readbuffer = ''
@@ -145,8 +151,6 @@ class GPClient:
         if data:
             self.__readbuffer += data
             self.__parse_read_buffer()
-            #self.__timestamp = time.time()
-            self.__sent_ping = False
         else:
             self.disconnect(quitmsg)
 
@@ -174,24 +178,18 @@ class DBobject:
         self.dbcon.commit()
 
     def chk_usr(self, uname):#chk if user exists?
-        print "chk_usr"
         self.dbcur.execute("SELECT EXISTS(SELECT name FROM users WHERE name='" + uname + "' LIMIT 1);")
         return self.dbcur.fetchone()[0]
 
     def get_usr(self, uname): #get 3 data pieces
-        print "get_usr"
         self.dbcur.execute("SELECT id, password, session FROM users WHERE name = '" + uname + "' LIMIT 1;")
         return self.dbcur.fetchone()
 
     def chk_in_upd(self, uname, lastip, lasttime, session):
-        print "chk_in_upd"
-        #???
         self.dbcur.execute("UPDATE users SET lastip = '" + lastip + "', lasttime = " + str(lasttime) + ", session = " + str(session) + " WHERE name = '" + uname + "';")
         self.dbcon.commit()
         
-
     def newusr(self,uname,pwhash,email,lastip,lasttime):
-        print "db_new_usr"
         self.dbcur.execute("INSERT INTO users VALUES(NULL,'"+uname+"','"+pwhash+"','"+email+"','','"+lastip+"',"+str(lasttime)+",0);")
         self.dbcon.commit()
         #return id
@@ -216,6 +214,14 @@ class GPServer:
         except socket.error as msg:
             print('Bind failed for gp. Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
         self.gp.listen(10)
+        a5 = ("0.0.0.0",29901)
+        self.gps = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.gps.setblocking(0)
+        try:
+            self.gps.bind(a5)
+        except socket.error as msg:
+            print('Bind failed for gps. Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
+        self.gps.listen(10)
         #main loop
         while True:
             (rlst, wlst, xlst) = select.select(
@@ -223,7 +229,7 @@ class GPServer:
                 [x.socket for x in self.GPClients.values()
                  if x.write_queue_size() > 0],
                 [],
-                15)
+                10)
             for x in rlst:
                 if x in self.GPClients:
                     self.GPClients[x].socket_readable_notification()
