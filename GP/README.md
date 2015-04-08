@@ -3,7 +3,7 @@
 <strong>based on works: prmasterserver, miniircd, gsopensdk, aluigi's works
 
 Works on two sockets 29900(GP), 29901(GPSearch)<br>
-29901 socket doesnt process any commands, because they are related to buddysystem. Needed because game disconnects itself
+29901 socket doesnt need to process any commands, because they are related to buddysystem. Needed because game disconnects itself
 when client tries to add a buddy without tcp connection to 29901.
 
 <strong>GP29900. In this implementation it processes 2 main commands and 2 small commands.<br></strong>
