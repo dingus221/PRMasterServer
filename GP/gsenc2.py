@@ -1,5 +1,5 @@
 #6 procedures related to encoding in GP
-#Sources: GSOpenSDK, aluigi's works
+#Sources: GSOpenSDK, aluigi's works, PRMasterserver
 import base64
 import hashlib
 from gs_utils import *
