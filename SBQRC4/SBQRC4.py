@@ -337,6 +337,7 @@ class SBQRServer:
 
         self.sb_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sb_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sb_socket.setblocking(0) #do u think this one line can affect sockets being nonblocking by itself?
         try:
             self.sb_socket.bind(("0.0.0.0", 28910))
         except socket.error as msg:
