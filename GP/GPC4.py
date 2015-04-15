@@ -139,7 +139,7 @@ class GPClient:
     def __parse_packet(self, packet):
         words = packet.split('\\')
         if len(words) < 3 or words[0] != '' or words[2] != '':
-            print("ERROR parsing strange packet: {}".format(packet))
+            print("ERROR: parsing strange packet: {}".format(packet))
         command = words[1]
         cooked = [(words[i], words[i + 1]) for i in range(0, len(words) - 1, 2)]
         data = dict(cooked)
@@ -153,7 +153,7 @@ class GPClient:
 
     def __parse_read_buffer(self):
         # We assume all packets and with \final\ - but never have that inbetween
-        packets = self.__readbuffer[1:].split('\\final\\')
+        packets = self.__readbuffer.split('\\final\\')
         self.__readbuffer = ''
         # Put last word (maybe empty) back into the readbuffer as we don't know if it is complete yet.
         self.__readbuffer = packets[-1]
