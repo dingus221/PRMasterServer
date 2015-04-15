@@ -265,6 +265,7 @@ class GPServer:
             print('Bind failed for gps (29901 TCP)', err)
         self.gps.listen(10)
 
+        print('Waiting for clients...')
         while True:
             (rlst, wlst, xlst) = select.select(
                 [self.gp] + [x.socket for x in self.GPClients.values()],
