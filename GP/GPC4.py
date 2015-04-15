@@ -117,7 +117,7 @@ class GPClient:
             return
 
         pwhash = gsenc2.gsPWDecHash(data['passwordenc'])
-        user = self.server.user_db.create(data['nick'], pwhash, data['email'], self.host)
+        user = self.server.user_db.create(data['nick'], pwhash, data['email'], '', self.host)
         self.message('\\nur\\\\userid\\{}\\profileid\\{}\\id\\1\\final\\'.format(2000000 + user.id, 1000000 + user.id))
 
         '''\newuser\\email\qqq@qq\nick\borf-tk\passwordenc\J8DHxh7t\
@@ -138,10 +138,10 @@ class GPClient:
 
     def __parse_packet(self, packet):
         words = packet.split('\\')
-        if len(words) < 3 or words[0] != '' or words[2] != '':
+        if len(words) < 3 or words[0] != '':
             print("ERROR: parsing strange packet: {}".format(packet))
         command = words[1]
-        words = words[3:]
+        words = words[1:]
         cooked = [(words[i], words[i + 1]) for i in range(0, len(words) - 1, 2)]
         data = dict(cooked)
         print('DEBUG {} -> {}'.format(command, data))
@@ -233,9 +233,9 @@ class UserDB:
         except:
             raise KeyError()
 
-    def create(self, name, password, email, lastip):
-        self.dbcur.execute("INSERT INTO users (name, password, email, lastip) VALUES (?, ?, ?, ?);",
-                           (name, password, email, lastip))
+    def create(self, name, password, email, county, lastip):
+        self.dbcur.execute("INSERT INTO users (name, password, email, county, lastip) VALUES (?, ?, ?, ?, ?);",
+                           (name, password, email, county, lastip))
         return UserObj(self, self.dbcur.fetchone()[0])
     
 
