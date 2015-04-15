@@ -6,7 +6,7 @@ import select
 import time
 import random
 import argparse
-
+import errno
 
 import byteencode
 import enc
@@ -88,71 +88,75 @@ class SBClient:
         r += '\xff' * 4
         return r
 
+    def __parse_packet(self, packet):
+        if packet[2] == '\x00':  #List request
+            if len(packet) > 25:
+                idx = 9
+                query_game = get_string(packet, idx)
+                idx += len(query_game) + 1
+                game_name = get_string(packet, idx)
+                idx += len(query_game) + 1
+                cchallenge = ''.join(packet[idx:idx + 8])
+                idx += 8
+                f = get_string(packet, idx)
+                idx += len(f) + 1
+                fields = get_string(packet, idx)
+                if '\\' in fields:
+                    fields = [x for x in fields.split('\\') if x and not x.isspace()]
+                self.message(enc.SBpreCryptHeader())
+                self.out_crypt = enc.GOACryptState()
+                qfromkey = gngk.get(query_game, 'Cs2iIq')
+                self.out_crypt.SBCryptStart(bytearray(qfromkey), bytearray(cchallenge),
+                                           bytearray(enc.SCHALLCONST))
+                self.message(self.sb_00respgen(fields))
+        elif packet[2] == '\x02':  #forward req
+            print("forward request")
+            self.server.qr_forw_to(packet)
+        elif packet[2] == '\x03':  #ping response
+            print("ping ack")
+        else:
+            print("SB recieved unknown command {}".format(ord(packet[2])))
+
     def __parse_read_buffer(self):
         try:
-            while len(self.__readbuffer) > 0:
+            # We need at least two bytes to identify the packet length
+            while len(self.__readbuffer) >= 2:
                 cplen = ord(self.__readbuffer[0]) * 256 + ord(self.__readbuffer[1])
-                packet = None
                 if len(self.__readbuffer) >= cplen:
                     packet = self.__readbuffer[:cplen]
                     self.__readbuffer = self.__readbuffer[cplen:]
-                if packet == None:
-                    break  #not full packet
-                if packet[2] == '\x00':  #List request
-                    if len(packet) > 25:
-                        idx = 9
-                        query_game = get_string(packet, idx)
-                        idx += len(query_game) + 1
-                        game_name = get_string(packet, idx)
-                        idx += len(query_game) + 1
-                        cchallenge = ''.join(packet[idx:idx + 8])
-                        idx += 8
-                        f = get_string(packet, idx)
-                        idx += len(f) + 1
-                        fields = get_string(packet, idx)
-                        if '\\' in fields:
-                            fields = [x for x in fields.split('\\') if x and not x.isspace()]
-                        self.message(enc.SBpreCryptHeader())
-                        self.out_crypt = enc.GOACryptState()
-                        qfromkey = gngk.get(query_game, 'Cs2iIq')
-                        self.out_crypt.SBCryptStart(bytearray(qfromkey), bytearray(cchallenge),
-                                                   bytearray(enc.SCHALLCONST))
-                        self.message(self.sb_00respgen(fields))
-
-                elif packet[2] == '\x02':  #forward req
-                    print("forward request")
-                    self.server.qr_forw_to(packet)
-
-                elif packet[2] == '\x03':  #ping response
-                    print("ping ack")
-
+                    self.__parse_packet(packet)
                 else:
-                    print("SB recieved unknown command {}".format(ord(packet[2])))
-        except Exception, err:
-            print(err)
+                    break  # not a full packet
+        except Exception as err:
+            print('ERROR in parse_read_buffer,', err)
 
     def socket_readable_notification(self):
         try:
             data = self.socket.recv(2 ** 10)
-            quitmsg = "EOT"
-        except socket.error, x:
-            data = ""
-            quitmsg = x
-        if data:
+            if not data:
+                self.disconnect("EOT")
             self.__readbuffer += data
             self.__parse_read_buffer()
             self.__timestamp = time.time()
             self.__sent_ping = False
-        else:
-            self.disconnect(quitmsg)
+        except socket.error as err:
+            if err.args[0] == errno.EAGAIN or err.args[0] == errno.EWOULDBLOCK:
+                print('[{}:{}] Nonblocking read failed, will retry: {}'.format(self.host, self.port, err))
+            else:
+                print('[{}:{}] Nonblocking read failed hard, disconnect: {}'.format(self.host, self.port, err))
+                self.disconnect(err)
 
     def socket_writable_notification(self):
         try:
-            # FIXME: this seems to be a blocking send... not so nice :-(
             sent = self.socket.send(self.__writebuffer[:1024])
             self.__writebuffer = self.__writebuffer[sent:]
         except socket.error as err:
-            self.disconnect(err)
+            if err.args[0] == errno.EAGAIN or err.args[0] == errno.EWOULDBLOCK:
+                print('[{}:{}] Nonblocking send failed, will retry: {}'.format(self.host, self.port, err))
+            else:
+                print('[{}:{}] Nonblocking send failed hard, disconnect: {}'.format(self.host, self.port, err))
+                self.disconnect(err)
 
     def disconnect(self, quitmsg):
         print('client disconnected ({}:{}): {}', self.host, self.port, quitmsg)
@@ -167,7 +171,7 @@ class SBClient:
     def check_aliveness(self):
         now = time.time()
         if self.__timestamp + 180 < now:
-            self.disconnect("ping timeout")
+            self.disconnect('ping timeout')
             return
         if not self.__sent_ping and self.__timestamp + 80 < now:
             pingstr = '\x00\x07\x03\x77\x77\x77\x77'
@@ -324,17 +328,19 @@ class SBQRServer:
     def run(self):
         self.qr_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
-            self.qr_socket.bind(("0.0.0.0", 27900))
-        except socket.error as msg:
-            print('Bind failed for qr. Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
+            self.qr_socket.bind(("", 27900))
+        except socket.error as err:
+            print('Bind failed for qr socket:', err)
         self.qr_socket.setblocking(0)
 
         self.sb_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            self.sb_socket.bind(("0.0.0.0", 28910))
-        except socket.error as msg:
-            print('Bind failed for sb. Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
-        self.sb_socket.listen(5)
+            self.sb_socket.bind(("", 28910))
+            self.sb_socket.listen(5)
+            self.sb_socket.setblocking(0)
+        except socket.error as err:
+            print('Bind/listen failed for sb socket:', err)
+
         last_aliveness_check = time.time()
 
         print('Started QR and SB sockets. Waiting for clients.')
@@ -350,13 +356,14 @@ class SBQRServer:
                         if len(recv_data) > 0:
                             self.process_qr(recv_data, addr)
                     except socket.error as err:
-                        print(err)
+                        print('Error receiving from qr_socket', err)
                 elif x in self.clients:
                     self.clients[x].socket_readable_notification()
                 else:
                     (conn, addr) = x.accept()
+                    conn.setblocking(0)
                     self.clients[conn] = SBClient(self, conn)
-                    print('accepted sb connection from %s:%s.' % (addr[0], addr[1]))
+                    print('Accepted sb connection from %s:%s.' % (addr[0], addr[1]))
             for x in wlst:
                 if x in self.clients:  # client may have been disconnected
                     self.clients[x].socket_writable_notification()
