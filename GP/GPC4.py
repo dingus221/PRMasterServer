@@ -90,8 +90,8 @@ class GPClient:
            namespaceid\17\sdkrevision\3\id\1\final\
         '''
         
-    def NEWUSER(self,data):
-        print "NEWUSER"
+    def NEWUSER(self, data):
+        print("NEWUSER ", data)
         if not (5 < len(data.get('nick', '')) < 24 and
                 50 > len(data.get('email', '')) > 2 and
                 24 > len(data.get('passwordenc', '')) > 7):
@@ -115,31 +115,43 @@ class GPClient:
             partnerid\0\id\1\final\
         '''
         
-    def GETPROFILE(self,data):
-        print "GETPROFILE"
+    def GETPROFILE(self, data):
+        print('GETPROFILE', data)
         #Related to buddy-system
 
-    def STATUS(self,data):
+    def STATUS(self, data):
         if 'logout' in data:
             self.disconnect('status logout')
 
-    def UNKNOWN(self,data):
-        print "unknown command"
-        print data
-        
-    def __parse_read_buffer(self):
-        raw = self.__readbuffer[1:].split('\\')
-        self.__readbuffer = ''
-        # FIXME: This will not work if the read buffer is incomplete or contains multiple messages...
-        cooked = [(raw[i], raw[i + 1]) for i in range(0, len(raw) - 1, 2)]
+    def UNKNOWN(self, data):
+        print("ERROR: unknown command, ", data)
+
+    def __parse_packet(self, packet):
+        words = packet.split('\\')
+        if len(words) < 3 or words[0] != '' or words[2] != '':
+            print("ERROR parsing strange packet: {}".format(packet))
+        command = words[1]
+        cooked = [(words[i], words[i + 1]) for i in range(0, len(words) - 1, 2)]
         data = dict(cooked)
         header = cooked[0]
         com = {'login': self.LOGIN,
                'newuser': self.NEWUSER,
                'getprofile': self.GETPROFILE,
                'status': self.STATUS}
-        com.get(header[0], self.UNKNOWN)(data)
-            
+        data['command'] = command # for debug purposes
+        com.get(command, self.UNKNOWN)(data)
+
+    def __parse_read_buffer(self):
+        # We assume all packets and with \final\ - but never have that inbetween
+        packets = self.__readbuffer[1:].split('\\final\\')
+        self.__readbuffer = ''
+        # Put last word (maybe empty) back into the readbuffer as we don't know if it is complete yet.
+        self.__readbuffer = packets[-1]
+        packets = packets[:-1]
+        # Now the packets array should contain complete packets and the readbuffer any remaining incomplete ones
+        for packet in packets:
+            self.__parse_packet(packet)
+
     def socket_readable_notification(self):
         try:
             data = self.socket.recv(2 ** 10)
@@ -255,7 +267,7 @@ class GPServer:
                     self.GPClients[x].socket_readable_notification()
                 else:
                     (conn, addr) = x.accept()
-                    self.GPClients[conn] = GPClient(self,conn)
+                    self.GPClients[conn] = GPClient(self, conn)
                     lc1 = "\\lc\\1\\challenge\\" + gpschal + "\\id\\1\\final\\"
                     self.GPClients[conn].message(lc1)
                     print 'accepted gp connection from %s:%s.' % (addr[0], addr[1])
