@@ -27,6 +27,38 @@ from gs_consts2 import *
 import gsenc2
     
 
+class GPSClient:
+    def __init__(self, server, socket):
+        self.server = server
+        self.socket = socket
+        (self.host, self.port) = socket.getpeername()
+        self.__readbuffer = ""
+        self.__writebuffer = ""
+
+    def disconnect(self, quitmsg):
+        print('client disconnected ({}:{}): {}', self.host, self.port, quitmsg)
+        self.socket.close()
+        self.server.remove_client(self, quitmsg)
+
+    def socket_readable_notification(self):
+        try:
+            data = self.socket.recv(2 ** 10)
+            if not data:
+                self.disconnect('EOT')
+            print('IGNORING data for GPSClient {}:{}: {}'.format(self.host, self.port, data))
+        except socket.error as err:
+            if err.args[0] == errno.EAGAIN or err.args[0] == errno.EWOULDBLOCK:
+                print('[{}:{}] Nonblocking read failed, will retry: {}'.format(self.host, self.port, err))
+            else:
+                print('[{}:{}] Nonblocking read failed hard, disconnect: {}'.format(self.host, self.port, err))
+                self.disconnect(err)
+
+    def socket_writable_notification(self):
+        pass # WRITING NOT IMPLEMENTED YET
+
+    def write_queue_size(self):
+        return 0 # WRITING NOT IMPLEMENTED YET
+
 class GPClient:
     __valid_nickname_regexp = re.compile(
         r"^[][\-`_^{|}A-Za-z][][\-`_^{|}A-Za-z0-9]{0,50}$") #copied from miniircd
@@ -187,7 +219,7 @@ class GPClient:
     def disconnect(self, quitmsg):
         print 'GPClient disconnected(' + self.host + ':' + str(self.port) + '). ' + str(quitmsg)
         self.socket.close()
-        self.server.remove_GPClient(self, quitmsg)
+        self.server.remove_client(self, quitmsg)
 
     def message(self, msg):
         self.__writebuffer += msg
@@ -241,10 +273,16 @@ class UserDB:
 
 class GPServer:
     def __init__(self):
-        self.GPClients = {} # Socket --> Client instance
+        self.GPClients = {}
+        self.all_clients = {}
+        self.gps_clients = {}
 
-    def remove_GPClient(self, GPClient, quitmsg): #cant delete clients inside their own functions?
-        del self.GPClients[GPClient.socket]
+    def remove_client(self, client, quitmsg): #cant delete clients inside their own functions?
+        del self.all_clients[client.socket]
+        if client.socket in self.GPClients:
+            del self.GPClients[client.socket]
+        if client.socket in self.gps_clients:
+            del self.gps_clients[client.socket]
         
     def run(self):
         self.user_db = UserDB(dbpath)
@@ -272,23 +310,30 @@ class GPServer:
         print('Waiting for clients...')
         while True:
             (rlst, wlst, xlst) = select.select(
-                [self.gp] + [x.socket for x in self.GPClients.values()],
-                [x.socket for x in self.GPClients.values()
-                 if x.write_queue_size() > 0],
+                [self.gp, self.gps] + [x.socket for x in self.all_clients.values()],
+                [x.socket for x in self.all_clients.values() if x.write_queue_size() > 0],
                 [],
                 10)
             for x in rlst:
-                if x in self.GPClients:
-                    self.GPClients[x].socket_readable_notification()
-                else:
+                if x in self.all_clients:
+                    self.all_clients[x].socket_readable_notification()
+                elif x is self.gp:
                     (conn, addr) = x.accept()
-                    self.GPClients[conn] = GPClient(self, conn)
+                    client = GPClient(self, conn)
+                    self.GPClients[conn] = client
+                    self.all_clients[conn] = client
                     lc1 = "\\lc\\1\\challenge\\" + gpschal + "\\id\\1\\final\\"
                     self.GPClients[conn].message(lc1)
                     print 'accepted gp connection from %s:%s.' % (addr[0], addr[1])
+                else:
+                    (conn, addr) = x.accept()
+                    client = GPSClient(self, conn)
+                    self.gps_clients[conn] = client
+                    self.all_clients[conn] = client
+                    print('accepted gps connection from {}:{}.'.format(addr[0], addr[1]))
             for x in wlst:
-                if x in self.GPClients:
-                    self.GPClients[x].socket_writable_notification()
+                if x in self.all_clients:
+                    self.all_clients[x].socket_writable_notification()
                 
 
 def main():
