@@ -44,7 +44,7 @@ class GPClient:
 
     def LOGIN(self, data):
         uname = data.get('uniquenick', '')
-        print("LOGIN called for {}".format(uname))
+        print("Player {} attempting to login...".format(uname))
 
         # FIXME: Check if these restrictions are consistent with the already existing users
 
@@ -82,7 +82,7 @@ class GPClient:
 
         user.lastip   = self.host
         user.lasttime = time.time()
-        user.sesion   = user.sesion + 1
+        user.session  = user.session + 1
 
         # generate response
         m =  '\\lc\\2\\sesskey\\' + str(self.session)
@@ -126,7 +126,7 @@ class GPClient:
         '''
         
     def GETPROFILE(self, data):
-        print('GETPROFILE', data)
+        pass
         #Related to buddy-system
 
     def STATUS(self, data):
@@ -141,8 +141,10 @@ class GPClient:
         if len(words) < 3 or words[0] != '' or words[2] != '':
             print("ERROR: parsing strange packet: {}".format(packet))
         command = words[1]
+        words = words[3:]
         cooked = [(words[i], words[i + 1]) for i in range(0, len(words) - 1, 2)]
         data = dict(cooked)
+        print('DEBUG {} -> {}'.format(command, data))
         header = cooked[0]
         com = {'login': self.LOGIN,
                'newuser': self.NEWUSER,
