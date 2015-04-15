@@ -31,6 +31,8 @@ namespace PRMasterServer.Servers
 			Log = log;
 			LogError = logError;
 
+            GeoIP.Initialize(log, Category);
+
 			ThreadClientManager = new Thread(StartServerClientManager) {
 				Name = "Login Thread Client Manager"
 			};

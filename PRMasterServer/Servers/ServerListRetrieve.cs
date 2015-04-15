@@ -112,6 +112,18 @@ namespace PRMasterServer.Servers
 			});
 		}
 
+        public void printSLinfo()
+        {
+            IQueryable<GameServer> servers = _report.Servers.ToList().Select(x => x.Value).Where(x => x.Valid).AsQueryable();
+            int zz = 0;
+            foreach (var server in servers)
+            {
+                zz = zz + 1;
+                Log(Category, zz.ToString() + "." + server.hostname + "(" + server.mynumplayers + "/" + server.maxnumplayers + ");" + "Staging:" + server.staging.ToString());
+            }
+            Log(Category, "SL.Count: " + servers.Count().ToString());
+        }
+
 		public void Dispose()
 		{
 			Dispose(true);

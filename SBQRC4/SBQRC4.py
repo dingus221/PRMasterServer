@@ -148,6 +148,7 @@ class SBClient:
                 self.disconnect(err)
 
     def socket_writable_notification(self):
+        print("flusing writebuffer ({}) of client {}:{}", len(self.__writebuffer), self.host, self.port)
         try:
             sent = self.socket.send(self.__writebuffer[:1024])
             self.__writebuffer = self.__writebuffer[sent:]
@@ -164,6 +165,7 @@ class SBClient:
         self.server.remove_client(self, quitmsg)
 
     def message(self, msg):
+        print('adding message with length {} to client {}:{} writebuffer.'.format(len(msg), self.host, self.port))
         if self.out_crypt is not None:
             msg = self.out_crypt.GOAEncrypt(bytearray(msg))
         self.__writebuffer += msg
@@ -199,7 +201,8 @@ class SBQRServer:
         self.hosts[addr].data['newgame'] = new
 
     def print_hostlist(self):
-        for index, host in enumerate(self.hosts.keys()):
+        print("Prining hostlist of server...")
+        for index, (_, host) in enumerate(self.hosts.items()):
             print('[{}] {}:{} ({}) {}'.format(index, host.ip, host.port, host.sessionid, host.lastheard))
             print(host.data)
             print('--------')
@@ -226,8 +229,10 @@ class SBQRServer:
 
     @staticmethod
     def qr_parse03(raw):
-        prepared = raw[5:].split('\x00\x00\x00\x01')[0].split('\x00')
-        cooked = [(prepared[i], prepared[i + 1]) for i in range(0, len(prepared), 2)]
+        prepared = raw[5:].split('\x00\x00\x00')[0].split('\x00')
+        if len(prepared) % 2 == 1:
+            print("WARNING: Could not correctly parse03: {}".format(prepared))
+        cooked = [(prepared[i], prepared[i + 1]) for i in range(0, len(prepared) - 1, 2)]
         return dict(cooked)
 
     def qr_send_to(self, resp, address, location):
@@ -309,11 +314,12 @@ class SBQRServer:
         for field in defaultfields:
             msg += host.data[field] + '\x00'
         msg += '\x01'
-        l = byteencode.uint16(len(msg))
+        l = byteencode.uint16(len(msg) + 2)
         msg = l + msg
         # iterate through SBClients and make a message for each
-        for key in self.clients:
-            self.clients[key].message(msg)
+        print("Sending info about host {}:{} to {} clients".format(host.ip, host.port, len(self.clients)))
+        for client in self.clients.values():
+            client.message(msg)
 
     def sb_senddel04(self, address):
         msg = '\x00\x09\x04'
@@ -330,16 +336,17 @@ class SBQRServer:
         try:
             self.qr_socket.bind(("", 27900))
         except socket.error as err:
-            print('Bind failed for qr socket:', err)
+            print('Bind failed for qr socket (UDP 27900):', err)
         self.qr_socket.setblocking(0)
 
         self.sb_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sb_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
             self.sb_socket.bind(("", 28910))
             self.sb_socket.listen(5)
             self.sb_socket.setblocking(0)
         except socket.error as err:
-            print('Bind/listen failed for sb socket:', err)
+            print('Bind/listen failed for sb socket (TCP 28910):', err)
 
         last_aliveness_check = time.time()
 
@@ -369,6 +376,7 @@ class SBQRServer:
                     self.clients[x].socket_writable_notification()
             now = time.time()
             if last_aliveness_check + 10 < now:
+#                self.print_hostlist()
                 for client in self.clients.values():
                     client.check_aliveness()
                 last_aliveness_check = now
@@ -382,6 +390,7 @@ def main():
     server = SBQRServer()
 
     if args.fakehosts:
+        print("Adding fakehosts.")
         for _ in range(0, 10):
             name = ' '.join([random.choice(fakenames['tags']) for _ in range(0, random.randrange(0, 3))] +
                             [random.choice(fakenames['types'])] +
