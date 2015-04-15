@@ -236,7 +236,7 @@ class UserDB:
     def create(self, name, password, email, country, lastip):
         self.dbcur.execute("INSERT INTO users (name, password, email, country, lastip) VALUES (?, ?, ?, ?, ?);",
                            (name, password, email, country, lastip))
-        return UserObj(self, self.dbcur.fetchone()[0])
+        return UserObj(self, self.dbcur.lastrowid)
     
 
 class GPServer:
