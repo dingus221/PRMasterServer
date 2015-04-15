@@ -256,6 +256,7 @@ class GPServer:
             self.gp.bind(("", 29900))
         except socket.error as err:
             print('Bind failed for gp (29900 TCP)', err)
+            raise err
         self.gp.listen(10)
 
         #GPS SOCKET
@@ -265,6 +266,7 @@ class GPServer:
             self.gps.bind(("", 29901))
         except socket.error as err:
             print('Bind failed for gps (29901 TCP)', err)
+            raise err
         self.gps.listen(10)
 
         print('Waiting for clients...')
