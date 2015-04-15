@@ -197,7 +197,7 @@ class GPClient:
 # If the DB caching is too bad we can optimize later...
 class UserObj:
     # Note: id not considered a field.
-    fields = ['name', 'password', 'email', 'county', 'lastip', 'lasttime', 'session']
+    fields = ['name', 'password', 'email', 'country', 'lastip', 'lasttime', 'session']
 
     def __init__(self, db, uid):
         self.__dict__['db'] = db
@@ -233,9 +233,9 @@ class UserDB:
         except:
             raise KeyError()
 
-    def create(self, name, password, email, county, lastip):
-        self.dbcur.execute("INSERT INTO users (name, password, email, county, lastip) VALUES (?, ?, ?, ?, ?);",
-                           (name, password, email, county, lastip))
+    def create(self, name, password, email, country, lastip):
+        self.dbcur.execute("INSERT INTO users (name, password, email, country, lastip) VALUES (?, ?, ?, ?, ?);",
+                           (name, password, email, country, lastip))
         return UserObj(self, self.dbcur.fetchone()[0])
     
 
