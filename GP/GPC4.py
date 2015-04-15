@@ -68,6 +68,16 @@ class GPClient:
             return
 
         # TODO: What does this mean?
+        # 1. The meaning of self.session is following:
+        # if we would need to send other commands about buddysystem (that arent implemented), we would need to send 
+        # this .session value every time
+        # but it seems that in current implementation the stored value is never used
+        
+        # 2. Adding 30000 so that the value has 5+ digits. Thats untested, maybe it will work with 1+ digit okay
+        
+        # 3. In other implementations of this server, this session is a randomly generated number, but i think its less 
+        # resourceconsuming if we just generate session value from userid. That way we dont need to compare if 
+        # randomly generated sessionvalue is unique among other currently connected clients
         self.session = 30000 + int(user.id)
 
         user.lastip   = self.host
