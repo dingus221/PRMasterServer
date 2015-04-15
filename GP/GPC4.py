@@ -42,31 +42,47 @@ class GPClient:
     def write_queue_size(self):
         return len(self.__writebuffer)
 
-    def LOGIN(self,data):
-        print "login"
-        if (5<len(data.get('uniquenick',''))<24): #chkng len of uniquenick
-            #check  nick for forbidden characters?
-            if self.__valid_nickname_regexp.match(data['uniquenick']):
-                dbdata = self.server.db.get_usr(data['uniquenick'])
-                if dbdata != None:
-                    #compare pwderivatives
-                    if data['response'] == gsenc2.PW_Hash_to_Resp(dbdata[1],data['uniquenick'],gpschal,data['challenge']):
-                        #set session value
-                        self.session = 30000 + int(dbdata[0])
-                        #update lastip, lasttime, session += 1
-                        self.server.db.chk_in_upd(data['uniquenick'], self.host, time.time(), int(dbdata[2]) + 1)
-                        #generate response
-                        m =  '\\lc\\2\\sesskey\\' + str(self.session)
-                        m += '\\proof\\' + gsenc2.PW_Hash_to_Proof(dbdata[1],data['uniquenick'],gpschal,data['challenge'])
-                        m += '\\userid\\' + str(2000000 + int(dbdata[0]) )
-                        m += '\\profileid\\' + str(1000000 + int(dbdata[0]) )
-                        m += '\\uniquenick\\' + data['uniquenick']
-                        m += '\\lt\\1112223334445556667778__\\id\\1\\final\\'
-                        self.message(m)
-                    else:
-                        self.message('\\error\\\\err\\260\\fatal\\\\errmsg\\The password provided is incorrect.\\id\\1\\final\\')
-                else:
-                    self.message("\\error\\\\err\\260\\fatal\\\\errmsg\\Username doesn`t exist!\\id\\1\\final\\")                            
+    def LOGIN(self, data):
+        uname = data.get('uniquenick', '')
+        print("LOGIN called for {}".format(uname))
+
+        # FIXME: Check if these restrictions are consistent with the already existing users
+
+        if not (5 < len(uname) < 24): #chkng len of uniquenick
+            self.message("\\error\\\\err\\260\\fatal\\\\errmsg\\Username invalid!\\id\\1\\final\\")
+            return
+
+        #check  nick for forbidden characters?
+        if not self.__valid_nickname_regexp.match(uname):
+            self.message("\\error\\\\err\\260\\fatal\\\\errmsg\\Username invalid!\\id\\1\\final\\")
+            return
+
+        try:
+            user = self.server.user_db[data['uniquenick']]
+        except KeyError:
+            self.message("\\error\\\\err\\260\\fatal\\\\errmsg\\Username doesn`t exist!\\id\\1\\final\\")
+            return
+
+        if data['response'] != gsenc2.PW_Hash_to_Resp(user.password, uname, gpschal, data['challenge']):
+            self.message('\\error\\\\err\\260\\fatal\\\\errmsg\\The password provided is incorrect.\\id\\1\\final\\')
+            return
+
+        # TODO: What does this mean?
+        self.session = 30000 + int(user.id)
+
+        user.lastip   = self.host
+        user.lasttime = time.time()
+        user.sesion   = user.sesion + 1
+
+        # generate response
+        m =  '\\lc\\2\\sesskey\\' + str(self.session)
+        m += '\\proof\\' + gsenc2.PW_Hash_to_Proof(user.password, uname, gpschal, data['challenge'])
+        m += '\\userid\\' + str(2000000 + int(user.id))
+        m += '\\profileid\\' + str(1000000 + int(user.id))
+        m += '\\uniquenick\\' + uname
+        m += '\\lt\\1112223334445556667778__\\id\\1\\final\\'
+        self.message(m)
+
         '''\login\\challenge\4jv99yxEnyNWrq6EUiBmsbUfrkgmYF4f\
            uniquenick\EvilLurksInternet-tk\partnerid\0\
            response\45f06fe0f350ae4e3cc1af9ffe258c93\
@@ -76,25 +92,24 @@ class GPClient:
         
     def NEWUSER(self,data):
         print "NEWUSER"
-        if (5<len(data.get('nick',''))<24 and  #checking len of nick
-            50>len(data.get('email',''))>2   and  #chkng len of email
-            24>len(data.get('passwordenc',''))>7): #chkng len of passwenc
-            #check  nick for forbidden characters?
-            if self.__valid_nickname_regexp.match(data['nick']):
-                #check if user exists
-                if self.server.db.chk_usr(data['nick']) == 0:
-                    #prepare password
-                    pwhash = gsenc2.gsPWDecHash(data['passwordenc'])
-                    #store data
-                    id_ = self.server.db.newusr(data['nick'], pwhash, data['email'], self.host, int(time.time()))
-                    #send response                
-                    self.message('\\nur\\\\userid\\'+str(2000000+int(id_))+'\\profileid\\' + str(1000000+int(id_)) + '\\id\\1\\final\\')
-                else:
-                    self.message("\\error\\\\err\\516\\fatal\\\\errmsg\\This account name is already in use!\\id\\1\\final\\")
-            else:
-                self.message("\\error\\\\err\\0\\fatal\\\\errmsg\\Error creating account, forbidden characters!\\id\\1\\final\\")
-        else:
+        if not (5 < len(data.get('nick', '')) < 24 and
+                50 > len(data.get('email', '')) > 2 and
+                24 > len(data.get('passwordenc', '')) > 7):
             self.message("\\error\\\\err\\0\\fatal\\\\errmsg\\Error creating account, check length!\\id\\1\\final\\")
+            return
+
+        if not self.__valid_nickname_regexp.match(data['nick']):
+            self.message("\\error\\\\err\\0\\fatal\\\\errmsg\\Error creating account, forbidden characters!\\id\\1\\final\\")
+            return
+
+        if data['nick'] in self.server.user_db:
+            self.message("\\error\\\\err\\516\\fatal\\\\errmsg\\This account name is already in use!\\id\\1\\final\\")
+            return
+
+        pwhash = gsenc2.gsPWDecHash(data['passwordenc'])
+        user = self.server.user_db.create(data['nick'], pwhash, data['email'], self.host)
+        self.message('\\nur\\\\userid\\{}\\profileid\\{}\\id\\1\\final\\'.format(2000000 + user.id, 1000000 + user.id))
+
         '''\newuser\\email\qqq@qq\nick\borf-tk\passwordenc\J8DHxh7t\
             productid\11081\gamename\civ4bts\namespaceid\17\uniquenick\borf-tk\
             partnerid\0\id\1\final\
@@ -115,14 +130,15 @@ class GPClient:
     def __parse_read_buffer(self):
         raw = self.__readbuffer[1:].split('\\')
         self.__readbuffer = ''
-        cooked = ['\\'.join(raw[i:i+2]) for i in range(0, len(raw), 2)]
-        prepared = dict(item.split('\\') for item in cooked)
-        header = cooked[0].split('\\')
-        com = {'login':self.LOGIN,
-               'newuser':self.NEWUSER,
-               'getprofile':self.GETPROFILE,
-               'status':self.STATUS}
-        com.get(header[0], self.UNKNOWN)(prepared)
+        # FIXME: This will not work if the read buffer is incomplete or contains multiple messages...
+        cooked = [(raw[i], raw[i + 1]) for i in range(0, len(raw) - 1, 2)]
+        data = dict(cooked)
+        header = cooked[0]
+        com = {'login': self.LOGIN,
+               'newuser': self.NEWUSER,
+               'getprofile': self.GETPROFILE,
+               'status': self.STATUS}
+        com.get(header[0], self.UNKNOWN)(data)
             
     def socket_readable_notification(self):
         try:
@@ -153,31 +169,50 @@ class GPClient:
         self.__writebuffer += msg
 
 
-class DBobject:
-    def __init__(self,path):
-        self.dbcon = sqlite3.connect(path)
+# Yes this looks inefficient - but it's clever and never out of date.
+# If the DB caching is too bad we can optimize later...
+class UserObj:
+    # Note: id not considered a field.
+    fields = ['name', 'password', 'email', 'county', 'lastip', 'lasttime', 'session']
+
+    def __init__(self, db, uid):
+        self.__dict__['db'] = db
+        self.__dict__['id'] = int(uid)
+
+    def __getattr__(self, key):
+        if key not in UserObj.fields:
+            raise AttributeError()
+        self.db.dbcur.execute('SELECT {} FROM users WHERE id = ?'.format(key), (self.id, ))
+        return self.db.dbcur.fetchone()[0]
+
+    def __setattr__(self, key, value):
+        self.db.dbcur.execute('UPDATE users SET {} = ? WHERE id = ?'.format(key), (value, self.id))
+
+
+class UserDB:
+    def __init__(self, path):
+        self.dbcon = sqlite3.connect(path, isolation_level=None)
         self.dbcur = self.dbcon.cursor()
-        self.dbcur.execute("create table if not exists users ( id INTEGER PRIMARY KEY, name TEXT NOT NULL, password TEXT NOT NULL, email TEXT NOT NULL, country TEXT NOT NULL, lastip TEXT NOT NULL, lasttime INTEGER NULL DEFAULT '0', session INTEGER NULL DEFAULT '0' );")
-        self.dbcon.commit()
+        self.dbcur.execute("create table if not exists users ( id INTEGER PRIMARY KEY, name TEXT NOT NULL, "
+                           "password TEXT NOT NULL, email TEXT NOT NULL, country TEXT NOT NULL, lastip TEXT NOT NULL, "
+                           "lasttime INTEGER NULL DEFAULT '0', session INTEGER NULL DEFAULT '0' );")
 
-    def chk_usr(self, uname):#chk if user exists?
-        self.dbcur.execute("SELECT EXISTS(SELECT name FROM users WHERE name='" + uname + "' LIMIT 1);")
+    def __contains__(self, uname):
+        self.dbcur.execute("SELECT EXISTS(SELECT name FROM users WHERE name=? LIMIT 1);", (uname, ))
         return self.dbcur.fetchone()[0]
 
-    def get_usr(self, uname): #get 3 data pieces
-        self.dbcur.execute("SELECT id, password, session FROM users WHERE name = '" + uname + "' LIMIT 1;")
-        return self.dbcur.fetchone()
+    def __getitem__(self, uname):
+        try:
+            self.dbcur.execute("SELECT id FROM users WHERE name=? LIMIT 1;", (uname, ))
+            uid = self.dbcur.fetchone()[0]
+            return UserObj(self, uid)
+        except:
+            raise KeyError()
 
-    def chk_in_upd(self, uname, lastip, lasttime, session):
-        self.dbcur.execute("UPDATE users SET lastip = '" + lastip + "', lasttime = " + str(lasttime) + ", session = " + str(session) + " WHERE name = '" + uname + "';")
-        self.dbcon.commit()
-        
-    def newusr(self,uname,pwhash,email,lastip,lasttime):
-        self.dbcur.execute("INSERT INTO users VALUES(NULL,'"+uname+"','"+pwhash+"','"+email+"','','"+lastip+"',"+str(lasttime)+",0);")
-        self.dbcon.commit()
-        #return id
-        self.dbcur.execute("SELECT id FROM users WHERE name = '" + uname + "' LIMIT 1;")
-        return self.dbcur.fetchone()[0]
+    def create(self, name, password, email, lastip):
+        self.dbcur.execute("INSERT INTO users (name, password, email, lastip) VALUES (?, ?, ?, ?);",
+                           (name, password, email, lastip))
+        return UserObj(self, self.dbcur.fetchone()[0])
     
 
 class GPServer:
@@ -187,27 +222,27 @@ class GPServer:
     def remove_GPClient(self, GPClient, quitmsg): #cant delete clients inside their own functions?
         del self.GPClients[GPClient.socket]
         
-    def Start(self):
-        self.db = DBobject(dbpath)
+    def run(self):
+        self.user_db = UserDB(dbpath)
+
         #GP SOCKET
-        a4 = ("0.0.0.0",29900)
         self.gp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.gp.setblocking(0)
         try:
-            self.gp.bind(a4)
-        except socket.error as msg:
-            print('Bind failed for gp. Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
+            self.gp.bind(("", 29900))
+        except socket.error as err:
+            print('Bind failed for gp (29900 TCP)', err)
         self.gp.listen(10)
+
         #GPS SOCKET
-        a5 = ("0.0.0.0",29901)
         self.gps = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.gps.setblocking(0)
         try:
-            self.gps.bind(a5)
-        except socket.error as msg:
-            print('Bind failed for gps. Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
+            self.gps.bind(("", 29901))
+        except socket.error as err:
+            print('Bind failed for gps (29901 TCP)', err)
         self.gps.listen(10)
-        #main loop
+
         while True:
             (rlst, wlst, xlst) = select.select(
                 [self.gp] + [x.socket for x in self.GPClients.values()],
@@ -221,7 +256,7 @@ class GPServer:
                 else:
                     (conn, addr) = x.accept()
                     self.GPClients[conn] = GPClient(self,conn)
-                    lc1 = "\\lc\\1\\challenge\\"+ gpschal +"\\id\\1\\final\\"
+                    lc1 = "\\lc\\1\\challenge\\" + gpschal + "\\id\\1\\final\\"
                     self.GPClients[conn].message(lc1)
                     print 'accepted gp connection from %s:%s.' % (addr[0], addr[1])
             for x in wlst:
@@ -229,11 +264,11 @@ class GPServer:
                     self.GPClients[x].socket_writable_notification()
                 
 
-def Main():
+def main():
     server = GPServer()
     try:
-        server.Start()
+        server.run()
     except KeyboardInterrupt:
         print "GP Interrupted."
 
-Main()
+main()
