@@ -168,6 +168,9 @@ class GPClient:
     def UNKNOWN(self, data):
         print("ERROR: unknown command, ", data)
 
+    def LOGOUT(self, data):
+        self.disconnect('logout')
+
     def __parse_packet(self, packet):
         words = packet.split('\\')
         if len(words) < 3 or words[0] != '':
@@ -179,6 +182,7 @@ class GPClient:
         print('DEBUG {} -> {}'.format(command, data))
         header = cooked[0]
         com = {'login': self.LOGIN,
+               'logout': self.LOGOUT,
                'newuser': self.NEWUSER,
                'getprofile': self.GETPROFILE,
                'status': self.STATUS}
