@@ -101,13 +101,8 @@ class GPClient(NetworkClient):
                      'lt', '1112223334445556667778__',
                      'id', 1)
 
-
-        '''\login\\challenge\4jv99yxEnyNWrq6EUiBmsbUfrkgmYF4f\
-           uniquenick\EvilLurksInternet-tk\partnerid\0\
-           response\45f06fe0f350ae4e3cc1af9ffe258c93\
-           firewall\1\port\0\productid\11081\gamename\civ4bts\
-           namespaceid\17\sdkrevision\3\id\1\final\
-        '''
+        # example login data:
+        # \login\\challenge\4jv99yxEnyNWrq6EUiBmsbUfrkgmYF4f\uniquenick\EvilLurksInternet-tk\partnerid\0\response\45f06fe0f350ae4e3cc1af9ffe258c93\firewall\1\port\0\productid\11081\gamename\civ4bts\namespaceid\17\sdkrevision\3\id\1\final\
         
     def handle_newuser(self, data):
         print("NEWUSER ", data)
@@ -129,10 +124,8 @@ class GPClient(NetworkClient):
         user = self.server.user_db.create(data['nick'], pwhash, data['email'], '', self.host)
         self.respond('nur', '', 'userid', 2000000 + user.id, 'profileid', 1000000 + user.id, 'id', 1)
 
-        '''\newuser\\email\qqq@qq\nick\borf-tk\passwordenc\J8DHxh7t\
-            productid\11081\gamename\civ4bts\namespaceid\17\uniquenick\borf-tk\
-            partnerid\0\id\1\final\
-        '''
+        # example newuser data
+        # \newuser\\email\qqq@qq\nick\borf-tk\passwordenc\J8DHxh7t\productid\11081\gamename\civ4bts\namespaceid\17\uniquenick\borf-tk\partnerid\0\id\1\final\
         
     def handle_getprofile(self, data):
         pass
