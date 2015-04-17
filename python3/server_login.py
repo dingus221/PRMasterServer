@@ -243,7 +243,7 @@ class LoginServer(NetworkServer):
         except socket.error as err:
             print('Bind failed for gps (29901 TCP): {}'.format(err))
             raise err
-        self.gps.listen(5)
+        gps_socket.listen(5)
         self.register_server(gps_socket, GPSClient)
 
 
