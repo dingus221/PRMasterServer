@@ -49,7 +49,7 @@ class GPClient(NetworkClient):
                          'status': self.handle_status}
 
         # Initial greeting
-        self.respond('lc', 1, 'challenge', config_login.challenge, 'id', 1)
+        self.respond(['lc', 1, 'challenge', config_login.challenge, 'id', 1])
 
     def handle_login(self, data):
         uname = data.get('uniquenick', '')
@@ -92,14 +92,14 @@ class GPClient(NetworkClient):
         user.lasttime = time.time()
         user.session  = user.session + 1
 
-        self.respond('lc', 2,
-                     'sesskey', self.sesion,
-                     'proof', gsenc2.PW_Hash_to_Proof(user.password, uname, gpschal, data['challenge']),
-                     'userid', 2000000 + int(user.id),
-                     'profileid', 1000000 + int(user.id),
-                     'uniquenick', uname,
-                     'lt', '1112223334445556667778__',
-                     'id', 1)
+        self.respond(['lc', 2,
+                      'sesskey', self.sesion,
+                      'proof', gsenc2.PW_Hash_to_Proof(user.password, uname, gpschal, data['challenge']),
+                      'userid', 2000000 + int(user.id),
+                      'profileid', 1000000 + int(user.id),
+                       'uniquenick', uname,
+                      'lt', '1112223334445556667778__',
+                      'id', 1])
 
         # example login data:
         # \login\\challenge\4jv99yxEnyNWrq6EUiBmsbUfrkgmYF4f\uniquenick\EvilLurksInternet-tk\partnerid\0\response\45f06fe0f350ae4e3cc1af9ffe258c93\firewall\1\port\0\productid\11081\gamename\civ4bts\namespaceid\17\sdkrevision\3\id\1\final\
@@ -122,7 +122,7 @@ class GPClient(NetworkClient):
 
         pwhash = gs_enc2.gsPWDecHash(data['passwordenc'])
         user = self.server.user_db.create(data['nick'], pwhash, data['email'], '', self.host)
-        self.respond('nur', '', 'userid', 2000000 + user.id, 'profileid', 1000000 + user.id, 'id', 1)
+        self.respond(['nur', '', 'userid', 2000000 + user.id, 'profileid', 1000000 + user.id, 'id', 1])
 
         # example newuser data
         # \newuser\\email\qqq@qq\nick\borf-tk\passwordenc\J8DHxh7t\productid\11081\gamename\civ4bts\namespaceid\17\uniquenick\borf-tk\partnerid\0\id\1\final\
@@ -155,6 +155,7 @@ class GPClient(NetworkClient):
 
     def _parse_read_buffer(self, read_buffer):
         # We assume all packets and with \final\ - but never have that inbetween
+        read_buffer = read_buffer.decode('windows-1253', 'ignore')
         packets = read_buffer.split('\\final\\')
         # Put last word (maybe empty) back into the readbuffer as we don't know if it is complete yet.
         remainder = packets[-1]
@@ -162,14 +163,15 @@ class GPClient(NetworkClient):
         # Now the packets array should contain complete packets and the readbuffer any remaining incomplete ones
         for packet in packets:
             self._parse_packet(packet)
-        return remainder
+        return bytearray(remainder, 'windows-1253', 'ignore')
 
     def respond(self, words):
-        msg = '\\'
+        logging.debug('sending response: %s', words)
+        msg = bytearray(b'\\')
         for word in words:
-            msg += str(word)
-            msg += '\\'
-        msg += 'final\\'
+            msg += bytes(str(word), 'windows-1253')
+            msg += b'\\'
+        msg += b'final\\'
         self.write(msg)
 
     def error(self, err, severity, errmsg):
@@ -226,6 +228,8 @@ class LoginServer(NetworkServer):
     def __init__(self):
         super().__init__()
 
+        self.user_db = UserDB(config_login.dbpath)
+
         gp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         gp_socket.setblocking(0)
         try:
@@ -247,7 +251,7 @@ class LoginServer(NetworkServer):
         self.register_server(gps_socket, GPSClient)
 
 
-logging.basicConfig(format='%(asctime)s %(message)s')
+logging.basicConfig(format='%(asctime)s %(message)s', level=logging.DEBUG)
 server = LoginServer()
 try:
     server.run()

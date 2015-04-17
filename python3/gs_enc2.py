@@ -20,7 +20,7 @@ def gsPWDecodeFunc1(pwencx):
     for i in range(0,len(pwencx)):
         num = gsPWDecodeFunc2(num)
         a = num % 255
-        pwencx = pwencx[:i] + chr(ord(pwencx[i]) ^ a ) + pwencx[i+1:]
+        pwencx = pwencx[:i] + bytes([pwencx[i] ^ a]) + pwencx[i+1:]
     return pwencx
 
 
@@ -44,11 +44,13 @@ def gsPWDecodeFunc2(num):
 
 def PW_Hash_to_Resp(pwhash, unick, schal, cchal):
     md5 = hashlib.md5()
-    md5.update(pwhash + (' ' * 48) + unick + cchal + schal + pwhash)
+    mix = pwhash + (' ' * 48) + unick + cchal + schal + pwhash
+    md5.update(mix.encode('windows-1253', 'ignore'))
     return md5.hexdigest()
 
 
 def PW_Hash_to_Proof(pwhash, unick, schal, cchal):
     md5 = hashlib.md5()
-    md5.update(pwhash + (' ' * 48) + unick + schal + cchal + pwhash)
+    mix = pwhash + (' ' * 48) + unick + schal + cchal + pwhash
+    md5.update(mix.encode('windows-1253', 'ignore'))
     return md5.hexdigest()

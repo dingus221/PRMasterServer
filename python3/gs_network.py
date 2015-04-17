@@ -2,15 +2,15 @@ import socket
 import select
 import logging
 import errno
-
+import traceback
 
 class NetworkClient(object):
     def __init__(self, server, sock):
         self.server = server
         self.socket = sock
         (self.host, self.port) = sock.getpeername()
-        self._read_buffer = ''
-        self._write_buffer = ''
+        self._read_buffer = bytearray()
+        self._write_buffer = bytearray()
 
     def __str__(self):
         return '{}@{}:{}'.format(self.__class__.__name__, self.host, self.port)
@@ -28,9 +28,10 @@ class NetworkClient(object):
                 self._read_buffer = self._parse_read_buffer(self._read_buffer)
             except Exception as err:
                 logging.error('[%s] Exception during parse_read_buffer: %s', self, err)
+                logging.debug('%s', traceback.format_exc())
                 # Reset buffer to avoid another exception
                 # Maybe we should disconnect here?
-                self._read_buffer = ''
+                self._read_buffer = bytearray()
         except socket.error as err:
             if err.args[0] == errno.EAGAIN or err.args[0] == errno.EWOULDBLOCK:
                 logging.warning('[%s] Nonblocking read failed, will retry: %s', self, err)
@@ -39,7 +40,7 @@ class NetworkClient(object):
                 self.disconnect(err)
 
     def socket_writable_notification(self):
-        logging.debug('flusing writebuffer (%d bytes) of client %s', len(self._write_buffer), self)
+        logging.debug('flusing write buffer (%d bytes) of client %s', len(self._write_buffer), self)
         if not self._write_buffer:
             return
         try:
@@ -55,11 +56,11 @@ class NetworkClient(object):
     def disconnect(self, quitmsg):
         logging.info('[%s] client disconnected: %s', self, quitmsg)
         self.socket.close()
-        self.server.remove_client(self, quitmsg)
+        self.server.unregister_client(self.socket, self)
 
     def write(self, msg):
-        logging.debug('[%s] adding message with length %d to writebuffer.', self, len(msg))
-        self.__writebuffer += msg
+        logging.debug('[%s] adding message with length %d to write buffer.', self, len(msg))
+        self._write_buffer += msg
 
 
 class NetworkServer(object):
@@ -79,7 +80,7 @@ class NetworkServer(object):
             client_sock.setblocking(0)
             client = client_class(self, client_sock)
             self.register_client(client_sock, client)
-            logging.info('Accepted connection from %d:%d, spawning new %s',
+            logging.info('Accepted connection from %s:%d, spawning new %s',
                          addr[0], addr[1], client_class.__name__)
         self._server_socket_handlers[server_socket] = handler
 
