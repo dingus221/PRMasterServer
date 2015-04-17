@@ -254,6 +254,7 @@ class LoginServer(NetworkServer):
         self.register_server(gps_socket, GPSClient)
 
 
+logging.basicConfig(format='%(asctime)s %(message)s')
 server = LoginServer()
 try:
     server.run()

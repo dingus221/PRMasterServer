@@ -311,6 +311,7 @@ class SBQRServer(NetworkServer):
                 last_aliveness_check = now
 
 
+logging.basicConfig(format='%(asctime)s %(message)s')
 server = SBQRServer()
 try:
     server.run()

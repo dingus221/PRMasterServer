@@ -76,6 +76,7 @@ class NetworkServer(object):
     def register_server(self, server_socket, client_class):
         def handler():
             (client_sock, addr) = server_socket.accept()
+            client_sock.setblocking(0)
             client = client_class(self, client_sock)
             self.register_client(client_sock, client)
             logging.info('Accepted connection from %d:%d, spawning new %s',
