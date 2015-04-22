@@ -93,8 +93,9 @@ class GPClient(NetworkClient):
         user.session  = user.session + 1
 
         self.respond(['lc', 2,
-                      'sesskey', self.sesion,
-                      'proof', gsenc2.PW_Hash_to_Proof(user.password, uname, gpschal, data['challenge']),
+                      'sesskey', self.session,
+                      'proof', gs_enc2.PW_Hash_to_Proof(user.password, uname,
+                                                        config_login.challenge, data['challenge']),
                       'userid', 2000000 + int(user.id),
                       'profileid', 1000000 + int(user.id),
                        'uniquenick', uname,
