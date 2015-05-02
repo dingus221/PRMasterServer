@@ -1,4 +1,5 @@
-#universal entries
+# Redirecting the multiplayer of Civilization 4 to a community hosted server.
+# Universal entries
 148.251.130.188	motd.gamespy.com
 148.251.130.188	gmtest.master.gamespy.com
 148.251.130.188	peerchat.gamespy.com
@@ -12,7 +13,7 @@
 148.251.130.188	natneg2.gamespy.com
 148.251.130.188	natneg3.gamespy.com
 
-#vanilla specific entries
+# Vanilla specific entries
 148.251.130.188	civ4.available.gamespy.com
 148.251.130.188	civ4.ms18.gamespy.com
 148.251.130.188	civ4.master.gamespy.com
@@ -20,7 +21,7 @@
 148.251.130.188	civ4.natneg2.gamespy.com
 148.251.130.188	civ4.natneg3.gamespy.com
 
-#bts specific entries
+# BTS specific entries
 148.251.130.188	civ4bts.available.gamespy.com
 148.251.130.188	civ4bts.ms7.gamespy.com
 148.251.130.188	civ4bts.master.gamespy.com
@@ -28,7 +29,7 @@
 148.251.130.188	civ4bts.natneg2.gamespy.com
 148.251.130.188	civ4bts.natneg3.gamespy.com
 
-#additional stuff for japan
+# Additional entries for japan
 148.251.130.188	civ4btsjp.available.gamespy.com
 148.251.130.188	civ4btsjp.ms5.gamespy.com
 148.251.130.188	civ4btsjp.master.gamespy.com
