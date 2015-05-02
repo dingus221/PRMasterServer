@@ -39,12 +39,12 @@ Current issues
 Credits
 ---------------------
 
-[dingus221] for the modifications of the masterserver towards Civilization 4 support
-[novice-rb] for natneg
-[AncientMan2002] for original masterserver
-[Luigi Auriemma](http://aluigi.org) </strong> for reverse engineering the GameSpy protocol and encryption.
-[Caledorn] - users on realmsbeyond.net, for running the initial natneg server
-[SexIsBad2TheBone], [DimosEngel] civ4 players (testing)
-[GameSpy] for not being too hard encrypted and secretive [Rest in peace]
-[Sid Meyer and Firaxis] for great game
-[Zulan] code cleanup and server hosting
+- [dingus221] for the modifications of the masterserver towards Civilization 4 support
+- [novice-rb] for natneg
+- [AncientMan2002] for original masterserver
+- [Luigi Auriemma](http://aluigi.org) </strong> for reverse engineering the GameSpy protocol and encryption.
+- [Caledorn] - users on realmsbeyond.net, for running the initial natneg server
+- [SexIsBad2TheBone], [DimosEngel] civ4 players (testing)
+- [GameSpy] for not being too hard encrypted and secretive [Rest in peace]
+- [Sid Meyer and Firaxis] for great game
+- [Zulan] code cleanup and server hosting
