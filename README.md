@@ -15,6 +15,8 @@ Features
 - Webserver (port 80) - I suspect it is needed only for automatically downloading of new patches (or just checking for them). 
 - For a peerchat server(port 6667) see https://github.com/Zulan/miniircd
 
+There are different implementations for most of the servers. All servers are implemented in  C#  (PRMasterServer), but some of the servers seem to be not really stable, at least on Linux/wine. In SBQRC4, there is the Serverbrowser and Queryserver in python2. In  GP there is the Master (login) server in python2. In python3, there are implementations of Master (login) and Querybrowser/Serverbrowser (gamebrowser). The python3 implementation is the most recent and cleaned up version.
+
 Setting up the project
 ---------------------
 1. Be sure to have [Visual Studio 2013](http://www.microsoft.com/en-us/download/details.aspx?id=40787) installed.  You might be able to compile it using previous versions of Visual Studio or using Mono, but this is untested and may not work.
@@ -23,7 +25,7 @@ Setting up the project
 
 3. Grab the latest [MaxMind GeoIP2 Country](https://www.maxmind.com/en/country) database, or use the free [GeoLite2 Country](http://dev.maxmind.com/geoip/geoip2/geolite2/) database. Put it in the same folder as **PRMasterServer.exe**.
 
-4. Run **PRMasterServer.exe +db logindb.db3 +game civ4bts +servers master,login,cdkey,list,natneg**, now game parameter doesnt matter, it will service civ4, civ4bts and civ4btsjp
+4. Run **PRMasterServer.exe +db logindb.db3 +game civ4bts +servers master,login,cdkey,list,natneg**, now game parameter doesnt matter, it will service civ4, civ4bts and civ4btsjp. Servers can be run in different instances. Or run the respective python verions.
 
 5. Setup the IRC server https://github.com/Zulan/miniircd
 
@@ -32,7 +34,7 @@ Setting up the project
 ---------------------
 Current issues
 
-1. Serverlist refresh button doesn't work and information about servers like number of players in game, map and ping is not updated. Supposedly game should request that info directly from other gameservers.
+1. Buddy system does not work
 
 Credits
 ---------------------
