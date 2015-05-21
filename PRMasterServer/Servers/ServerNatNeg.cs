@@ -213,6 +213,8 @@ namespace PRMasterServer.Servers
                     {
                         // INIT, return INIT_ACK
                         message.RecordType = 1;
+			message.PrivateIPAddress = remote.Address.ToString();
+                        message.LocalPort = Convert.ToUInt16(remote.Port);
                         SendResponse(remote, message);
 
                         if (message.SequenceId > 1)
