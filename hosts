@@ -1,5 +1,6 @@
 #CIVILIZATION 4 VANILLA, BTS AND BTSJP HOSTS FILE
 #For zulan's server
+#Updated 07.07.2016 by dingus221
 
 #universal entries
 148.251.130.188	motd.gamespy.com
@@ -29,6 +30,14 @@
 148.251.130.188	civ4bts.natneg1.gamespy.com
 148.251.130.188	civ4bts.natneg2.gamespy.com
 148.251.130.188	civ4bts.natneg3.gamespy.com
+
+#colonization specific entries
+148.251.130.188	civ4colpc.available.gamespy.com
+148.251.130.188	civ4colpc.ms11.gamespy.com
+148.251.130.188	civ4colpc.master.gamespy.com
+148.251.130.188	civ4colpc.natneg1.gamespy.com
+148.251.130.188	civ4colpc.natneg2.gamespy.com
+148.251.130.188	civ4colpc.natneg3.gamespy.com
 
 #additional stuff for japan dudes
 148.251.130.188	civ4btsjp.available.gamespy.com
