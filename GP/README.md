@@ -12,8 +12,7 @@ GP29900's commands:<br>
 2. LOGIN - checks user data in db and sends correct response.<br>
 3. STATUS \logout\. Disconnects client.<br>
 4. \lc\1. Initial command, sent to client when new connection is accepted.<br>
-5. ADDBUDDY - client wants the server to ask the other dude if he wants to be the buddy, etc. Ignore and just send notification that the mentioned dude is now online and is staging in 'chilling' room as if he is a buddy.
-6. GETPROFILE - user gets info about the other user to show, then shows him as a buddy with some of this info 
-7. BUDDYMSG - send message to a buddy
+5. ADDBUDDY - client wants the server to ask the other dude if he wants to be the buddy, etc. Ignore and just send notification that the mentioned dude is now online and is staging in 'chilling' room as if he is a buddy.<br>
+6. GETPROFILE - user gets info about the other user to show, then shows him as a buddy with some of this info <br>
+7. BUDDYMSG - send message to a buddy<br>
 
-There potentially can be implemented more commands, that are related to buddysystem.
