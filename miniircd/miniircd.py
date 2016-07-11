@@ -1,7 +1,7 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 # Hey, Emacs! This is -*-python-*-.
 #
-# Copyright (C) 2003-2014 Joel Rosdahl
+# Copyright (C) 2003-2014 original author of miniircd Joel Rosdahl
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,13 +18,8 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA
 #
-# Joel Rosdahl <joel@rosdahl.net>
-#https://github.com/jrosdahl/miniircd
+# original author of miniircd Joel Rosdahl <joel@rosdahl.net>
 
-#added DES encoding used by gamespy
-#added CRYPT and USRIP commands
-#added login command, that is used by civ4bts
-#integrated main channels of civ4bts and civ4btsjp
 VERSION = "0.4"
 
 import os
@@ -35,9 +30,11 @@ import string
 import sys
 import tempfile
 import time
-import gspeerchat
+import logging
+import errno
 from datetime import datetime
 from optparse import OptionParser
+
 from ctypes import *
 
 #gamename-gamekey
@@ -45,7 +42,37 @@ gn_gk = {'civ4':        'y3D9Hw',
          'civ4bts':     'Cs2iIq',
          'civ4btsjp':   'Cs2iIq',
          'gmtest':      'HA6zkS',
-	 'gslive':      'Xn221z'}
+         'gslive':      'Xn221z'}
+
+
+# Based on http://aluigi.altervista.org/papers.htm#peerchat
+class GsPeerchat:
+    def __init__(self, chall=b"0" * 16, gamekey=b"Cs2iIq"):
+        self.i1 = 0
+        self.i2 = 0
+        self.crypt = bytearray(256)
+        assert(len(chall) == 16)
+        chall = bytearray(chall)
+        gamekey = bytearray(gamekey)
+        challenge = bytearray(16)
+        for i in range(0, 16):
+            challenge[i] = chall[i] ^ gamekey[i % len(gamekey)]
+        for i in range(0, 256):
+            self.crypt[i] = 255 - i
+        tl = 0
+        for i in range(0, 256):
+            tl = (tl + self.crypt[i] + challenge[i % 16]) % 256
+            self.crypt[tl], self.crypt[i] = self.crypt[i], self.crypt[tl]
+
+    def __call__(self, data):
+        data = bytearray(data)
+        for i in range(0, len(data)):
+            self.i1 = (self.i1 + 1) % 256
+            self.i2 = (self.i2 + self.crypt[self.i1]) % 256
+            self.crypt[self.i1], self.crypt[self.i2] = self.crypt[self.i2], self.crypt[self.i1]
+            t = (self.crypt[self.i1] + self.crypt[self.i2]) % 256
+            data[i] ^= self.crypt[t]
+        return bytes(data)
 
 
 def create_directory(path):
@@ -54,7 +81,6 @@ def create_directory(path):
 
 
 class Channel(object):
-
     def __init__(self, server, name):
         self.server = server
         self.name = name
@@ -115,7 +141,6 @@ class Channel(object):
 
 
 class Client(object):
-
     __linesep_regexp = re.compile(r"\r?\n")
     # The RFC limit for nicknames is 9 characters, but what the heck.
     # in gs it is atleast 20
@@ -124,19 +149,19 @@ class Client(object):
     __valid_channelname_regexp = re.compile(
         r"^[&#+!][^\x00\x07\x0a\x0d ,:]{0,50}$")
 
-    def __init__(self, server, socket):
+    def __init__(self, server, client_socket):
         self.server = server
-        self.socket = socket
+        self.socket = client_socket
         self.channels = {}  # irc_lower(Channel name) --> Channel
         self.nickname = None
         self.user = None
         self.realname = None
-        #GS RELATED STUFF
+
         self.gamename = None
-        self.inCrypt = None
-        self.outCrypt = None
-        #######
-        (self.host, self.port) = socket.getpeername()        
+        self.in_crypt = None
+        self.out_crypt = None
+
+        (self.host, self.port) = client_socket.getpeername()
         self.__timestamp = time.time()
         self.__readbuffer = ""
         self.__writebuffer = ""
@@ -150,19 +175,27 @@ class Client(object):
         return "%s!%s@%s" % (self.nickname, self.user, self.host)
     prefix = property(get_prefix)
 
+    def __str__(self):
+        return self.prefix
+
     def check_aliveness(self):
         now = time.time()
-        if self.__timestamp + 180 < now:
-            self.disconnect("ping timeout")
+        if self.__timestamp + self.server.ping_timeout < now:
+            text = 'ping timeout'
+            if self.server.debug:
+                text = 'ping timeout [{} - {} = {} > {}]'.format(now, self.__timestamp,
+                                                                 now - self.__timestamp,
+                                                                 self.server.ping_timeout)
+            self.disconnect(text)
             return
-        if not self.__sent_ping and self.__timestamp + 90 < now:
+        if not self.__sent_ping and self.__timestamp + self.server.ping_interval < now:
             if self.__handle_command == self.__command_handler:
                 # Registered.
                 self.message("PING :%s" % self.server.name)
                 self.__sent_ping = True
             else:
                 # Not registered.
-                self.disconnect("ping timeout")
+                self.disconnect("ping timeout [not registered]")
 
     def write_queue_size(self):
         return len(self.__writebuffer)
@@ -170,9 +203,12 @@ class Client(object):
     def __parse_read_buffer(self):
         #DECODING DATA
         #if client doesn't have gamename set then he doesnt need encoding
-        if self.gamename is not None:
-            self.__readbuffer = self.inCrypt.call(self.__readbuffer)
+        if self.gamename is not None and self.in_crypt is not None:
+            self.__readbuffer = self.in_crypt(self.__readbuffer)
+            #print "data decoded:",self.__readbuffer
+
         lines = self.__linesep_regexp.split(self.__readbuffer)
+        # Put last line back into the readbuffer as we don't know if it is complete yet.
         self.__readbuffer = lines[-1]
         lines = lines[:-1]
         for line in lines:
@@ -181,18 +217,16 @@ class Client(object):
                 continue
             x = line.split(" ", 1)
             command = x[0].upper()
-            
             if len(x) == 1:
                 arguments = []
             else:
                 if len(x[1]) > 0 and x[1][0] == ":":
-                    arguments = [x[1][1:]]     
+                    arguments = [x[1][1:]]
                 else:
                     y = string.split(x[1], " :", 1)
                     arguments = string.split(y[0])
                     if len(y) == 2:
                         arguments.append(y[1])
-            
             self.__handle_command(command, arguments)
 
     def __pass_handler(self, command, arguments):
@@ -232,14 +266,18 @@ class Client(object):
         elif command == "CRYPT":
             print 'CRYPT RECIEVED'
             if len(arguments) < 3:
+                print('number of arguments is less than 3')
                 return
-            self.message(":s 705 * 0000000000000000 0000000000000000")
+            self.message(":s 705 * {} {}".format("0" * 16, "0" * 16))
             self.gamename = arguments[2]
-            self.inCrypt = gspeerchat.GsPeerchat(gn_gk[self.gamename])
-            self.outCrypt = gspeerchat.GsPeerchat(gn_gk[self.gamename])
+            try:
+                self.in_crypt = GsPeerchat(gamekey=gn_gk[self.gamename])
+                self.out_crypt = GsPeerchat(gamekey=gn_gk[self.gamename])
+            except KeyError:
+                print('Unknown game "{}" requestesd'.format(self.gamename))
         elif command == "USRIP":
             self.message(":s 302 :=+@"+self.host)
-        if command == "LOGIN":
+        elif command == "LOGIN":
             nick = arguments[1]
             if server.get_client(nick):
                 self.reply("433 * %s :Nickname is already in use" % nick)
@@ -248,7 +286,7 @@ class Client(object):
             else:
                 self.nickname = nick
                 server.client_changed_nickname(self, None)
-                self.message(":s 707 "+nick+' 12345678 87654321')
+                self.message(':s 707 {} 12345678 87654320'.format(nick))
         elif command == "QUIT":
             self.disconnect("Client quit")
             return
@@ -280,7 +318,6 @@ class Client(object):
             if len(arguments) < 1:
                 self.reply_461("JOIN")
                 return
-            
             if arguments[0] == "0":
                 for (channelname, channel) in self.channels.items():
                     self.message_channel(channel, "PART", channelname, True)
@@ -308,11 +345,14 @@ class Client(object):
                     continue
                 channel.add_member(self)
                 self.channels[irc_lower(channelname)] = channel
-                if (channelname=="#GSP!civ4bts" and (irc_lower("#GSP!civ4btsjp") in server.channels)):
+                # FIXME redundand logic
+                if channelname == "#GSP!civ4bts" \
+                        and (irc_lower("#GSP!civ4btsjp") in server.channels):
                     channeljp = server.get_channel("#GSP!civ4btsjp")
                     self.message_channel(channel, "JOIN", channelname, True)
                     self.message_channel(channeljp, "JOIN", "#GSP!civ4btsjp", True)
-                elif (channelname=="#GSP!civ4btsjp" and (irc_lower("#GSP!civ4bts") in server.channels)):
+                elif channelname == "#GSP!civ4btsjp" \
+                        and (irc_lower("#GSP!civ4bts") in server.channels):
                     channelbts = server.get_channel("#GSP!civ4bts")
                     self.message_channel(channel, "JOIN", channelname, True)
                     self.message_channel(channelbts, "JOIN", "#GSP!civ4bts", True)
@@ -326,31 +366,43 @@ class Client(object):
                     self.reply("331 %s %s :No topic is set"
                                % (self.nickname, channel.name))
 
-                if (channelname=="#GSP!civ4bts" and (irc_lower("#GSP!civ4btsjp") in server.channels)):
+                # FIXME redundand logic
+                if channelname == "#GSP!civ4bts" and (irc_lower("#GSP!civ4btsjp") in server.channels):
                 #if channel is title channel of bts then we send also users of btsjp channel
+                    #print "civ4bts entered"
                     channeljp = server.get_channel("#GSP!civ4btsjp")
                     self.reply("353 %s = %s :%s %s"
-                               % (self.nickname,
-                                  channelname,
+                               % (self.nickname, channelname,
                                   " ".join(sorted(x.nickname
-                                                  for x in channel.members))," ".join(sorted(x.nickname for x in channeljp.members)) ))
-                elif (channelname=="#GSP!civ4btsjp" and (irc_lower("#GSP!civ4bts") in server.channels)):
+                                                  for x in channel.members)),
+                                  " ".join(sorted(x.nickname for x in channeljp.members))))
+                elif channelname == "#GSP!civ4btsjp" and (irc_lower("#GSP!civ4bts") in server.channels):
                 #send bts users to jp
+                    #print "civ4btsJP entered"
                     channelbts = server.get_channel("#GSP!civ4bts")
                     self.reply("353 %s = %s :%s %s"
                                % (self.nickname,
                                   channelname,
                                   " ".join(sorted(x.nickname
                                                   for x in channel.members))," ".join(sorted(x.nickname for x in channelbts.members)) ))
-                    
+
                 else:
                     self.reply("353 %s = %s :%s"
-                                   % (self.nickname,
-                                      channelname,
-                                      " ".join(sorted(x.nickname
-                                                      for x in channel.members))))
-                self.reply("366 %s %s :End of NAMES list"
-                           % (self.nickname, channelname))
+                               % (self.nickname, channelname,
+                                  " ".join(sorted(x.nickname
+                                                  for x in channel.members))))
+                self.reply("366 %s %s :End of NAMES list" % (self.nickname, channelname))
+
+                if self.server.channel_motd_path:
+                    try:
+                        # TODO: Optimize, cache file content
+                        with open(self.server.channel_motd_path, "r") as motd_file:
+                            motd_lines = motd_file.readlines()
+                            for line in motd_lines:
+                                msg = ':%s %s %s %s' % ('Server', 'PRIVMSG', channelname, line)
+                                self.message(msg)
+                    except IOError as err:
+                        logging.warn('Channel MOTD path cannot be read (%s)', err)
 
         def list_handler():
             if len(arguments) < 1:
@@ -454,7 +506,6 @@ class Client(object):
                     % (oldnickname, self.user, self.host, self.nickname),
                     True)
 
-                   
         def notice_and_privmsg_handler():
             if len(arguments) == 0:
                 self.reply("411 %s :No recipient given (%s)"
@@ -469,15 +520,16 @@ class Client(object):
             if client:
                 client.message(":%s %s %s :%s"
                                % (self.prefix, command, targetname, message))
-            elif server.has_channel(targetname):#channel privmsg
-                if (targetname=="#GSP!civ4bts" and (irc_lower("#GSP!civ4btsjp") in server.channels)):
+            elif server.has_channel(targetname):
+                #channel privmsg
+                if targetname == "#GSP!civ4bts" and (irc_lower("#GSP!civ4btsjp") in server.channels):
                     channeljp = server.get_channel("#GSP!civ4btsjp")
                     channel = server.get_channel(targetname)
                     self.message_channel(
                         channel, command, "%s :%s" % (channel.name, message))
                     self.message_channel(
                         channeljp, command, "%s :%s" % ("#GSP!civ4btsjp", message))
-                elif (targetname=="#GSP!civ4btsjp" and (irc_lower("#GSP!civ4bts") in server.channels)):
+                elif targetname == "#GSP!civ4btsjp" and (irc_lower("#GSP!civ4bts") in server.channels):
                     channelbts = server.get_channel("#GSP!civ4bts")
                     channel = server.get_channel(targetname)
                     self.message_channel(
@@ -509,11 +561,11 @@ class Client(object):
                                % (self.nickname, channelname))
                 else:
                     channel = self.channels[irc_lower(channelname)]
-                    if (channelname=="#GSP!civ4bts" and (irc_lower("#GSP!civ4btsjp") in server.channels)):
+                    if channelname == "#GSP!civ4bts" and (irc_lower("#GSP!civ4btsjp") in server.channels):
                         channeljp = server.get_channel("#GSP!civ4btsjp")
-                        self.message_channel(channel, "PART", "%s :%s" % (channelname, partmsg),True)
-                        self.message_channel(channeljp, "PART", "%s :%s" % ("#GSP!civ4btsjp", partmsg),True)
-                    elif (channelname=="#GSP!civ4btsjp" and (irc_lower("#GSP!civ4bts") in server.channels)):
+                        self.message_channel(channel, "PART", "%s :%s" % (channelname, partmsg), True)
+                        self.message_channel(channeljp, "PART", "%s :%s" % ("#GSP!civ4btsjp", partmsg), True)
+                    elif channelname == "#GSP!civ4btsjp" and (irc_lower("#GSP!civ4bts") in server.channels):
                         channelbts = server.get_channel("#GSP!civ4bts")
                         self.message_channel(channel, "PART", "%s :%s" % (channelname, partmsg),True)
                         self.message_channel(channelbts, "PART", "%s :%s" % ("#GSP!civ4bts", partmsg),True)
@@ -607,8 +659,7 @@ class Client(object):
             else:
                 self.reply("401 %s %s :No such nick"
                            % (self.nickname, username))
- 
-            
+
         handler_table = {
             "AWAY": away_handler,
             "ISON": ison_handler,
@@ -622,62 +673,62 @@ class Client(object):
             "PART": part_handler,
             "PING": ping_handler,
             "PONG": pong_handler,
-            "PRIVMSG": notice_and_privmsg_handler,           
+            "PRIVMSG": notice_and_privmsg_handler,
             "QUIT": quit_handler,
             "TOPIC": topic_handler,
             "WALLOPS": wallops_handler,
             "WHO": who_handler,
-            "WHOIS": whois_handler
-            
+            "WHOIS": whois_handler,
+            #"CRYPT": gs_crypt_h,
         }
         server = self.server
         valid_channel_re = self.__valid_channelname_regexp
         try:
             handler_table[command]()
         except KeyError:
-            print 'unknown data recieved: '+command
+            print('unknown command received: {}'.format(command))
             self.reply("421 %s %s :Unknown command" % (self.nickname, command))
 
     def socket_readable_notification(self):
         try:
             data = self.socket.recv(2 ** 10)
-            self.server.print_debug(
-                "[%s:%d] -> %r" % (self.host, self.port, data))
-            quitmsg = "EOT"
-        except socket.error, x:
-            data = ""
-            quitmsg = x
-        if data:
+            logging.debug("[%s:%d] -> %r", self.host, self.port, data)
+            if not data:
+                self.disconnect('EOT')
             self.__readbuffer += data
             self.__parse_read_buffer()
-            
             self.__timestamp = time.time()
             self.__sent_ping = False
-        else:
-            self.disconnect(quitmsg)
+        except socket.error as err:
+            if err.args[0] == errno.EAGAIN or err.args[0] == errno.EWOULDBLOCK:
+                logging.info('[%s] Nonblocking read failed, will retry: %s', self, err)
+            else:
+                logging.info('[%s] Nonblocking read failed hard, disconnect: %s', self, err)
+                self.disconnect(err)
 
     def socket_writable_notification(self):
         try:
             sent = self.socket.send(self.__writebuffer)
-            self.server.print_debug(
-                "[%s:%d] <- %r" % (
-                    self.host, self.port, self.__writebuffer[:sent]))
+            logging.debug("[%s] <- %r", self, self.__writebuffer[:sent])
             self.__writebuffer = self.__writebuffer[sent:]
-        except socket.error, x:
-            self.disconnect(x)
+        except socket.error as err:
+            if err.args[0] == errno.EAGAIN or err.args[0] == errno.EWOULDBLOCK:
+                logging.info('[%s] Nonblocking send failed, will retry: %s', self, err)
+            else:
+                logging.info('[%s] Nonblocking send failed hard, disconnect: %s', self, err)
+                self.disconnect(err)
 
     def disconnect(self, quitmsg):
         self.message("ERROR :%s" % quitmsg)
-        self.server.print_info(
-            "Disconnected connection from %s:%s (%s)." % (
-                self.host, self.port, quitmsg))
+        logging.info("[%s] Disconnected (%s).", self, quitmsg)
         self.socket.close()
         self.server.remove_client(self, quitmsg)
 
     def message(self, msg):
-        msg = msg + "\r\n"
-        if self.gamename !=None:
-            msg = self.outCrypt.call(msg)
+        logging.debug('[%s] -> %r', self, msg)
+        msg += "\r\n"
+        if self.gamename is not None and self.out_crypt is not None:
+            msg = self.out_crypt(msg)
         self.__writebuffer += msg
 
     def reply(self, msg):
@@ -738,6 +789,9 @@ class Client(object):
 
 
 class Server(object):
+    ping_timeout = 180
+    ping_interval = 90
+
     def __init__(self, options):
         self.ports = options.ports
         self.password = options.password
@@ -746,10 +800,8 @@ class Server(object):
         self.verbose = options.verbose
         self.debug = options.debug
         self.logdir = options.logdir
-#        self.chroot = options.chroot
-#        self.setuid = options.setuid
-#DIDNT WRK IN WINDOWS
         self.statedir = options.statedir
+        self.channel_motd_path = options.channel_motd
 
         if options.listen:
             self.address = socket.gethostbyname(options.listen)
@@ -777,7 +829,7 @@ class Server(object):
         try:
             pid = os.fork()
             if pid > 0:
-                self.print_info("PID: %d" % pid)
+                logging.info("PID: %d" % pid)
                 sys.exit(0)
         except OSError:
             sys.exit(1)
@@ -811,19 +863,6 @@ class Server(object):
         else:
             return []
 
-    def print_info(self, msg):
-        if self.verbose:
-            print msg
-            sys.stdout.flush()
-
-    def print_debug(self, msg):
-        if self.debug:
-            print msg
-            sys.stdout.flush()
-
-    def print_error(self, msg):
-        sys.stderr.write("%s\n" % msg)
-
     def client_changed_nickname(self, client, oldnickname):
         if oldnickname:
             del self.nicknames[irc_lower(oldnickname)]
@@ -855,21 +894,12 @@ class Server(object):
             try:
                 s.bind((self.address, port))
             except socket.error as e:
-                self.print_error("Could not bind port %s: %s." % (port, e))
+                logging.error("Could not bind port %s: %s.", port, e)
                 sys.exit(1)
             s.listen(5)
             serversockets.append(s)
             del s
-            self.print_info("Listening on port %d." % port)
-#        if self.chroot:
-#            os.chdir(self.chroot)
-#            os.chroot(self.chroot)
-#            self.print_info("Changed root directory to %s" % self.chroot)
-#        if self.setuid:
-#            os.setgid(self.setuid[1])
-#            os.setuid(self.setuid[0])
-#            self.print_info("Setting uid:gid to %s:%s"
-#                            % (self.setuid[0], self.setuid[1]))
+            logging.info("Listening on port %d.", port)
         last_aliveness_check = time.time()
         while True:
             (iwtd, owtd, ewtd) = select.select(
@@ -883,6 +913,7 @@ class Server(object):
                     self.clients[x].socket_readable_notification()
                 else:
                     (conn, addr) = x.accept()
+                    conn.setblocking(0)
                     if self.ssl_pem_file:
                         import ssl
                         try:
@@ -892,13 +923,19 @@ class Server(object):
                                 certfile=self.ssl_pem_file,
                                 keyfile=self.ssl_pem_file)
                         except ssl.SSLError as e:
-                            self.print_error(
-                                "SSL error for connection from %s:%s: %s" % (
-                                    addr[0], addr[1], e))
+                            logging.error("SSL error for connection from %s:%s: %s",
+                                          addr[0], addr[1], e)
                             continue
-                    self.clients[conn] = Client(self, conn)
-                    self.print_info("Accepted connection from %s:%s." % (
-                        addr[0], addr[1]))
+                    try:
+                        self.clients[conn] = Client(self, conn)
+                        logging.info("Accepted connection from %s:%s.", addr[0], addr[1])
+                    except socket.error as err:
+                        # DO NOT del self.clients[conn], if Client() raises, it wont be assigned!
+                        logging.warning("socket error during connection setup from %s:%s: %s", addr[0], addr[1], err)
+                        try:
+                            conn.close()
+                        except socket.error as err:
+                            logging.warning("socket error when trying to close socket due to socket error for %s:%s: %s", addr[0], addr[1], err)
             for x in owtd:
                 if x in self.clients:  # client may have been disconnected
                     self.clients[x].socket_writable_notification()
@@ -944,6 +981,11 @@ def main(argv):
         metavar="X",
         help="display file X as message of the day")
     op.add_option(
+        "--channel-motd",
+        metavar="X",
+        help="display file X as message of the day when a channel is joined"
+    )
+    op.add_option(
         "-s", "--ssl-pem-file",
         metavar="FILE",
         help="enable SSL and use FILE as the .pem certificate+key")
@@ -964,52 +1006,19 @@ def main(argv):
         "--verbose",
         action="store_true",
         help="be verbose (print some progress messages to stdout)")
-    if os.name == "posix":
-        op.add_option(
-            "--chroot",
-            metavar="X",
-            help="change filesystem root to directory X after startup"
-                 " (requires root)")
-        op.add_option(
-            "--setuid",
-            metavar="U[:G]",
-            help="change process user (and optionally group) after startup"
-                 " (requires root)")
 
     (options, args) = op.parse_args(argv[1:])
     if options.debug:
+        logging.basicConfig(format='%(asctime)s %(message)s', level=logging.DEBUG)
         options.verbose = True
+    else:
+        logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
+
     if options.ports is None:
         if options.ssl_pem_file is None:
             options.ports = "6667"
         else:
             options.ports = "6697"
-
-#    if options.chroot:
-#        if os.getuid() != 0:
-#            op.error("Must be root to use --chroot")
-
-#    if options.setuid:
-#        from pwd import getpwnam
-#        from grp import getgrnam
-#        if os.getuid() != 0:
-#            op.error("Must be root to use --setuid")
-#        matches = options.setuid.split(":")
-#        if len(matches) == 2:
-#            options.setuid = (getpwnam(matches[0]).pw_uid,
-#                              getgrnam(matches[1]).gr_gid)
-#        elif len(matches) == 1:
-#            options.setuid = (getpwnam(matches[0]).pw_uid,
-#                              getpwnam(matches[0]).pw_gid)
-#        else:
-#            op.error("Specify a user, or user and group separated by a colon,"
-#                     " e.g. --setuid daemon, --setuid nobody:nobody")
-#    if (os.getuid() == 0 or os.getgid() == 0) and not options.setuid:
-#        op.error("Running this service as root is not recommended. Use the"
-#                 " --setuid option to switch to an unprivileged account after"
-#                 " startup. If you really intend to run as root, use"
-#                 " \"--setuid root\".")
-#DIDNT WORK ON WINDOWS
 
     ports = []
     for port in re.split(r"[,\s]+", options.ports):
@@ -1024,7 +1033,7 @@ def main(argv):
     try:
         server.start()
     except KeyboardInterrupt:
-        server.print_error("Interrupted.")
+        logging.error("Interrupted.")
 
 
 main(sys.argv)
