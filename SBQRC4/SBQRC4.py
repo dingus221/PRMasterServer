@@ -243,7 +243,6 @@ class SBQRServer:
             str(location) + str(x)
 
     def process_qr(self, recv_data, address):
-        print('handle qr')
         if recv_data[0] == '\x09' and len(recv_data) >= 5:  #09,4xUid,'civ4bts','0'  - game checks if qr is up
             resp = '\xfe\xfd\x09' + recv_data[1:5] + '\x00'
             self.qr_send_to(resp, address, '09')
@@ -256,7 +255,6 @@ class SBQRServer:
             resp = '\xfe\xfd\x0a' + recv_data[1:5]
             self.qr_send_to(resp, address, '01')
         elif recv_data[0] == '\x03' and len(recv_data) >= 5:
-            print('03')
             parsed = SBQRServer.qr_parse03(recv_data)
             if parsed.get('statechanged', 0) == '3':
                 if address in self.hosts:
