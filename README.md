@@ -6,8 +6,8 @@
 1. Gamespy Presence and Search (port 29900 and 29901) - works 8.5/10 good, needs testing. Buddies functions: implemented only sending messages.
 2. Irc server(port 6667) - works 10/10 in miniircd implementation.
 3. Natneg server (port 27901) - works 8.5/10 (Sometimes people can't join supposedly because of bad works of this server, there is a branch of natnegging that was implemented in official gs, that isn't here). Not tested much with people who are inside inner networks that are inside other inner networks. Nested networks or some such clownery. Found no good testing material.
-4. Serverbrowser (port 28910) - works 10/10. Didn't crash once in the year of 2015.
-5. Queryserver (port 27900) - works 10/10. Didn't crash once in the year of 2015.
+4. Serverbrowser (port 28910) - works 10/10. Didn't crash once for about a year somewhere between 2015 and 2016.
+5. Queryserver (port 27900) - works 10/10. Didn't crash once for about a year somewhere between 2015 and 2016.
 6. Webservver (port 80) - use any, or use none, but make sure skype doesnt use your port 80 (or people will wait 2 minutes to enter lobby).
 
 <strong>2. Subprojects that are included in this repository.</strong><br>
