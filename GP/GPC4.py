@@ -208,7 +208,7 @@ class GPClient:
         if data['newprofileid'] == str(self.id):
             #doesn't let you adding yourself
             return
-        self.message(''.join(["\\bm\\100\\f\\", data['newprofileid'], "\\msg\\|s|3|ss|", "DONGERS", "\\final\\"]))
+        self.message(''.join(["\\bm\\100\\f\\", data['newprofileid'], "\\msg\\|s|3|ss|", "chilling", "\\final\\"]))
       
 
     def BUDDYMSG(self,data):
