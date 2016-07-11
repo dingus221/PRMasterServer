@@ -1,2 +1,2 @@
-dbpath  = 'Xlogindb.db3'
+dbpath  = 'players.db'
 gpschal = 'xxxxxxxx'

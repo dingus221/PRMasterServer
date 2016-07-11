@@ -16,12 +16,11 @@
 ##>|status ->bdy,blk,bm                                 Not needed
 ##?|lt                                                  Not needed
 ##?|ka                                                  Not needed
-##>|getprofile -> pi                                    DONE
-##>bm\1\?msg?                                           DONE
-##>addbuddy                                             DONE
-##>delbuddy                                             Not sure if needed
-##GPS>search                                            DONE
-#TODO: make login lettercase indifferent                ???
+##>|getprofile -> pi                                    Needed
+##>bm\1\?msg?                                           Needed
+##>delbuddy                                             Needed
+##GPS>search                                            Needed
+#TODO: make login lettercase indifferent
 
 import socket
 import select
@@ -36,7 +35,7 @@ GPClients = {}
 
 
 class GPSClient:
-    def __init__(self, server, socket):
+    def __init__(self, server, socket): #,gpclients_x
         self.server = server
         self.socket = socket
         (self.host, self.port) = socket.getpeername()
@@ -66,6 +65,7 @@ class GPSClient:
                 self.disconnect(err)
 
     def socket_writable_notification(self):
+        #print 'cp1:   ' + self.__writebuffer[:1024]
         try:
             sent = self.socket.send(self.__writebuffer[:1024])
             self.__writebuffer = self.__writebuffer[sent:]    
@@ -92,19 +92,41 @@ class GPSClient:
         com.get(command, self.GPS_UNKNOWN)(data)
 
     
+#\nr\\nick\{0}\LeToast\uniquenick\LeToast-tk\ndone\final\
     def GPS_search(self,data):
+        #self.GPS_message("\\nr\\\\nick\\letoast\\uniquenick\\letoast-tk\\ndone\\");
+        #self.GPS_message("\\nur\\\\userid\\letoast\\profileid\\100004\\id\\1\\final\\");
+        #self.GPS_message("\\nr\\\\ndone\\");
+        #self.GPS_message("\\bsr\\24000\\nick\\LESTAT\\partnerid\\0\\profileid\\0\\uniquenick\\LESTAT-tk\\namespaceid\\17\\bsrdone\\final\\")
+
+        #we have data['uniquenick'], now check if that is in db
+        #if he is, send his ID
         try:
             user1 = self.server.user_db[data['uniquenick']]
-        except:
+        except KeyError:
             self.GPS_message("\\bsr\\\\bsrdone\\\\final\\")
-            #No user, roughly relevant answer to the client that seem to work
+            print 'no user in db//search'
             return
 
+        #self.GPS_message("\\bsr\\24000\\uniquenick\\LESTAT-tk\\bsrdone\\\\final\\")
+        print ''.join(["\\bsr\\", str(30000 + user1.id), "\\uniquenick\\", data['uniquenick'], "\\bsrdone\\\\final\\"])
         self.GPS_message(''.join(["\\bsr\\", str(30000 + user1.id), "\\uniquenick\\", data['uniquenick'], "\\bsrdone\\\\final\\"]))
 
+        #self.GPS_message("\\bsrdone\\\\final\\")
+        #\\bsr\\u_pid\\nick\\%s\\firstname\\%s\\lastname\\%s\\email\\%s\\uniquenick\\%s\\namespaceid\\%d
+        #\\bsrdone\\
+        #gpclients_x[conn].message(lc1)
+        #\\bm\\100\\f\\24000\\msg\\|s|3|ss|Zeus gayclub|ls|Gayclub|ip|127.0.0.2|p|0|qm|0\\final\\
+        
+        #for x in self.gpclients_x:
+        #    self.gpclients_x[x].message("\\bm\\100\\f\\24000\\msg\\|s|3|ss|LESTAT|ls|LESTAT|ip|127.0.0.2|p|0|qm|0\\final\\")
+                
+        #print len(self.gpclients_x)
+        #print(data)
 
     def GPS_message(self, msg):
         self.__writebuffer += msg
+        #print 'cp0'
         
     def GPS_UNKNOWN(self, data):
         print('IGNORING data for GPSClient {}:{}: {}'.format(self.host, self.port, data))        
@@ -119,6 +141,7 @@ class GPClient:
         (self.host, self.port) = socket.getpeername()
         self.__readbuffer = ""
         self.__writebuffer = ""
+        #self.session = -1
         self.id = -1
 
     def write_queue_size(self):
@@ -149,7 +172,17 @@ class GPClient:
             self.message('\\error\\\\err\\260\\fatal\\\\errmsg\\PW wrong.\\id\\1\\final\\')
             return
 
-        #Adding 30000 so that the value has 5+ digits. Thats untested, maybe it will work with 1+ digit okay      
+        # TODO: What does this mean?
+        # 1. The meaning of self.id is following:
+        # if we would need to send other commands about buddysystem (that arent implemented), we would need to send 
+        # this .id value every time
+        # but it seems that in current implementation the stored value is never used
+        
+        # 2. Adding 30000 so that the value has 5+ digits. Thats untested, maybe it will work with 1+ digit okay
+        
+        # 3. In other implementations of this server, this session is a randomly generated number, but i think its less 
+        # resourceconsuming if we just generate session value from userid. That way we dont need to compare if 
+        # randomly generated sessionvalue is unique among other currently connected clients
         self.id = 30000 + int(user.id) #there is self.id and there is user.session - different things!!!
         
         user.lastip   = self.host
@@ -198,18 +231,58 @@ class GPClient:
         '''
         
     def GETPROFILE(self, data):
+        #TAKE CARE OF IF SENT TO NONEXISTING USER OR ADDING NONEXISTENT
+        #TAKE CARE OF LENGTH AND SENT SYMBOLS
+        #SHRINK THE PI, BM and SEARCH RESP MESSAGES TO MIN
+        #CHECK THAT U R NOT ADDING URSELF OR WRITING TO URSELF
+        #CHECK THAT ID IS INT
+
+        #check if the dud is online
+        #if he is, sed his shit
+        #shorten the sht
+        #check if u r not asking about urself
+        #NO, DON'T CHECK, CAUSE OF NONDELETING ON QUIT
+        #JUST CHECK SHIT ON SENDING MSGS
+        ###print data['profileid']
+        ###print self.id
+
+        #data['profileid']
+        #uniquenick
+        #for x in GPClients:
+        #    print GPClients[x].id
+        #self.message("\\pi\\\\profileid\\30001\\nick\\LESTAT\\userid\\30001\\sig\\addf62001720ffbac4459ec2f5005643\\uniquenick\\LESTAT-tk\\p/d\\0\\lon\\0.0\\lat\\0.0\\loc\\id\\"+data['id']+"\\final\\")
+
+
+        
         try:
             user2 = self.server.user_db.getUNbyID(int(data['profileid'])-30000)
-        except:
-            return        
+        except KeyError:
+            print 'no id in db//GETPROF'
+            return
+        
         self.message(''.join(["\\pi\\\\profileid\\", data['profileid'], "\\sig\\xxxxxx\\uniquenick\\", user2, "\\id\\", data['id'], "\\final\\"]))
 
+        #\bm\1\sesskey\3483058\t\157928340\msg\FzJew fzmanlove\final
+        #self.message("\\bm\\1\\f\\24000\\msg\\dongers\\final\\")
+        #self.message("\\error\\\\err\\265\\fatal\\\\errmsg\\Username  doesn't exist!\\id\\0\\final\\")
+        #Related to buddy-system
+        #"\pi\\profileid\24000\nick\LESTAT\userid\24000\email\5pde@nds\sig\DONG\uniquenick\LESTAUT\pid\24000\lon\0.000000\lat\0.000000\loc\\id\2\final\";
+
     def ADDBUDDY(self,data):
+        #\bm\1\f\475776775\msg\I have authorized your request to add me to your list\final\
+        #self.message("\\bm\\1\\f\\24000\\msg\\dang\\final\\")
+        #self.message("\\authadd\\\\sesskey\\30001\\fromprofileid\\24000\\sig\\addf62001720ffbac4459ec2f5005643\\final\\")
+        #self.message("\\pi\\\\profileid\\24000\\nick\\LESTAT\\userid\\24001\\sig\\addf62001720ffbac4459ec2f5005643\\uniquenick\\LESTAT-tk\\p/d\\0\\lon\\0.0\\lat\\0.0\\loc\\id\\3\\final\\")
+        #self.message("\\bm\\1\\f\\24000\\msg\\dongers\\final\\")
+        print str(data['newprofileid'])
+        print self.id
         if data['newprofileid'] == str(self.id):
-            #doesn't let you adding yourself
+            print 'ADDBUDDY FAIL. ADDING HIMSELF'
             return
         self.message(''.join(["\\bm\\100\\f\\", data['newprofileid'], "\\msg\\|s|3|ss|", "DONGERS", "\\final\\"]))
-      
+        #''.join(["\\bm\\100\\f\\", str(30000 + user.id), "\\msg\\|s|3|ss|", data['uniquenick'], "\\final\\"])
+        #self.message("\\bm\\100\\f\\30001\\msg\\|s|3|ss|LESTAT\\final\\")
+        #self.message(''.join(["\\bm\\100\\f\\", data['newprofileid'], "\\msg\\|s|3|ss|", "DONGERS", "\\final\\"]))
 
     def BUDDYMSG(self,data):
         if data['bm'] == '1':
