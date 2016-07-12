@@ -45,7 +45,7 @@ class GPSClient:
         
 
     def disconnect(self, quitmsg):
-        print('client disconnected ({}:{}): {}', self.host, self.port, quitmsg)
+        print('GPS_client disconnected ({}:{}): {}', self.host, self.port, quitmsg)
         self.socket.close()
         self.server.remove_client(self, quitmsg)
 
@@ -79,7 +79,7 @@ class GPSClient:
     def GPSHandle(self,msg):
         words = msg.split('\\')
         if len(words) < 3 or words[0] != '':
-            print("ERROR: parsing strange packet: {}".format(msg))
+            print("GPS_ERROR: parsing strange packet: {}".format(msg))
         command = words[1]
         words = words[1:]
         cooked = [(words[i], words[i + 1]) for i in range(0, len(words) - 1, 2)]
@@ -99,8 +99,7 @@ class GPSClient:
             self.GPS_message("\\bsr\\\\bsrdone\\\\final\\")
             #No user, roughly relevant answer to the client that seem to work
             return
-
-        self.GPS_message(''.join(["\\bsr\\", str(30000 + user1.id), "\\uniquenick\\", data['uniquenick'], "\\bsrdone\\\\final\\"]))
+        self.GPS_message("\\bsr\\"+ str(30000 + user1.id)+ "\\uniquenick\\"+ data['uniquenick']+ "\\bsrdone\\\\final\\")
 
 
     def GPS_message(self, msg):
@@ -126,7 +125,7 @@ class GPClient:
 
     def LOGIN(self, data):
         uname = data.get('uniquenick', '')
-        print("Player {} attempting to login...".format(uname))
+        print("GP_Player {} attempting to login...".format(uname))
 
         # FIXME: Check if these restrictions are consistent with the already existing users
 
@@ -154,7 +153,7 @@ class GPClient:
         
         user.lastip   = self.host
         user.lasttime = time.time()
-        user.session  = user.session + 1 #this is different session
+        user.session  = user.session + 1
 
         # generate response
         m =  '\\lc\\2\\sesskey\\' + str(self.id)
@@ -202,13 +201,13 @@ class GPClient:
             user2 = self.server.user_db.getUNbyID(int(data['profileid'])-30000)
         except:
             return        
-        self.message(''.join(["\\pi\\\\profileid\\", data['profileid'], "\\sig\\xxxxxx\\uniquenick\\", user2, "\\id\\", data['id'], "\\final\\"]))
+        self.message("\\pi\\\\profileid\\"+ data['profileid']+ "\\sig\\xxxxxx\\uniquenick\\"+ user2+ "\\id\\"+ data['id']+ "\\final\\")
 
     def ADDBUDDY(self,data):
         if data['newprofileid'] == str(self.id):
             #doesn't let you adding yourself
             return
-        self.message(''.join(["\\bm\\100\\f\\", data['newprofileid'], "\\msg\\|s|3|ss|", "chilling", "\\final\\"]))
+        self.message("\\bm\\100\\f\\"+data['newprofileid']+"\\msg\\|s|3|ss|"+ "chilling"+ "\\final\\")
       
 
     def BUDDYMSG(self,data):
@@ -216,11 +215,11 @@ class GPClient:
             if (256>=len(data['msg'])>0): #maybe other checkings needed, if it turns out there are forbidden symbols or smth
                 for x in GPClients:
                     if str(GPClients[x].id)==data['t']:
-                        GPClients[x].message(''.join(["\\bm\\1\\f\\", str(self.id), "\\msg\\", data['msg'], "\\final\\"]))
+                        GPClients[x].message("\\bm\\1\\f\\"+ str(self.id)+"\\msg\\"+ data['msg']+ "\\final\\")
                         return
                 #Message went to noone
         else:
-            print "GP_DEBUG, in BUDDYMSG: IGNORING UNKNOWN BM"
+            print "GP_DEBUG, in BUDDYMSG: IGNORING UNKNOWN BM: " + data['bm']
 
     def STATUS(self, data):
         if 'logout' in data:
@@ -277,7 +276,7 @@ class GPClient:
             self.disconnect(quitmsg)
 
     def socket_writable_notification(self):
-        print 'GP_SENT:   ' + self.__writebuffer[:1024]
+        #print 'GP_SENT:   ' + self.__writebuffer[:1024]
         try:
             sent = self.socket.send(self.__writebuffer[:1024])
             self.__writebuffer = self.__writebuffer[sent:]    
